@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+@media print {
+  html, body {
+    background: white !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  #printable-survey-pdf,
+  #printable-survey-pdf *,
+  #printable-packing-list-pdf,
+  #printable-packing-list-pdf *,
+  #quotation-page-1,
+  #quotation-page-1 *,
+  #quotation-page-2,
+  #quotation-page-2 * {
+    visibility: visible;
+  }
+
+  #printable-survey-pdf,
+  #printable-packing-list-pdf {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  #quotation-page-1,
+  #quotation-page-2 {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    box-shadow: none !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  #quotation-page-2 {
+    page-break-before: always;
+  }
+
+  @page {
+    size: A4 portrait;
+    margin: 6mm;
+  }
+}
