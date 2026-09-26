@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Printer, X, Download, Upload, Check, ExternalLink } from 'lucide-react';
+import { Printer, X, Download, Upload, Check, ExternalLink, Share2 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import { renderElementToCanvas, triggerPdfDownload } from '../utils/pdfExport';
+import { shareDocument } from '../utils/shareUtils';
 import { UPL_LOGO_BASE64 } from '../assets/logoBase64';
+import { PRAKASH_SIGNATURE_BASE64 } from '../assets/signatureBase64';
 
 export interface QuotationData {
   id: string | number;
@@ -39,12 +41,17 @@ export interface QuotationData {
   carCharges?: string;
   bikeCharges?: string;
   statCharges?: string;
+  serviceChargePercent?: string;
   serviceCharge?: number | string;
+  customCharges?: Array<{ name: string; val: string }>;
   subTotal?: number | string;
   insurancePercent?: string;
+  insuranceStatus?: string;
+  goodsValue?: string;
   insuranceCharge?: string;
   gstType?: string;
   gstPercent?: string;
+  gstStatus?: string;
   gstCharge?: string;
   grandTotal: number | string;
   payableInWords?: string;
@@ -135,8 +142,50 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
 
   if (!quotation) return null;
 
-  const totalNumeric = parseFloat(String(quotation.grandTotal).replace(/[^0-9.]/g, '')) || 38450;
-  const wordsAmount = quotation.payableInWords || numberToIndianWords(totalNumeric);
+  // Accurately compute Grand Total including Extra Insurance and Extra GST
+  const getEffectiveGrandTotal = (): number => {
+    const subNum = parseFloat(String(quotation.subTotal).replace(/[^0-9.]/g, '')) || 0;
+    
+    // Insurance extra
+    let insNum = 0;
+    const insStatus = quotation.insuranceStatus || (String(quotation.insuranceCharge).toLowerCase().includes('included') ? 'Included' : 'Extra');
+    if (insStatus !== 'Included' && insStatus !== 'Exempted') {
+      const p = parseFloat(String(quotation.insuranceCharge).replace(/[^0-9.]/g, ''));
+      if (!isNaN(p) && p > 0) {
+        insNum = p;
+      } else if (quotation.goodsValue) {
+        const gVal = parseFloat(String(quotation.goodsValue).replace(/[^0-9.]/g, '')) || 0;
+        const pct = parseFloat(String(quotation.insurancePercent || '3').replace(/[^0-9.]/g, '')) || 3;
+        insNum = Math.round((gVal * pct) / 100);
+      }
+    }
+
+    // GST extra
+    let gstNum = 0;
+    const gstStatus = quotation.gstStatus || (String(quotation.gstCharge).toLowerCase().includes('included') ? 'Included' : 'Extra');
+    if (gstStatus !== 'Included' && gstStatus !== 'Exempted' && quotation.gstType !== 'Exempted') {
+      const p = parseFloat(String(quotation.gstCharge).replace(/[^0-9.]/g, ''));
+      if (!isNaN(p) && p > 0) {
+        gstNum = p;
+      } else {
+        const pct = parseFloat(String(quotation.gstPercent || '18').replace(/[^0-9.]/g, '')) || 18;
+        gstNum = Math.round((subNum * pct) / 100);
+      }
+    }
+
+    const calculatedTotal = subNum + insNum + gstNum;
+    const savedTotal = parseFloat(String(quotation.grandTotal).replace(/[^0-9.]/g, '')) || 0;
+
+    if (calculatedTotal > 0 && (savedTotal < calculatedTotal || savedTotal === 0)) {
+      return calculatedTotal;
+    }
+    return savedTotal > 0 ? savedTotal : calculatedTotal;
+  };
+
+  const finalGrandTotalNum = getEffectiveGrandTotal();
+  const wordsAmount = (finalGrandTotalNum > 0) 
+    ? numberToIndianWords(finalGrandTotalNum) 
+    : (quotation.payableInWords || '');
 
   const handlePrint = () => {
     setIsEditingSign(false);
@@ -161,20 +210,31 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
       orientation: 'portrait',
       unit: 'mm',
       format: 'a4',
+      compress: true,
     });
 
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
     const margin = 5;
     const printableWidth = pdfWidth - margin * 2;
+    const printableHeight = pdfHeight - margin * 2;
     let pagesAdded = 0;
 
     // Render Page 1 if present
     if (p1) {
       const canvas1 = await renderElementToCanvas(p1);
-      const img1 = canvas1.toDataURL('image/jpeg', 0.98);
+      const img1 = canvas1.toDataURL('image/jpeg', 0.95);
       const img1Height = (canvas1.height * printableWidth) / canvas1.width;
-      pdf.addImage(img1, 'JPEG', margin, margin, printableWidth, Math.min(img1Height, pdfHeight - margin * 2));
+      
+      let renderW = printableWidth;
+      let renderH = img1Height;
+      if (renderH > printableHeight) {
+        const ratio = printableHeight / renderH;
+        renderH = printableHeight;
+        renderW = printableWidth * ratio;
+      }
+      const xOffset = margin + (printableWidth - renderW) / 2;
+      pdf.addImage(img1, 'JPEG', xOffset, margin, renderW, renderH, undefined, 'FAST');
       pagesAdded++;
     }
 
@@ -184,9 +244,18 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
         pdf.addPage();
       }
       const canvas2 = await renderElementToCanvas(p2);
-      const img2 = canvas2.toDataURL('image/jpeg', 0.98);
+      const img2 = canvas2.toDataURL('image/jpeg', 0.95);
       const img2Height = (canvas2.height * printableWidth) / canvas2.width;
-      pdf.addImage(img2, 'JPEG', margin, margin, printableWidth, Math.min(img2Height, pdfHeight - margin * 2));
+      
+      let renderW2 = printableWidth;
+      let renderH2 = img2Height;
+      if (renderH2 > printableHeight) {
+        const ratio = printableHeight / renderH2;
+        renderH2 = printableHeight;
+        renderW2 = printableWidth * ratio;
+      }
+      const xOffset2 = margin + (printableWidth - renderW2) / 2;
+      pdf.addImage(img2, 'JPEG', xOffset2, margin, renderW2, renderH2, undefined, 'FAST');
     }
 
     const blob = pdf.output('blob');
@@ -205,16 +274,39 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
       const { pdf, url, filename } = result;
       setPdfBlobUrl(url);
 
-      triggerPdfDownload(pdf, filename);
-
-      setDownloadSuccess(true);
-      setTimeout(() => setDownloadSuccess(false), 7000);
+      const res = triggerPdfDownload(pdf, filename);
+      if (res.success) {
+        setDownloadSuccess(true);
+        setTimeout(() => setDownloadSuccess(false), 8000);
+      }
     } catch (err) {
       console.error('PDF generation error, fallback to print:', err);
       window.print();
     } finally {
       setIsDownloading(false);
     }
+  };
+
+  const handleShare = async () => {
+    const shareText = `📦 *UrbanPro Packers & Logistics*
+*QUOTATION #${quotation.quotationNo || quotation.id}*
+----------------------------------------
+👤 *Customer:* ${quotation.partyName}
+📞 *Mobile:* ${quotation.mobileNo}
+📍 *From:* ${quotation.fromCity}
+🏁 *To:* ${quotation.toCity}
+💰 *Grand Total:* ₹ ${finalGrandTotalNum > 0 ? Math.round(finalGrandTotalNum).toLocaleString() : quotation.grandTotal || '0'}
+📝 *In Words:* ${wordsAmount}
+----------------------------------------
+*Regd. Office:* Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452
+*Main Operational Office:* Plot No 1491, Balintha Canal Road, Hanspal, Bhubaneswar, Odisha – 752101
+*Helpline:* 8093017400 / 8093017402`;
+
+    await shareDocument({
+      title: `Quotation #${quotation.quotationNo || quotation.id} - UrbanPro`,
+      text: shareText,
+      phone: quotation.mobileNo,
+    });
   };
 
   const handleOpenInNewTab = async () => {
@@ -342,6 +434,15 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
               )}
             </button>
 
+            {/* Share Button */}
+            <button 
+              onClick={handleShare}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer"
+              title="Share via WhatsApp / Native Share"
+            >
+              <Share2 className="w-4 h-4" /> <span className="hidden sm:inline">Share</span>
+            </button>
+
             {/* Print Button */}
             <button 
               onClick={handlePrint}
@@ -384,17 +485,17 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
         )}
 
         {/* Modal Scrollable Body */}
-        <div className="flex-1 overflow-y-auto bg-slate-200/80 p-2 sm:p-6 space-y-6 print:p-0 print:space-y-0 print:bg-white">
+        <div className="flex-1 overflow-x-auto overflow-y-auto bg-slate-200/80 p-2 sm:p-6 space-y-6 print:p-0 print:space-y-0 print:bg-white print:overflow-visible">
           
           {/* ================= PAGE 1 ================= */}
           {(activePage === 'both' || activePage === 'page1') && (
             <div 
               id="quotation-page-1"
-              className="bg-white w-full max-w-[794px] shadow-lg border-2 border-[#f87171] text-[11px] text-black font-sans box-border relative mx-auto print:border print:border-[#f87171] print:shadow-none print:w-full print:max-w-none print:break-after-page"
+              className="bg-white w-[794px] min-w-[794px] max-w-[794px] shadow-lg border-2 border-[#f87171] text-[11px] text-black font-sans box-border relative mx-auto print:border print:border-[#f87171] print:shadow-none print:w-full print:max-w-none print:break-after-page"
             >
               {/* Top PAN Number Bar */}
-              <div className="bg-[#ffb3b3] text-center font-bold py-1 border-b border-[#f87171] text-[11px] tracking-wide text-black">
-                PAN No.: AKMPV0774C
+              <div className="bg-[#ffb3b3] text-center font-bold py-1 border-b border-[#f87171] text-[11px] tracking-wide text-black uppercase">
+                PAN No.: {companyProfile?.panNo || 'AKMPV0774C'}
               </div>
 
               {/* Company Header */}
@@ -407,22 +508,25 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
                   />
                 </div>
                 <div className="w-[72%] p-2 text-center flex flex-col justify-center items-center bg-white">
-                  <div className="mb-1" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
+                  <div className="mb-0.5" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
                     <h1 className="text-[24px] sm:text-[28px] font-black tracking-tight leading-none">
                       <span style={{ color: '#1e3a8a' }}>Urban</span><span style={{ color: '#dc2626' }}>Pro</span>
                     </h1>
                     <h2 className="text-[13px] sm:text-[15px] font-extrabold tracking-wider uppercase mt-0.5" style={{ color: '#1e3a8a' }}>
                       Packers & Logistics
                     </h2>
+                    <h3 className="text-[10.5px] font-bold text-red-700 tracking-wide uppercase mt-0.5">
+                      (A Unit of M/s Prakash & Company India)
+                    </h3>
                   </div>
-                  <p className="text-[11px] leading-tight text-black font-medium">
-                    <strong>Address:</strong> Plot No 1491, Balintha Canal Road, Near Lenskart, Hanspal, Bhubaneswar, Odisha -752101
+                  <p className="text-[10px] sm:text-[10.5px] leading-tight text-black font-semibold mt-0.5">
+                    <strong>Regd. Office:</strong> Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452 | Tel: 8093017402
                   </p>
-                  <p className="text-[11px] leading-tight text-black font-medium mt-0.5">
-                    <strong>Mobile No.:</strong> 8093017400
+                  <p className="text-[10px] sm:text-[10.5px] leading-tight text-black font-semibold mt-0.5">
+                    <strong>Main Operational Office:</strong> Plot No 1491, Balintha Canal Road, Near Lenskart, Hanspal, Bhubaneswar, Odisha – 752101 | Mobile: 8093017400
                   </p>
-                  <p className="text-[11px] leading-tight text-black font-medium mt-0.5">
-                    <strong>Email:</strong> urbanpro403@gmail.com
+                  <p className="text-[10px] sm:text-[10.5px] leading-tight text-black font-medium mt-0.5">
+                    <strong>GST No.:</strong> 22CCQPS8419D1ZC &nbsp;|&nbsp; <strong>Email:</strong> urbanpro403@gmail.com
                   </p>
                 </div>
               </div>
@@ -506,26 +610,79 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
                       <p className="text-[10px] text-slate-700">
                         Should any items be got down through balcony etc. : {quotation.balconyItems || ''}
                       </p>
-                      <p className="text-[10px] text-slate-700">
-                        Service Charges : {quotation.serviceCharge ? 'Service Charge %' : 'N/A'}
-                      </p>
-                      <p className="text-[10px] text-slate-700">
-                        Insurance charge @3% on declaration value of goods ₹ {quotation.insuranceCharge || ''}
-                      </p>
-                      <p className="text-[10px] text-slate-700">
-                        CGST/SGST Charges 18% on billing amount
-                      </p>
+
+                      {/* Service / Insurance / GST Terms Specification Box */}
+                      <div className="mt-1 pt-1.5 border-t border-[#fca5a5] space-y-1 bg-slate-50/80 p-2 rounded border border-slate-200 text-[10.5px]">
+                        <div className="flex justify-between items-center">
+                          <span className="font-bold text-slate-900">Service Charges:</span>
+                          <span className="font-semibold text-slate-800">
+                            {quotation.serviceChargePercent && quotation.serviceChargePercent !== '0%'
+                              ? `${quotation.serviceChargePercent} ${quotation.serviceCharge ? `(₹ ${quotation.serviceCharge})` : ''}`
+                              : (quotation.serviceCharge ? `₹ ${quotation.serviceCharge}` : '0%')}
+                          </span>
+                        </div>
+
+                        <div className="flex justify-between items-center">
+                          <span className="font-bold text-slate-900">
+                            Insurance Charges ({quotation.insurancePercent || '3%'}):
+                          </span>
+                          <span className="font-semibold text-slate-800">
+                            {(() => {
+                              const status = quotation.insuranceStatus || (String(quotation.insuranceCharge).toLowerCase().includes('included') ? 'Included' : (quotation.insuranceCharge ? 'Extra' : 'Extra'));
+                              const pct = quotation.insurancePercent || '3%';
+                              const val = quotation.insuranceCharge ? String(quotation.insuranceCharge).trim() : '';
+                              const isNumeric = val && !isNaN(Number(val.replace(/[^0-9.]/g, ''))) && !val.toLowerCase().includes('included') && !val.toLowerCase().includes('extra');
+
+                              if (status === 'Included' || val.toLowerCase() === 'included') {
+                                return `Included in quotation (@${pct})${isNumeric ? ` (₹ ${val})` : ''}`;
+                              }
+                              if (status === 'Exempted' || pct === '0%') {
+                                return 'Exempted / Nil';
+                              }
+                              if (isNumeric) {
+                                return `Extra @${pct} on declaration value${quotation.goodsValue ? ` of ₹ ${quotation.goodsValue}` : ''} : ₹ ${val}`;
+                              }
+                              return `Extra @${pct} on declaration value of goods${quotation.goodsValue ? ` (₹ ${quotation.goodsValue})` : ''}`;
+                            })()}
+                          </span>
+                        </div>
+
+                        <div className="flex justify-between items-center">
+                          <span className="font-bold text-slate-900">
+                            {quotation.gstType || 'CGST/SGST'} Charges ({quotation.gstPercent || '18%'}):
+                          </span>
+                          <span className="font-semibold text-slate-800">
+                            {(() => {
+                              const status = quotation.gstStatus || (String(quotation.gstCharge).toLowerCase().includes('included') ? 'Included' : (quotation.gstCharge ? 'Extra' : 'Extra'));
+                              const pct = quotation.gstPercent || '18%';
+                              const val = quotation.gstCharge ? String(quotation.gstCharge).trim() : '';
+                              const isNumeric = val && !isNaN(Number(val.replace(/[^0-9.]/g, ''))) && !val.toLowerCase().includes('included') && !val.toLowerCase().includes('extra');
+
+                              if (quotation.gstType === 'Exempted' || status === 'Exempted' || pct === '0%') {
+                                return 'Exempted / Nil';
+                              }
+                              if (status === 'Included' || val.toLowerCase() === 'included') {
+                                return `Included in quotation (${pct})${isNumeric ? ` (₹ ${val})` : ''}`;
+                              }
+                              if (isNumeric) {
+                                return `${pct} Extra on billing amount : ₹ ${val}`;
+                              }
+                              return `${pct} Extra on billing amount`;
+                            })()}
+                          </span>
+                        </div>
+                      </div>
                     </div>
 
                     {/* Payable in words & advance box */}
                     <div className="border-t border-[#f87171] p-2 bg-slate-50/50 flex justify-between items-start text-[10px]">
                       <div className="w-[60%]">
                         <span className="font-semibold underline block">Payable amount in words:</span>
-                        <span className="font-bold text-black capitalize">{wordsAmount || 'Thirty Eight Thousand Four Hundred and Fifty'}</span>
+                        <span className="font-bold text-black capitalize">{wordsAmount || ''}</span>
                       </div>
                       <div className="w-[38%] border-l border-slate-300 pl-2">
                         <span className="font-semibold underline block">Advance Paid:</span>
-                        <span className="font-bold text-black">{quotation.advancePaid || '0.00'}</span>
+                        <span className="font-bold text-black">{quotation.advancePaid || ''}</span>
                       </div>
                     </div>
 
@@ -534,46 +691,98 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
                   {/* Column 3: Particulars & Amount Table */}
                   <div className="col-span-4 text-[10px]">
                     {[
-                      { name: 'Transportation Charges', val: quotation.transportCharges || '38000' },
-                      { name: 'Packing Charges', val: quotation.packingCharges || 'Included' },
-                      { name: 'Unpacking Charges', val: quotation.unpackingCharges || 'Included' },
-                      { name: 'Loading Charges', val: quotation.loadingCharges || 'Included' },
-                      { name: 'Unloadig Charges', val: quotation.unloadingCharges || 'Included' },
-                      { name: 'Dismantling/Assembling Charges', val: quotation.dismantlingCharges || 'N/A' },
-                      { name: 'Octroi/Entry Charges', val: quotation.octroiCharges || 'N/A' },
-                      { name: 'Car Transportation Charges', val: quotation.carCharges || 'N/A' },
-                      { name: 'Bike Transportation Charges', val: quotation.bikeCharges || 'N/A' },
-                      { name: 'Statistical/Document Charges', val: quotation.statCharges || 'N/A' },
-                      { name: 'Service Charge', val: quotation.serviceCharge || '450' },
+                      { name: 'Transportation Charges', val: quotation.transportCharges || '' },
+                      { name: 'Packing Charges', val: quotation.packingCharges || '' },
+                      { name: 'Unpacking Charges', val: quotation.unpackingCharges || '' },
+                      { name: 'Loading Charges', val: quotation.loadingCharges || '' },
+                      { name: 'Unloading Charges', val: quotation.unloadingCharges || '' },
+                      { name: 'Dismantling/Assembling Charges', val: quotation.dismantlingCharges || '' },
+                      { name: 'Octroi/Entry Charges', val: quotation.octroiCharges || '' },
+                      { name: 'Car Transportation Charges', val: quotation.carCharges || '' },
+                      { name: 'Bike Transportation Charges', val: quotation.bikeCharges || '' },
+                      { name: 'Statistical/Document Charges', val: quotation.statCharges || '' },
+                      { 
+                        name: quotation.serviceChargePercent && quotation.serviceChargePercent !== '0%'
+                          ? `Service Charge (${quotation.serviceChargePercent})` 
+                          : 'Service Charge', 
+                        val: quotation.serviceCharge || '' 
+                      },
+                      ...(quotation.customCharges || []).filter(c => c && c.name?.trim()),
                     ].map((row, idx) => (
-                      <div key={idx} className="flex border-b border-[#fca5a5] py-0.5 px-1.5">
-                        <div className="flex-1 text-left">{row.name}</div>
-                        <div className="w-16 text-right font-medium">{row.val}</div>
+                      <div key={idx} className="flex border-b border-[#fca5a5] py-0.5 px-1.5 min-h-[19px] items-center">
+                        <div className="flex-1 text-left font-medium">{row.name}</div>
+                        <div className="w-24 text-right font-medium border-l border-[#fca5a5] pl-1 pr-0.5">{row.val}</div>
                       </div>
                     ))}
 
                     {/* Sub Total */}
-                    <div className="flex border-b border-[#f87171] bg-[#ffb3b3] font-bold py-0.5 px-1.5 text-black">
+                    <div className="flex border-b border-[#f87171] bg-[#ffb3b3] font-bold py-0.5 px-1.5 text-black items-center">
                       <div className="flex-1 text-left">Sub Total</div>
-                      <div className="w-16 text-right">₹ {quotation.subTotal || '38450'}</div>
+                      <div className="w-24 text-right border-l border-[#f87171] pl-1 pr-0.5">{quotation.subTotal ? `₹ ${quotation.subTotal}` : ''}</div>
                     </div>
 
-                    {/* Insurance Charge */}
-                    <div className="flex border-b border-[#fca5a5] py-0.5 px-1.5">
-                      <div className="flex-1 text-left">Insurance Charge</div>
-                      <div className="w-16 text-right">{quotation.insuranceCharge || ''}</div>
+                    {/* Insurance Charge Row */}
+                    <div className="flex border-b border-[#fca5a5] py-0.5 px-1.5 min-h-[20px] items-center">
+                      <div className="flex-1 text-left font-medium">
+                        {quotation.insurancePercent && quotation.insurancePercent !== '0%'
+                          ? `Insurance Charge (${quotation.insurancePercent})`
+                          : 'Insurance Charge'}
+                      </div>
+                      <div className="w-24 text-right font-bold text-black border-l border-[#fca5a5] pl-1 pr-0.5">
+                        {(() => {
+                          const status = quotation.insuranceStatus || (String(quotation.insuranceCharge).toLowerCase().includes('included') ? 'Included' : (quotation.insuranceCharge ? 'Extra' : 'Extra'));
+                          const val = quotation.insuranceCharge ? String(quotation.insuranceCharge).trim() : '';
+                          const isNumeric = val && !isNaN(Number(val.replace(/[^0-9.]/g, ''))) && !val.toLowerCase().includes('included') && !val.toLowerCase().includes('extra');
+
+                          if (status === 'Included' || val.toLowerCase() === 'included') {
+                            return isNumeric ? `₹ ${val} (Incl.)` : 'Included';
+                          }
+                          if (status === 'Exempted' || quotation.insurancePercent === '0%') {
+                            return 'Exempted';
+                          }
+                          // Extra
+                          if (isNumeric) {
+                            return `₹ ${val} (Extra)`;
+                          }
+                          return 'Extra';
+                        })()}
+                      </div>
                     </div>
 
-                    {/* CGST/SGST */}
-                    <div className="flex border-b border-[#fca5a5] py-0.5 px-1.5">
-                      <div className="flex-1 text-left">{quotation.gstType || 'CGST/SGST'}</div>
-                      <div className="w-16 text-right font-medium">{quotation.gstCharge || 'Extra'}</div>
+                    {/* CGST/SGST / GST Charge Row */}
+                    <div className="flex border-b border-[#fca5a5] py-0.5 px-1.5 min-h-[20px] items-center">
+                      <div className="flex-1 text-left font-medium">
+                        {quotation.gstType === 'Exempted' || quotation.gstStatus === 'Exempted' || quotation.gstPercent === '0%'
+                          ? 'GST Charges (0%)'
+                          : `${quotation.gstType || 'CGST/SGST'} (${quotation.gstPercent || '18%'})`}
+                      </div>
+                      <div className="w-24 text-right font-bold text-black border-l border-[#fca5a5] pl-1 pr-0.5">
+                        {(() => {
+                          const status = quotation.gstStatus || (String(quotation.gstCharge).toLowerCase().includes('included') ? 'Included' : (quotation.gstCharge ? 'Extra' : 'Extra'));
+                          const val = quotation.gstCharge ? String(quotation.gstCharge).trim() : '';
+                          const isNumeric = val && !isNaN(Number(val.replace(/[^0-9.]/g, ''))) && !val.toLowerCase().includes('included') && !val.toLowerCase().includes('extra');
+
+                          if (status === 'Exempted' || quotation.gstType === 'Exempted' || quotation.gstPercent === '0%') {
+                            return 'Exempted';
+                          }
+                          if (status === 'Included' || val.toLowerCase() === 'included') {
+                            return isNumeric ? `₹ ${val} (Incl.)` : 'Included';
+                          }
+                          // Extra
+                          if (isNumeric) {
+                            return `₹ ${val} (Extra)`;
+                          }
+                          return 'Extra';
+                        })()}
+                      </div>
                     </div>
 
                     {/* Grand Total */}
-                    <div className="flex bg-[#ffb3b3] font-black py-1 px-1.5 text-black text-[11px]">
-                      <div className="flex-1 text-left">Grand Total</div>
-                      <div className="w-20 text-right">₹ {quotation.grandTotal || '38450'}</div>
+                    <div className="flex bg-[#ffb3b3] font-black py-1 px-1.5 text-black text-[11px] items-center">
+                      <div className="flex-1 text-left uppercase">Grand Total</div>
+                      <div className="w-24 text-right border-l border-[#f87171] pl-1 pr-0.5 font-black text-[12px]">
+                        {finalGrandTotalNum > 0 ? `₹ ${Math.round(finalGrandTotalNum).toLocaleString()}` : (quotation.grandTotal ? `₹ ${quotation.grandTotal}` : '')}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -584,9 +793,10 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
                 
                 {/* Left (Col 1): Authorized Signature */}
                 <div className="col-span-4 border-r border-[#f87171] p-2.5 flex flex-col justify-between items-center text-center relative group">
-                  <div className="font-bold text-[11px] leading-tight">
+                  <div className="font-bold text-[10.5px] leading-tight">
                     For <span className="text-[#1e3a8a] font-black">Urban</span><span className="text-[#dc2626] font-black">Pro</span><br />
-                    <span className="text-[#1e3a8a] font-extrabold uppercase text-[10px] tracking-wider">Packers & Logistics</span>
+                    <span className="text-[#1e3a8a] font-extrabold uppercase text-[9.5px] tracking-wider">Packers & Logistics</span><br />
+                    <span className="text-[8.5px] text-slate-700 font-semibold">(A Unit of M/s Prakash & Company India)</span>
                   </div>
 
                   {/* Signature Click-to-edit */}
@@ -595,24 +805,11 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
                     onClick={() => setIsEditingSign(!isEditingSign)}
                     title="Click to customize authorized signature"
                   >
-                    {globalSignature?.image ? (
-                      <img src={globalSignature.image} alt="Authorized Signature" className="max-h-12 max-w-[130px] object-contain" />
-                    ) : authSignMode === 'image' && authSignImage ? (
-                      <img src={authSignImage} alt="Authorized Signature" className="max-h-12 max-w-[120px] object-contain" />
-                    ) : authSignMode === 'text' ? (
-                      <span className="text-[#1d4ed8] text-lg font-bold tracking-wide italic" style={{ fontFamily: "'Brush Script MT', cursive" }}>
-                        {globalSignature?.text || authSignName || 'VIJAY'}
-                      </span>
-                    ) : (
-                      <div className="flex flex-col items-center justify-center">
-                        <svg className="w-10 h-7 text-[#2563eb]" viewBox="0 0 100 60" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M38 48 C30 35, 24 15, 36 10 C46 6, 52 24, 44 45 C40 54, 34 58, 30 59" />
-                          <path d="M46 26 C54 18, 66 14, 62 34 C58 48, 50 54, 46 58" />
-                          <path d="M52 38 C60 36, 70 38, 68 50" />
-                        </svg>
-                        <span className="font-bold text-[10px] text-black tracking-wider uppercase">{globalSignature?.text || authSignName || 'VIJAY'}</span>
-                      </div>
-                    )}
+                    <img 
+                      src={globalSignature?.image || authSignImage || PRAKASH_SIGNATURE_BASE64} 
+                      alt="Authorized Signature & Stamp" 
+                      className="max-h-12 max-w-[130px] object-contain" 
+                    />
                     <span className="text-[8px] text-blue-600 bg-blue-50 border border-blue-200 px-1 py-0.2 rounded opacity-0 group-hover:opacity-100 transition-opacity print:hidden">
                       Change signature
                     </span>
@@ -654,7 +851,7 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
                     </div>
                   )}
 
-                  <div className="text-blue-700 font-bold text-[10.5px]">
+                  <div className="text-blue-700 font-bold text-[10px] uppercase">
                     {authSignTitle || 'Authorized Signature'}
                   </div>
                 </div>
@@ -669,16 +866,17 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
                   </div>
                 </div>
 
-                {/* Right (Col 3): Bank Details (blank labels as in original quotation template) */}
-                <div className="col-span-4 p-2.5 flex flex-col justify-start text-left text-[10px] sm:text-[10.5px] text-slate-900 space-y-0.5 bg-white">
-                  <div className="font-bold underline text-slate-900 tracking-wide text-[11px] pb-0.5">
+                {/* Right (Col 3): Bank Details */}
+                <div className="col-span-4 p-2 flex flex-col justify-start text-left text-[9.5px] sm:text-[10px] text-slate-900 space-y-0.5 bg-white">
+                  <div className="font-bold underline text-slate-900 tracking-wide text-[10.5px] pb-0.5">
                     Bank Details
                   </div>
-                  <p className="leading-tight">Beneficiary Name:</p>
-                  <p className="leading-tight">Bank Name:</p>
-                  <p className="leading-tight">Bank A/C No.:</p>
-                  <p className="leading-tight">Bank IFSC Code:</p>
-                  <div className="pt-1 font-bold underline text-slate-900 text-[10px]">
+                  <p className="leading-tight"><span className="font-bold">Beneficiary:</span> {companyProfile?.accountHolder || 'M/s Prakash & Company India'}</p>
+                  <p className="leading-tight"><span className="font-bold">Bank Name:</span> {companyProfile?.bankName || 'State Bank of India'}</p>
+                  <p className="leading-tight"><span className="font-bold">Bank A/C No.:</span> <span className="font-mono font-bold">{companyProfile?.accountNo || '30789330266'}</span></p>
+                  <p className="leading-tight"><span className="font-bold">Bank IFSC:</span> <span className="font-mono font-bold">{companyProfile?.ifscCode || 'SBIN0009343'}</span></p>
+                  <p className="leading-tight text-[9px] text-slate-600"><span className="font-semibold">Branch:</span> {companyProfile?.bankBranch || 'Dipka, Korba'}</p>
+                  <div className="pt-0.5 font-bold underline text-slate-900 text-[9px]">
                     Other Payment Details
                   </div>
                 </div>
@@ -701,7 +899,7 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
           {(activePage === 'both' || activePage === 'page2') && (
             <div 
               id="quotation-page-2"
-              className="bg-white w-full max-w-[794px] shadow-lg border-2 border-[#f87171] text-[11.5px] text-black font-sans box-border relative mx-auto p-4 flex flex-col justify-between min-h-[900px] print:border print:border-[#f87171] print:shadow-none print:w-full print:max-w-none print:min-h-0"
+              className="bg-white w-[794px] min-w-[794px] max-w-[794px] shadow-lg border-2 border-[#f87171] text-[11.5px] text-black font-sans box-border relative mx-auto p-4 flex flex-col justify-between min-h-[900px] print:border print:border-[#f87171] print:shadow-none print:w-full print:max-w-none print:min-h-0"
             >
               <div>
                 {/* Top Customer Care Support Bar */}
@@ -748,18 +946,19 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
                   <div className="pt-4 flex flex-col items-end text-right space-y-2">
                     <p className="font-bold text-slate-900 leading-tight">
                       For <span className="text-[#1e3a8a] font-black">Urban</span><span className="text-[#dc2626] font-black">Pro</span><br />
-                      <span className="text-[#1e3a8a] font-extrabold uppercase text-[11px] tracking-wider">Packers & Logistics</span>
+                      <span className="text-[#1e3a8a] font-extrabold uppercase text-[11px] tracking-wider">Packers & Logistics</span><br />
+                      <span className="text-[9.5px] text-slate-700 font-semibold">(A Unit of M/s Prakash & Company India)</span>
                     </p>
-                    {(globalSignature?.image || authSignImage) ? (
-                      <div className="flex flex-col items-end">
-                        <img src={globalSignature?.image || authSignImage || ''} alt="Authorized Signature" className="max-h-16 object-contain mb-1" />
-                        <span className="text-[11px] font-bold text-slate-800 uppercase border-t border-slate-300 pt-0.5 px-4">{globalSignature?.text || authSignName || 'Authorized Signatory'}</span>
-                      </div>
-                    ) : (
-                      <div className="pt-6 border-t border-slate-300 inline-block px-8 font-bold text-slate-800">
-                        {globalSignature?.text || authSignName || 'Authorized Signatory'}
-                      </div>
-                    )}
+                    <div className="flex flex-col items-end">
+                      <img 
+                        src={globalSignature?.image || authSignImage || PRAKASH_SIGNATURE_BASE64} 
+                        alt="Authorized Signature & Stamp" 
+                        className="max-h-16 max-w-[160px] object-contain mb-1" 
+                      />
+                      <span className="text-[11px] font-bold text-slate-800 uppercase border-t border-slate-300 pt-0.5 px-4">
+                        Authorized Signatory & Stamp
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>

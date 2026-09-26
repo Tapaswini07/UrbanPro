@@ -26,7 +26,9 @@ import {
   Loader2
 } from 'lucide-react';
 import { UPL_LOGO_BASE64 } from '../assets/logoBase64';
+import { PRAKASH_SIGNATURE_BASE64 } from '../assets/signatureBase64';
 import { downloadPdfFromElement, openElementInPrintWindow } from '../utils/pdfExport';
+import { shareDocument } from '../utils/shareUtils';
 import { INDIAN_STATES, getStateCodeByName } from '../utils/indianStates';
 
 export interface BillData {
@@ -243,7 +245,7 @@ export const BillView: React.FC<Props> = ({
     toCity: '',
     toArea: '',
     toPincode: '',
-    toFloor: 'N/A',
+    toFloor: '',
 
     packageType: 'As Per List Attached',
     packageDescription: 'Old & Used Household Goods',
@@ -251,11 +253,11 @@ export const BillView: React.FC<Props> = ({
     totalWeight: '',
     remark: 'Not For Sale',
 
-    freightAmount: 25000,
-    packingCharges: 3500,
-    unpackingCharges: 1500,
-    loadingCharges: 1500,
-    unloadingCharges: 1500,
+    freightAmount: 0,
+    packingCharges: 0,
+    unpackingCharges: 0,
+    loadingCharges: 0,
+    unloadingCharges: 0,
     dismantlingCharges: 0,
     octroiCharges: 0,
     carTransportationCharges: 0,
@@ -264,14 +266,14 @@ export const BillView: React.FC<Props> = ({
 
     serviceChargePercent: 0,
     serviceCharge: 0,
-    insurancePercent: 3,
-    goodsValue: 100000,
-    insuranceCharges: 3000,
+    insurancePercent: 0,
+    goodsValue: 0,
+    insuranceCharges: 0,
     gstType: 'CGST/SGST',
     gstRate: 18,
-    gstCharge: 6480,
+    gstCharge: 0,
 
-    totalAmount: 42480,
+    totalAmount: 0,
     payableInWords: ''
   };
 
@@ -290,8 +292,7 @@ export const BillView: React.FC<Props> = ({
       (Number(f.carTransportationCharges) || 0) +
       (Number(f.bikeTransportationCharges) || 0) +
       (Number(f.statCharges) || 0) +
-      (Number(f.serviceCharge) || 0) +
-      (Number(f.insuranceCharges) || 0)
+      (Number(f.serviceCharge) || 0)
     );
   };
 
@@ -303,8 +304,9 @@ export const BillView: React.FC<Props> = ({
 
   const calcGrandTotal = (f: BillData) => {
     const sub = calcSubTotal(f);
+    const ins = Number(f.insuranceCharges) || 0;
     const gst = calcGstAmt(f);
-    return sub + gst;
+    return sub + ins + gst;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -320,6 +322,32 @@ export const BillView: React.FC<Props> = ({
     onSave(finalRecord);
     setSelectedRecord(finalRecord);
     setViewMode('preview');
+  };
+
+  const handleShareBill = async (bill: BillData) => {
+    const totalAmt = bill.totalAmount || calcGrandTotal(bill);
+    const words = bill.payableInWords || numberToWordsIndian(totalAmt);
+    const shareText = `🧾 *UrbanPro Packers & Logistics*
+*TAX INVOICE / GST BILL #${bill.billNo}*
+----------------------------------------
+👤 *Customer / Consignor:* ${bill.partyName || bill.consignorName || 'Customer'}
+📞 *Mobile:* ${bill.mobileNo || bill.consignorPhone || ''}
+📍 *From:* ${bill.fromCity || bill.city || 'Origin'}
+🏁 *To:* ${bill.toCity || 'Destination'}
+📅 *Bill Date:* ${bill.billDate || bill.date || ''}
+💰 *Total Bill Amount:* ₹ ${totalAmt.toLocaleString()}
+📝 *In Words:* ${words}
+🏛 *Bank Account:* State Bank of India | A/C: 30789330266 | IFSC: SBIN0009343
+----------------------------------------
+*Regd. Office:* Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452
+*Main Operational Office:* Plot No 1491, Balintha Canal Road, Hanspal, Bhubaneswar, Odisha – 752101
+*Helpline:* 8093017400 / 8093017402`;
+
+    await shareDocument({
+      title: `Tax Invoice #${bill.billNo} - UrbanPro`,
+      text: shareText,
+      phone: bill.mobileNo || bill.consignorPhone,
+    });
   };
 
   const applyCustomerAutoFill = (cp: any) => {
@@ -514,20 +542,34 @@ export const BillView: React.FC<Props> = ({
                   required
                   placeholder="Client Name"
                   value={form.partyName}
-                  onChange={e => setForm({ ...form, partyName: e.target.value })}
+                  onChange={e => {
+                    const val = e.target.value;
+                    setForm(prev => ({
+                      ...prev,
+                      partyName: val,
+                      ...(prev.sameAsBillingConsignor ? { consignorName: val } : {})
+                    }));
+                  }}
                   className="w-full outline-none font-bold text-slate-900 text-sm"
                 />
               </div>
 
               <div className="border border-slate-300 rounded-xl p-3 bg-white">
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Bill to Phone
+                  Client Phone Number (Bill To Phone) *
                 </label>
                 <input
                   type="tel"
-                  placeholder="Phone Number"
+                  placeholder="Client Phone Number"
                   value={form.mobileNo}
-                  onChange={e => setForm({ ...form, mobileNo: e.target.value })}
+                  onChange={e => {
+                    const val = e.target.value;
+                    setForm(prev => ({
+                      ...prev,
+                      mobileNo: val,
+                      ...(prev.sameAsBillingConsignor ? { consignorPhone: val } : {})
+                    }));
+                  }}
                   className="w-full outline-none font-medium text-slate-800 text-sm"
                 />
               </div>
@@ -1151,11 +1193,9 @@ export const BillView: React.FC<Props> = ({
                   }}
                   className="w-full outline-none font-medium text-slate-800 text-sm bg-transparent"
                 >
-                  <option value={0}>0%</option>
-                  <option value={5}>5%</option>
-                  <option value={10}>10%</option>
-                  <option value={12}>12%</option>
-                  <option value={15}>15%</option>
+                  {Array.from({ length: 41 }, (_, i) => i * 0.5).map(val => (
+                    <option key={val} value={val}>{val}%</option>
+                  ))}
                 </select>
               </div>
 
@@ -1378,12 +1418,9 @@ export const BillView: React.FC<Props> = ({
 
                       <button
                         type="button"
-                        onClick={() => {
-                          if (navigator.share) {
-                            navigator.share({ title: `Tax Invoice #${rec.billNo}`, text: `GST Bill for ${rec.partyName}` });
-                          }
-                        }}
+                        onClick={() => handleShareBill(rec)}
                         className="flex flex-col items-center gap-1 text-emerald-600 hover:text-emerald-700 cursor-pointer"
+                        title="Share via WhatsApp / Mobile"
                       >
                         <div className="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-xs">
                           <Share2 className="w-4 h-4" />
@@ -1455,6 +1492,16 @@ export const BillView: React.FC<Props> = ({
 
               <button
                 type="button"
+                onClick={() => handleShareBill(selectedRecord)}
+                className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl text-xs shadow-xs flex items-center gap-1.5 cursor-pointer transition-all active:scale-95"
+                title="Share via WhatsApp / Native Share"
+              >
+                <Share2 className="w-4 h-4" />
+                <span>Share</span>
+              </button>
+
+              <button
+                type="button"
                 onClick={() => handleDownloadBillPdf(selectedRecord)}
                 disabled={isDownloading}
                 className="bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2 rounded-xl text-xs shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-60 transition-all active:scale-95"
@@ -1501,39 +1548,42 @@ export const BillView: React.FC<Props> = ({
             className="bg-white border-2 border-[#f87171] shadow-xl p-4 sm:p-6 text-slate-900 font-sans print:border-0 print:shadow-none print:p-0 print:m-0 print:w-full"
           >
             {/* PAN No Top Banner */}
-            <div className="text-right text-[10px] font-bold text-slate-900 pb-1 mb-1 border-b border-[#f87171]">
-              PAN No.: AKMPV0774C
+            <div className="bg-[#ffb3b3] text-center text-[11px] font-bold text-black py-1 border-b border-[#f87171] uppercase tracking-wide">
+              PAN No.: {companyProfile?.panNo || 'AKMPV0774C'}
             </div>
 
             {/* Company Header */}
-            <div className="flex items-center justify-between border-b border-[#f87171] pb-2">
-              {/* Left Logo */}
-              <div className="w-28 shrink-0 flex items-center justify-center p-1 bg-white">
+            <div className="flex border-b border-[#f87171] min-h-[96px]">
+              {/* Left Logo Container (28%) */}
+              <div className="w-[28%] border-r border-[#f87171] flex items-center justify-center p-2 bg-white">
                 <img 
                   src={companyProfile?.logo || UPL_LOGO_BASE64 || '/urbanpro-logo.jpeg'} 
                   alt="UrbanPro Logo" 
-                  className="max-h-16 w-auto object-contain" 
+                  className="max-h-20 w-auto object-contain" 
                 />
               </div>
 
-              {/* Center Company Title & Info */}
-              <div className="flex-1 text-center px-2">
-                <div style={{ fontFamily: "Georgia, serif" }}>
-                  <h1 className="text-2xl sm:text-3xl font-black tracking-tight leading-none">
+              {/* Center Company Title & Info (72%) */}
+              <div className="w-[72%] p-2 text-center flex flex-col justify-center items-center bg-white">
+                <div style={{ fontFamily: "'Times New Roman', Times, serif" }}>
+                  <h1 className="text-[24px] sm:text-[28px] font-black tracking-tight leading-none">
                     <span style={{ color: '#1e3a8a' }}>Urban</span><span style={{ color: '#dc2626' }}>Pro</span>
                   </h1>
-                  <h2 className="text-xs sm:text-sm font-extrabold tracking-wider uppercase mt-0.5" style={{ color: '#1e3a8a' }}>
+                  <h2 className="text-[13px] sm:text-[15px] font-extrabold tracking-wider uppercase mt-0.5" style={{ color: '#1e3a8a' }}>
                     Packers & Logistics
                   </h2>
+                  <h3 className="text-[10.5px] font-bold text-red-700 tracking-wide uppercase mt-0.5">
+                    (A Unit of M/s Prakash & Company India)
+                  </h3>
                 </div>
-                <p className="text-[10px] leading-tight text-slate-800 font-medium mt-1">
-                  <strong>Address:</strong> Plot No 1491, Balintha Canal Road, Near Lenskart, Hanspal, Bhubaneswar, Odisha -752101
+                <p className="text-[9.5px] sm:text-[10px] leading-tight text-slate-900 font-semibold mt-0.5">
+                  <strong>Regd. Office:</strong> Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452 | Tel: 8093017402
                 </p>
-                <p className="text-[10px] leading-tight text-slate-800 font-medium mt-0.5">
-                  <strong>Mobile No.:</strong> 8093017400
+                <p className="text-[9.5px] sm:text-[10px] leading-tight text-slate-900 font-semibold mt-0.5">
+                  <strong>Main Operational Office:</strong> Plot No 1491, Balintha Canal Road, Near Lenskart, Hanspal, Bhubaneswar, Odisha – 752101 | Mobile: 8093017400
                 </p>
-                <p className="text-[10px] leading-tight text-slate-800 font-medium mt-0.5">
-                  <strong>Email:</strong> urbanpro403@gmail.com
+                <p className="text-[9.5px] sm:text-[10px] leading-tight text-slate-800 font-medium mt-0.5">
+                  <strong>GST No.:</strong> {companyProfile?.gstin || '22CCQPS8419D1ZC'} &nbsp;|&nbsp; <strong>Email:</strong> {companyProfile?.email || 'urbanpro403@gmail.com'}
                 </p>
               </div>
             </div>
@@ -1710,7 +1760,9 @@ export const BillView: React.FC<Props> = ({
                     </tr>
                     <tr className="bg-[#ffb3b3] border-t border-[#f87171] font-bold">
                       <td className="p-1 border-r border-[#f87171]">Grand Total</td>
-                      <td className="p-1 text-right font-mono font-black text-sm">₹ {(selectedRecord.totalAmount || calcGrandTotal(selectedRecord)).toLocaleString()}</td>
+                      <td className="p-1 text-right font-mono font-black text-sm">
+                        ₹ {Math.max(Number(selectedRecord.totalAmount) || 0, calcGrandTotal(selectedRecord)).toLocaleString()}
+                      </td>
                     </tr>
                   </tbody>
                 </table>
@@ -1719,31 +1771,33 @@ export const BillView: React.FC<Props> = ({
             </div>
 
             {/* Bank Details & Signatures Section */}
-            <div className="grid grid-cols-1 md:grid-cols-3 border-b border-[#f87171] text-[11px]">
+            <div className="grid grid-cols-1 md:grid-cols-3 border-b border-[#f87171] text-[10.5px]">
               {/* Col 1: Bank Details */}
-              <div className="p-2 border-r border-b md:border-b-0 border-[#f87171] space-y-1">
-                <div className="font-bold underline text-slate-900">Bank Details</div>
-                <div><span className="font-bold">Beneficiary Name:</span> {companyProfile?.accountHolder || selectedRecord.partyName || ''}</div>
-                <div><span className="font-bold">Bank Name:</span> {companyProfile?.bankName || ''}</div>
-                <div><span className="font-bold">Bank A/C No.:</span> {companyProfile?.accountNo || companyProfile?.bankAccNo || ''}</div>
-                <div><span className="font-bold">Bank IFSC Code:</span> {companyProfile?.ifscCode || companyProfile?.bankIfsc || ''}</div>
-                <div><span className="font-bold">Other Payment Details</span></div>
+              <div className="p-2 border-r border-b md:border-b-0 border-[#f87171] space-y-0.5">
+                <div className="font-bold underline text-slate-900 tracking-wide text-[11px] pb-0.5">Bank Details</div>
+                <div><span className="font-bold">Beneficiary:</span> {companyProfile?.accountHolder || 'M/s Prakash & Company India'}</div>
+                <div><span className="font-bold">Bank Name:</span> {companyProfile?.bankName || 'State Bank of India'}</div>
+                <div><span className="font-bold">Bank A/C No.:</span> <span className="font-mono font-bold">{companyProfile?.accountNo || companyProfile?.bankAccNo || '30789330266'}</span></div>
+                <div><span className="font-bold">Bank IFSC Code:</span> <span className="font-mono font-bold">{companyProfile?.ifscCode || companyProfile?.bankIfsc || 'SBIN0009343'}</span></div>
+                <div><span className="font-bold">Branch:</span> {companyProfile?.bankBranch || 'Dipka, Korba'}</div>
+                <div className="text-[9.5px] text-slate-600 underline pt-0.5 font-medium">Other Payment Details</div>
               </div>
 
               {/* Col 2: Center Signature */}
               <div className="p-2 border-r border-b md:border-b-0 border-[#f87171] flex flex-col justify-between items-center text-center">
-                <div className="font-bold text-[10px]">
-                  For <span className="text-[#1e3a8a]">Urban</span><span className="text-[#dc2626]">Pro</span> <span className="text-[#1e3a8a]">Packers & Logistics</span>
+                <div className="font-bold text-[10px] leading-tight">
+                  For <span className="text-[#1e3a8a]">Urban</span><span className="text-[#dc2626]">Pro</span> <span className="text-[#1e3a8a]">Packers & Logistics</span><br />
+                  <span className="text-[8.5px] text-slate-700 font-semibold">(A Unit of M/s Prakash & Company India)</span>
                 </div>
-                <div className="my-2">
-                  {globalSignature?.image ? (
-                    <img src={globalSignature.image} alt="Signature" className="max-h-12 object-contain mx-auto" />
-                  ) : (
-                    <div className="font-bold text-slate-800 my-2">VIJAY</div>
-                  )}
+                <div className="my-1 flex items-center justify-center min-h-[46px]">
+                  <img 
+                    src={globalSignature?.image || PRAKASH_SIGNATURE_BASE64} 
+                    alt="Authorized Signature & Stamp" 
+                    className="max-h-12 max-w-[145px] object-contain mx-auto" 
+                  />
                 </div>
-                <div className="font-bold text-[10px] text-slate-800 border-t border-slate-300 pt-0.5 w-full">
-                  Authorized Signature
+                <div className="font-bold text-[9.5px] text-blue-900 border-t border-slate-300 pt-0.5 w-full uppercase">
+                  Authorized Signatory & Stamp
                 </div>
               </div>
 

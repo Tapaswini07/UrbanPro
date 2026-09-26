@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Truck, FileText, Printer, Save, Plus, Sparkles, Calendar, Search, User, MapPin, Phone, Clock, Share2, Trash2, IndianRupee, Pencil, Download, Check, ExternalLink, Loader2 } from 'lucide-react';
 import { UPL_LOGO_BASE64 } from '../assets/logoBase64';
+import { PRAKASH_SIGNATURE_BASE64 } from '../assets/signatureBase64';
 import { numberToIndianWords } from './QuotationPdfModal';
 import { downloadPdfFromElement, openElementInPrintWindow } from '../utils/pdfExport';
+import { shareDocument } from '../utils/shareUtils';
 import { INDIAN_STATES, getStateCodeByName } from '../utils/indianStates';
 
 export interface BiltyData {
@@ -255,6 +257,35 @@ export const BiltyView: React.FC<Props> = ({
     onSave(form);
     setSelectedRecord(form);
     setViewMode('preview');
+  };
+
+  const handleShareBilty = async (bilty: BiltyData) => {
+    const totalFreight = bilty.freightToBeBilled || 0;
+    const toPay = bilty.freightToPay || 0;
+    const paid = bilty.freightPaid || 0;
+    const shareText = `🚚 *UrbanPro Packers & Logistics*
+*CONSIGNMENT NOTE / BILTY (LR) #${bilty.biltyNo}*
+----------------------------------------
+👤 *Consignor (Sender):* ${bilty.consignorName || 'Customer'}
+📞 *Consignor Phone:* ${bilty.consignorPhone || ''}
+📍 *From:* ${bilty.consignorCity || ''}
+👤 *Consignee (Receiver):* ${bilty.consigneeName || 'Receiver'}
+📞 *Consignee Phone:* ${bilty.consigneePhone || ''}
+🏁 *To:* ${bilty.consigneeCity || ''}
+🚛 *Vehicle No:* ${bilty.vehicleNo || 'N/A'}
+💰 *Total Freight:* ₹ ${Number(totalFreight).toLocaleString()}
+✅ *Paid Amount:* ₹ ${Number(paid).toLocaleString()}
+⏳ *Balance To Pay:* ₹ ${Number(toPay).toLocaleString()}
+----------------------------------------
+*Regd. Office:* Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452
+*Main Operational Office:* Plot No 1491, Balintha Canal Road, Hanspal, Bhubaneswar, Odisha – 752101
+*Helpline:* 8093017400 / 8093017402`;
+
+    await shareDocument({
+      title: `Bilty / LR #${bilty.biltyNo} - UrbanPro`,
+      text: shareText,
+      phone: bilty.consignorPhone || bilty.consigneePhone,
+    });
   };
 
   const filteredBilties = bilties.filter(rec => {
@@ -946,11 +977,11 @@ export const BiltyView: React.FC<Props> = ({
                     onClick={() => {
                       setForm(prev => ({
                         ...prev,
-                        bankBeneficiaryName: companyProfile?.beneficiaryName || companyProfile?.companyName || 'UrbanPro Packers & Logistics',
+                        bankBeneficiaryName: companyProfile?.accountHolder || 'M/s Prakash & Company India',
                         bankName: companyProfile?.bankName || 'State Bank of India',
-                        bankAccNo: companyProfile?.bankAccNo || companyProfile?.accountNo || '40912384729',
-                        bankIfsc: companyProfile?.bankIfsc || companyProfile?.ifscCode || 'SBIN0001234',
-                        bankBranch: companyProfile?.bankBranch || 'Hanspal, Bhubaneswar'
+                        bankAccNo: companyProfile?.accountNo || companyProfile?.bankAccNo || '30789330266',
+                        bankIfsc: companyProfile?.ifscCode || companyProfile?.bankIfsc || 'SBIN0009343',
+                        bankBranch: companyProfile?.bankBranch || 'Dipka, Korba'
                       }));
                     }}
                     className="text-xs text-indigo-700 bg-white hover:bg-indigo-50 border border-indigo-200 px-3 py-1.5 rounded-lg font-semibold cursor-pointer shadow-2xs self-start sm:self-auto"
@@ -1216,18 +1247,12 @@ export const BiltyView: React.FC<Props> = ({
                       {/* Share */}
                       <button
                         type="button"
-                        onClick={() => {
-                          if (navigator.share) {
-                            navigator.share({ title: `Bilty #${bNo}`, text: `Lorry Receipt for ${consignorName}` });
-                          } else {
-                            navigator.clipboard?.writeText(`Bilty #${bNo} - ${consignorName} (${fromPlace} to ${toPlace}). Helpline: 8093017400`);
-                            alert('Bilty details copied to clipboard!');
-                          }
-                        }}
+                        onClick={() => handleShareBilty(rec)}
                         className="flex flex-col items-center gap-1 group cursor-pointer"
+                        title="Share Bilty via WhatsApp / Mobile"
                       >
                         <div className="w-9 h-9 rounded-full border border-[#22c55e] text-[#22c55e] bg-white flex items-center justify-center shadow-xs group-hover:bg-emerald-50 transition-colors">
-                          <FileText className="w-4 h-4" />
+                          <Share2 className="w-4 h-4" />
                         </div>
                         <span className="text-[11px] text-[#22c55e] font-medium">Share</span>
                       </button>
@@ -1303,6 +1328,16 @@ export const BiltyView: React.FC<Props> = ({
 
               <button
                 type="button"
+                onClick={() => handleShareBilty(selectedRecord)}
+                className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl text-xs shadow-xs flex items-center gap-1.5 cursor-pointer transition-all active:scale-95"
+                title="Share via WhatsApp / Mobile"
+              >
+                <Share2 className="w-4 h-4" />
+                <span>Share</span>
+              </button>
+
+              <button
+                type="button"
                 onClick={() => handleDownloadBiltyPdf(selectedRecord)}
                 disabled={isDownloading}
                 className="bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2 rounded-xl text-xs shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-60 transition-all active:scale-95"
@@ -1350,8 +1385,8 @@ export const BiltyView: React.FC<Props> = ({
             style={{ fontFamily: 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}
           >
             {/* Top PAN Number Bar */}
-            <div className="bg-[#ffb3b3] text-center font-bold py-1 border-b border-[#f87171] text-[11px] tracking-wide text-black">
-              PAN No.: AKMPV0774C
+            <div className="bg-[#ffb3b3] text-center font-bold py-1 border-b border-[#f87171] text-[11px] tracking-wide text-black uppercase">
+              PAN No.: {companyProfile?.panNo || 'AKMPV0774C'}
             </div>
 
             {/* Company Logo & Address Box */}
@@ -1374,15 +1409,18 @@ export const BiltyView: React.FC<Props> = ({
                   <h2 className="text-[13px] sm:text-[15px] font-extrabold tracking-wider uppercase mt-0.5" style={{ color: '#1e3a8a' }}>
                     Packers & Logistics
                   </h2>
+                  <h3 className="text-[10.5px] font-bold text-red-700 tracking-wide uppercase mt-0.5">
+                    (A Unit of M/s Prakash & Company India)
+                  </h3>
                 </div>
-                <p className="text-[11px] sm:text-[11.5px] leading-tight text-black font-medium mt-0.5">
-                  <strong>Address:</strong> Plot No 1491, Balintha Canal Road, Near Lenskart, Hanspal, Bhubaneswar, Odisha -752101
+                <p className="text-[10px] sm:text-[10.5px] leading-tight text-black font-semibold mt-0.5">
+                  <strong>Regd. Office:</strong> Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452 | Tel: 8093017402
                 </p>
-                <p className="text-[11px] sm:text-[11.5px] leading-tight text-black font-medium mt-0.5">
-                  <strong>Mobile No.:</strong> 8093017400
+                <p className="text-[10px] sm:text-[10.5px] leading-tight text-black font-semibold mt-0.5">
+                  <strong>Main Operational Office:</strong> Plot No 1491, Balintha Canal Road, Near Lenskart, Hanspal, Bhubaneswar, Odisha – 752101 | Mobile: 8093017400
                 </p>
-                <p className="text-[11px] sm:text-[11.5px] leading-tight text-black font-medium mt-0.5">
-                  <strong>Email:</strong> urbanpro403@gmail.com
+                <p className="text-[10px] sm:text-[10.5px] leading-tight text-black font-medium mt-0.5">
+                  <strong>GST No.:</strong> 22CCQPS8419D1ZC &nbsp;|&nbsp; <strong>Email:</strong> urbanpro403@gmail.com
                 </p>
               </div>
             </div>
@@ -1541,31 +1579,27 @@ export const BiltyView: React.FC<Props> = ({
                 {/* Middle: Company Authorized Signature */}
                 <div className="col-span-4 p-2 text-center flex flex-col justify-between items-center border-r border-[#f87171] text-[9.5px]">
                   <p className="font-bold text-[10px]">
-                    For <span className="text-[#1e3a8a]">Urban</span><span className="text-[#dc2626]">Pro</span> <span className="text-[#1e3a8a]">Packers & Logistics</span>
+                    For <span className="text-[#1e3a8a]">Urban</span><span className="text-[#dc2626]">Pro</span> <span className="text-[#1e3a8a]">Packers & Logistics</span><br />
+                    <span className="text-[8.5px] text-slate-700 font-semibold">(A Unit of M/s Prakash & Company India)</span>
                   </p>
                   <div className="my-1 flex items-center justify-center min-h-[44px]">
-                    {globalSignature?.image ? (
-                      <img 
-                        src={globalSignature.image} 
-                        alt="Authorized Signature" 
-                        className="max-h-11 max-w-[140px] object-contain mx-auto" 
-                      />
-                    ) : (
-                      <span className="text-indigo-900 text-lg font-bold tracking-widest italic" style={{ fontFamily: "Brush Script MT, cursive" }}>
-                        {globalSignature?.text || 'VIJAY'}
-                      </span>
-                    )}
+                    <img 
+                      src={globalSignature?.image || PRAKASH_SIGNATURE_BASE64} 
+                      alt="Authorized Signature & Stamp" 
+                      className="max-h-11 max-w-[140px] object-contain mx-auto" 
+                    />
                   </div>
-                  <p className="text-blue-700 font-semibold text-[9px]">Authorized Signature</p>
+                  <p className="text-blue-900 font-bold text-[9px] uppercase">Authorized Signatory & Stamp</p>
                 </div>
 
                 {/* Right: Bank Details */}
                 <div className="col-span-4 p-2 text-[9.5px] leading-tight bg-white">
                   <strong className="underline text-black block mb-0.5">Bank Details</strong>
-                  <p><strong>Beneficiary Name:</strong> {selectedRecord.bankBeneficiaryName || companyProfile?.beneficiaryName || companyProfile?.companyName || 'UrbanPro Packers & Logistics'}</p>
-                  <p><strong>Bank Name:</strong> {selectedRecord.bankName || companyProfile?.bankName || 'State Bank of India'}</p>
-                  <p><strong>Bank A/C No.:</strong> {selectedRecord.bankAccNo || companyProfile?.bankAccNo || companyProfile?.accountNo || ''}</p>
-                  <p><strong>Bank IFSC Code:</strong> {selectedRecord.bankIfsc || companyProfile?.bankIfsc || companyProfile?.ifscCode || ''}</p>
+                  <p><strong>Beneficiary Name:</strong> {companyProfile?.accountHolder || selectedRecord.bankBeneficiaryName || 'M/s Prakash & Company India'}</p>
+                  <p><strong>Bank Name:</strong> {companyProfile?.bankName || selectedRecord.bankName || 'State Bank of India'}</p>
+                  <p><strong>Bank A/C No.:</strong> <span className="font-mono font-bold">{companyProfile?.accountNo || companyProfile?.bankAccNo || selectedRecord.bankAccNo || '30789330266'}</span></p>
+                  <p><strong>Bank IFSC Code:</strong> <span className="font-mono font-bold">{companyProfile?.ifscCode || companyProfile?.bankIfsc || selectedRecord.bankIfsc || 'SBIN0009343'}</span></p>
+                  <p><strong>Branch:</strong> {companyProfile?.bankBranch || 'Dipka, Korba'}</p>
                   <p className="underline text-black mt-0.5">Other Payment Details</p>
                 </div>
               </div>
@@ -1583,22 +1617,17 @@ export const BiltyView: React.FC<Props> = ({
                 {/* Right: Company Authorized Signature */}
                 <div className="p-3 text-center flex flex-col justify-between items-center text-[9.5px]">
                   <p className="font-bold text-[10.5px]">
-                    For <span className="text-[#1e3a8a]">Urban</span><span className="text-[#dc2626]">Pro</span> <span className="text-[#1e3a8a]">Packers & Logistics</span>
+                    For <span className="text-[#1e3a8a]">Urban</span><span className="text-[#dc2626]">Pro</span> <span className="text-[#1e3a8a]">Packers & Logistics</span><br />
+                    <span className="text-[9px] text-slate-700 font-semibold">(A Unit of M/s Prakash & Company India)</span>
                   </p>
                   <div className="my-1.5 flex items-center justify-center min-h-[46px]">
-                    {globalSignature?.image ? (
-                      <img 
-                        src={globalSignature.image} 
-                        alt="Authorized Signature" 
-                        className="max-h-12 max-w-[170px] object-contain mx-auto" 
-                      />
-                    ) : (
-                      <span className="text-indigo-900 text-xl font-bold tracking-widest italic" style={{ fontFamily: "Brush Script MT, cursive" }}>
-                        {globalSignature?.text || 'VIJAY'}
-                      </span>
-                    )}
+                    <img 
+                      src={globalSignature?.image || PRAKASH_SIGNATURE_BASE64} 
+                      alt="Authorized Signature & Stamp" 
+                      className="max-h-12 max-w-[170px] object-contain mx-auto" 
+                    />
                   </div>
-                  <p className="text-blue-700 font-semibold text-[9px]">Authorized Signature</p>
+                  <p className="text-blue-900 font-bold text-[9px] uppercase">Authorized Signatory & Stamp</p>
                 </div>
               </div>
             )}

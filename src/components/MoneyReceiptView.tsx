@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { Printer, Save, Plus, FileText, Sparkles, Building2, Download, Check, ExternalLink, Loader2 } from 'lucide-react';
+import { Printer, Save, Plus, FileText, Sparkles, Building2, Download, Check, ExternalLink, Loader2, Share2 } from 'lucide-react';
 import { UPL_LOGO_BASE64 } from '../assets/logoBase64';
+import { PRAKASH_SIGNATURE_BASE64 } from '../assets/signatureBase64';
 import { downloadPdfFromElement, openElementInPrintWindow } from '../utils/pdfExport';
+import { shareDocument } from '../utils/shareUtils';
 
 export interface MoneyReceiptData {
   id: string;
@@ -153,6 +155,30 @@ export const MoneyReceiptView: React.FC<Props> = ({
     onSave(finalForm);
     setSelectedRecord(finalForm);
     setViewMode('preview');
+  };
+
+  const handleShareReceipt = async (receipt: MoneyReceiptData) => {
+    const shareText = `💳 *UrbanPro Packers & Logistics*
+*MONEY RECEIPT #${receipt.receiptNo}*
+----------------------------------------
+👤 *Received From:* ${receipt.partyName || receipt.receivedFrom}
+📞 *Mobile:* ${receipt.mobileNo || ''}
+📅 *Receipt Date:* ${receipt.date}
+📍 *Route:* ${receipt.relocateFrom || 'Origin'} ➔ ${receipt.relocateTo || 'Destination'}
+📄 *Against:* ${receipt.paymentType || 'Payment'} towards ${receipt.receiptAgainst || 'Quotation'} #${receipt.quotationBillNo || 'N/A'}
+💰 *Amount Received:* ₹ ${Number(receipt.amount).toLocaleString()}
+💵 *Payment Mode:* ${receipt.paymentMode} ${receipt.paymentRefNo ? `(Ref: ${receipt.paymentRefNo})` : ''}
+📝 *In Words:* ${receipt.amountInWords}
+----------------------------------------
+*Regd. Office:* Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452
+*Main Operational Office:* Plot No 1491, Balintha Canal Road, Hanspal, Bhubaneswar, Odisha – 752101
+*Helpline:* 8093017400 / 8093017402`;
+
+    await shareDocument({
+      title: `Money Receipt #${receipt.receiptNo} - UrbanPro`,
+      text: shareText,
+      phone: receipt.mobileNo,
+    });
   };
 
   return (
@@ -465,6 +491,9 @@ export const MoneyReceiptView: React.FC<Props> = ({
                       <td className="p-3">{rec.paymentMode}</td>
                       <td className="p-3 font-bold text-slate-900">₹{rec.amount.toLocaleString()}</td>
                       <td className="p-3 text-right space-x-1">
+                        <button onClick={() => handleShareReceipt(rec)} className="px-2.5 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-lg font-semibold cursor-pointer hover:bg-emerald-100" title="Share via WhatsApp">
+                          <Share2 className="w-3.5 h-3.5 inline mr-0.5" /> Share
+                        </button>
                         <button onClick={() => { setSelectedRecord(rec); setViewMode('preview'); }} className="px-2.5 py-1 bg-blue-50 text-blue-800 border border-blue-200 rounded-lg font-semibold cursor-pointer hover:bg-blue-100">View / Print</button>
                         <button onClick={() => onDelete(rec.id)} className="px-2.5 py-1 bg-red-50 text-red-700 border border-red-200 rounded-lg font-semibold cursor-pointer hover:bg-red-100">Delete</button>
                       </td>
@@ -507,6 +536,16 @@ export const MoneyReceiptView: React.FC<Props> = ({
               >
                 <ExternalLink className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">New Tab</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleShareReceipt(selectedRecord)}
+                className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl text-xs shadow-xs flex items-center gap-1.5 cursor-pointer transition-all active:scale-95"
+                title="Share via WhatsApp / Native Share"
+              >
+                <Share2 className="w-4 h-4" />
+                <span>Share</span>
               </button>
 
               <button
@@ -557,39 +596,42 @@ export const MoneyReceiptView: React.FC<Props> = ({
             className="bg-white rounded-2xl border-2 border-[#f87171] shadow-lg p-6 sm:p-8 space-y-4 max-w-3xl mx-auto print:max-w-none print:shadow-none print:border-2 print:border-[#f87171]"
           >
             {/* Top PAN Strip */}
-            <div className="text-center bg-[#fca5a5] py-1 text-[11px] font-bold text-slate-900 uppercase tracking-wider">
-              PAN No.: {selectedRecord.panNo || 'AKMPV0774C'}
+            <div className="bg-[#ffb3b3] text-center font-bold py-1 border-b border-[#f87171] text-[11px] tracking-wide text-black uppercase">
+              PAN No.: {companyProfile?.panNo || selectedRecord.panNo || 'AKMPV0774C'}
             </div>
 
             {/* Header Section */}
-            <div className="flex items-center justify-between border-b border-[#f87171] pb-3">
-              {/* Left Logo */}
-              <div className="w-24 shrink-0 flex items-center justify-center p-1 bg-white">
+            <div className="flex border-b border-[#f87171] min-h-[96px]">
+              {/* Left Logo Container */}
+              <div className="w-[28%] border-r border-[#f87171] flex items-center justify-center p-2 bg-white">
                 <img 
                   src={companyProfile?.logo || UPL_LOGO_BASE64 || '/urbanpro-logo.jpeg'} 
                   alt="UrbanPro Logo" 
-                  className="max-h-16 w-auto object-contain" 
+                  className="max-h-20 w-auto object-contain" 
                 />
               </div>
 
               {/* Center Title & Details */}
-              <div className="flex-1 text-center px-2">
+              <div className="w-[72%] p-2 text-center flex flex-col justify-center items-center bg-white">
                 <div style={{ fontFamily: "'Times New Roman', Times, serif" }}>
-                  <h1 className="text-2xl sm:text-3xl font-black tracking-tight leading-none">
+                  <h1 className="text-[24px] sm:text-[28px] font-black tracking-tight leading-none">
                     <span style={{ color: '#1e3a8a' }}>Urban</span><span style={{ color: '#dc2626' }}>Pro</span>
                   </h1>
-                  <h2 className="text-xs sm:text-sm font-extrabold tracking-wider uppercase mt-0.5" style={{ color: '#1e3a8a' }}>
+                  <h2 className="text-[13px] sm:text-[15px] font-extrabold tracking-wider uppercase mt-0.5" style={{ color: '#1e3a8a' }}>
                     Packers & Logistics
                   </h2>
+                  <h3 className="text-[10.5px] font-bold text-red-700 tracking-wide uppercase mt-0.5">
+                    (A Unit of M/s Prakash & Company India)
+                  </h3>
                 </div>
-                <p className="text-[10px] leading-tight text-slate-800 font-medium mt-1">
-                  <strong>Address:</strong> Plot No 1491, Balintha Canal Road, Near Lenskart, Hanspal, Bhubaneswar, Odisha -752101
+                <p className="text-[9.5px] sm:text-[10px] leading-tight text-slate-900 font-semibold mt-0.5">
+                  <strong>Regd. Office:</strong> Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452 | Tel: 8093017402
                 </p>
-                <p className="text-[10px] leading-tight text-slate-800 font-medium mt-0.5">
-                  <strong>Mobile No.:</strong> 8093017400
+                <p className="text-[9.5px] sm:text-[10px] leading-tight text-slate-900 font-semibold mt-0.5">
+                  <strong>Main Operational Office:</strong> Plot No 1491, Balintha Canal Road, Near Lenskart, Hanspal, Bhubaneswar, Odisha – 752101 | Mobile: 8093017400
                 </p>
-                <p className="text-[10px] leading-tight text-slate-800 font-medium mt-0.5">
-                  <strong>Email:</strong> urbanpro403@gmail.com
+                <p className="text-[9.5px] sm:text-[10px] leading-tight text-slate-800 font-medium mt-0.5">
+                  <strong>GST No.:</strong> {companyProfile?.gstin || '22CCQPS8419D1ZC'} &nbsp;|&nbsp; <strong>Email:</strong> {companyProfile?.email || 'urbanpro403@gmail.com'}
                 </p>
               </div>
             </div>
@@ -687,24 +729,19 @@ export const MoneyReceiptView: React.FC<Props> = ({
 
                 {/* Right Signature */}
                 <div className="text-center space-y-1">
-                  <div className="font-bold text-[11px] leading-tight">
-                    For <span className="text-[#1e3a8a]">Urban</span><span className="text-[#dc2626]">Pro</span> <span className="text-[#1e3a8a]">Packers & Logistics</span>
+                  <div className="font-bold text-[10px] leading-tight">
+                    For <span className="text-[#1e3a8a]">Urban</span><span className="text-[#dc2626]">Pro</span> <span className="text-[#1e3a8a]">Packers & Logistics</span><br />
+                    <span className="text-[8.5px] text-slate-700 font-semibold">(A Unit of M/s Prakash & Company India)</span>
                   </div>
                   <div className="my-1 flex items-center justify-center min-h-[46px]">
-                    {globalSignature?.image ? (
-                      <img 
-                        src={globalSignature.image} 
-                        alt="Authorized Signature" 
-                        className="max-h-12 max-w-[140px] object-contain mx-auto" 
-                      />
-                    ) : (
-                      <span className="text-blue-900 text-lg font-bold tracking-widest italic" style={{ fontFamily: "Brush Script MT, cursive" }}>
-                        {globalSignature?.text || 'VIJAY'}
-                      </span>
-                    )}
+                    <img 
+                      src={globalSignature?.image || PRAKASH_SIGNATURE_BASE64} 
+                      alt="Authorized Signature & Stamp" 
+                      className="max-h-12 max-w-[145px] object-contain mx-auto" 
+                    />
                   </div>
-                  <div className="font-bold text-[10px] text-slate-800 border-t border-slate-400 pt-0.5 min-w-[130px]">
-                    Authorized Signature
+                  <div className="font-bold text-[9.5px] text-blue-900 border-t border-slate-400 pt-0.5 min-w-[130px] uppercase">
+                    Authorized Signatory & Stamp
                   </div>
                 </div>
               </div>

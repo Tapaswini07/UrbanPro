@@ -5,18 +5,21 @@ import {
   PenTool, Eraser, Check, RotateCcw
 } from 'lucide-react';
 import { UPL_LOGO_BASE64 } from '../assets/logoBase64';
+import { PRAKASH_SIGNATURE_BASE64 } from '../assets/signatureBase64';
 
 export interface CompanyProfileData {
   companyName: string;
   brandName: string;
   tagline: string;
   gstin: string;
+  panNo?: string;
   regAddress: string;
   branchAddress: string;
   phone1: string;
   phone2: string;
   email: string;
   website: string;
+  accountHolder?: string;
   bankName: string;
   bankAccNo: string;
   bankIfsc: string;
@@ -52,7 +55,7 @@ export const SetupView: React.FC<Props> = ({
   const [savedSuccess, setSavedSuccess] = useState(false);
 
   // Unified signature state
-  const initialSig = globalSignature || signature || { text: 'UrbanPro Authorized Manager', image: '' };
+  const initialSig = globalSignature || signature || { text: 'M/s Prakash & Company India', image: PRAKASH_SIGNATURE_BASE64 };
   const [signatureState, setSignatureState] = useState<SignatureData>(initialSig);
 
   // Drawing Pad Canvas state
@@ -347,6 +350,11 @@ export const SetupView: React.FC<Props> = ({
             </div>
 
             <div>
+              <label className="block font-semibold text-slate-700 mb-1">PAN Card Number</label>
+              <input type="text" placeholder="e.g. AKMPV0774C" value={form.panNo || ''} onChange={e => setForm({ ...form, panNo: e.target.value })} className="w-full border border-slate-300 rounded-xl p-2.5 outline-none font-medium text-slate-800 uppercase focus:border-blue-500" />
+            </div>
+
+            <div>
               <label className="block font-semibold text-slate-700 mb-1">Primary Phone / Helpline *</label>
               <input type="text" required value={form.phone1} onChange={e => setForm({ ...form, phone1: e.target.value })} className="w-full border border-slate-300 rounded-xl p-2.5 outline-none font-medium text-slate-800 focus:border-blue-500" />
             </div>
@@ -367,21 +375,97 @@ export const SetupView: React.FC<Props> = ({
             </div>
 
             <div className="md:col-span-2">
-              <label className="block font-semibold text-slate-700 mb-1">Registered Address</label>
-              <input type="text" value={form.regAddress} onChange={e => setForm({ ...form, regAddress: e.target.value })} className="w-full border border-slate-300 rounded-xl p-2.5 outline-none font-medium text-slate-800 focus:border-blue-500" />
+              <label className="block font-semibold text-slate-700 mb-1">Registered Office Address</label>
+              <input 
+                type="text" 
+                value={form.regAddress} 
+                onChange={e => setForm({ ...form, regAddress: e.target.value })} 
+                placeholder="e.g. Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452 | Tel: 8093017402"
+                className="w-full border border-slate-300 rounded-xl p-2.5 outline-none font-medium text-slate-800 focus:border-blue-500" 
+              />
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="block font-semibold text-slate-700 mb-1">Main Operational Office / Branch Address</label>
+              <input 
+                type="text" 
+                value={form.branchAddress} 
+                onChange={e => setForm({ ...form, branchAddress: e.target.value })} 
+                placeholder="e.g. Plot No 1491, Balintha Canal Road, Near Lenskart, Hanspal, Bhubaneswar, Odisha – 752101 | Mobile: 8093017400"
+                className="w-full border border-slate-300 rounded-xl p-2.5 outline-none font-medium text-slate-800 focus:border-blue-500" 
+              />
             </div>
           </div>
 
           {/* Bank Details */}
           <div className="border-t pt-4 space-y-3">
             <h3 className="text-sm font-bold text-slate-800 flex items-center gap-1.5">
-              <CreditCard className="w-4 h-4 text-blue-600" /> Bank Account Details for Invoices
+              <CreditCard className="w-4 h-4 text-blue-600" /> Owner Bank Account Details (Printed on Invoices & Quotations)
             </h3>
+            <p className="text-[11px] text-slate-500">
+              These official bank and UPI payment details will be printed on all Quotations, Bills, Bilty, and Condition receipts.
+            </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-              <div><label className="block font-semibold text-slate-700 mb-1">Bank Name</label><input type="text" value={form.bankName} onChange={e => setForm({ ...form, bankName: e.target.value })} className="w-full border rounded-xl p-2.5" /></div>
-              <div><label className="block font-semibold text-slate-700 mb-1">Account Number</label><input type="text" value={form.bankAccNo} onChange={e => setForm({ ...form, bankAccNo: e.target.value })} className="w-full border rounded-xl p-2.5 font-mono" /></div>
-              <div><label className="block font-semibold text-slate-700 mb-1">IFSC Code</label><input type="text" value={form.bankIfsc} onChange={e => setForm({ ...form, bankIfsc: e.target.value })} className="w-full border rounded-xl p-2.5 font-mono uppercase" /></div>
-              <div><label className="block font-semibold text-slate-700 mb-1">UPI ID</label><input type="text" value={form.upiId} onChange={e => setForm({ ...form, upiId: e.target.value })} className="w-full border rounded-xl p-2.5" /></div>
+              <div>
+                <label className="block font-semibold text-slate-700 mb-1">Beneficiary / Account Holder Name</label>
+                <input 
+                  type="text" 
+                  value={form.accountHolder || form.brandName || ''} 
+                  onChange={e => setForm({ ...form, accountHolder: e.target.value })} 
+                  placeholder="e.g. M/s Prakash & Company India"
+                  className="w-full border border-slate-300 rounded-xl p-2.5 outline-none font-medium text-slate-800 focus:border-blue-500" 
+                />
+              </div>
+              <div>
+                <label className="block font-semibold text-slate-700 mb-1">Bank Name</label>
+                <input 
+                  type="text" 
+                  value={form.bankName} 
+                  onChange={e => setForm({ ...form, bankName: e.target.value })} 
+                  placeholder="e.g. State Bank of India"
+                  className="w-full border border-slate-300 rounded-xl p-2.5 outline-none font-medium text-slate-800 focus:border-blue-500" 
+                />
+              </div>
+              <div>
+                <label className="block font-semibold text-slate-700 mb-1">Account Number</label>
+                <input 
+                  type="text" 
+                  value={form.bankAccNo} 
+                  onChange={e => setForm({ ...form, bankAccNo: e.target.value })} 
+                  placeholder="e.g. 30789330266"
+                  className="w-full border border-slate-300 rounded-xl p-2.5 font-mono outline-none font-bold text-slate-800 focus:border-blue-500" 
+                />
+              </div>
+              <div>
+                <label className="block font-semibold text-slate-700 mb-1">IFSC Code</label>
+                <input 
+                  type="text" 
+                  value={form.bankIfsc} 
+                  onChange={e => setForm({ ...form, bankIfsc: e.target.value })} 
+                  placeholder="e.g. SBIN0009343"
+                  className="w-full border border-slate-300 rounded-xl p-2.5 font-mono uppercase outline-none font-bold text-slate-800 focus:border-blue-500" 
+                />
+              </div>
+              <div>
+                <label className="block font-semibold text-slate-700 mb-1">Bank Branch</label>
+                <input 
+                  type="text" 
+                  value={form.bankBranch} 
+                  onChange={e => setForm({ ...form, bankBranch: e.target.value })} 
+                  placeholder="e.g. Dipka, Korba"
+                  className="w-full border border-slate-300 rounded-xl p-2.5 outline-none font-medium text-slate-800 focus:border-blue-500" 
+                />
+              </div>
+              <div>
+                <label className="block font-semibold text-slate-700 mb-1">UPI ID</label>
+                <input 
+                  type="text" 
+                  value={form.upiId} 
+                  onChange={e => setForm({ ...form, upiId: e.target.value })} 
+                  placeholder="e.g. 8093017400@sbi"
+                  className="w-full border border-slate-300 rounded-xl p-2.5 outline-none font-medium text-slate-800 focus:border-blue-500" 
+                />
+              </div>
             </div>
           </div>
 

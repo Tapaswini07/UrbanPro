@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { CheckCircle2, FileText, Printer, Save, Plus, Trash2, ArrowLeft, Sparkles, User, ShieldCheck, Search, Share2, Phone, Clock, MapPin, Download, Check, ExternalLink, Loader2 } from 'lucide-react';
 import { UPL_LOGO_BASE64 } from '../assets/logoBase64';
+import { PRAKASH_SIGNATURE_BASE64 } from '../assets/signatureBase64';
 import { downloadPdfFromElement, openElementInPrintWindow } from '../utils/pdfExport';
+import { shareDocument } from '../utils/shareUtils';
 import { INDIAN_STATES } from '../utils/indianStates';
 
 export interface BikeConditionData {
@@ -243,6 +245,30 @@ export const BikeConditionView: React.FC<Props> = ({
     (r.bikeRegNo || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
     (r.mobileNo || '').includes(searchTerm)
   );
+
+  const handleShareBikeCondition = async (report: BikeConditionData) => {
+    const shareText = `🏍 *UrbanPro Packers & Logistics*
+*BIKE CONDITION REPORT #${report.conditionNo}*
+----------------------------------------
+👤 *Customer:* ${report.partyName}
+📞 *Mobile:* ${report.mobileNo}
+📅 *Date:* ${report.conditionDate}
+📍 *From:* ${report.fromCity || ''} ➔ *To:* ${report.toCity || ''}
+🛵 *Vehicle:* ${report.brandName || ''} ${report.modelName || ''}
+🔢 *Reg No:* ${report.bikeRegNo || ''}
+🎨 *Color:* ${report.bikeColour || ''} | ⏱ *KM:* ${report.kmReading || '0'}
+💵 *Declared Value:* ₹ ${report.vehicleValue || 'N/A'}
+----------------------------------------
+*Regd. Office:* Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452
+*Main Operational Office:* Plot No 1491, Balintha Canal Road, Hanspal, Bhubaneswar, Odisha – 752101
+*Helpline:* 8093017400 / 8093017402`;
+
+    await shareDocument({
+      title: `Bike Condition Report #${report.conditionNo} - UrbanPro`,
+      text: shareText,
+      phone: report.mobileNo,
+    });
+  };
 
   return (
     <div className="space-y-6 pb-16 text-slate-800">
@@ -971,12 +997,9 @@ export const BikeConditionView: React.FC<Props> = ({
 
                     <button
                       type="button"
-                      onClick={() => {
-                        if (navigator.share) {
-                          navigator.share({ title: `Bike Report #${rec.conditionNo}`, text: `Bike Condition for ${rec.partyName}` });
-                        }
-                      }}
+                      onClick={() => handleShareBikeCondition(rec)}
                       className="flex flex-col items-center gap-1 text-emerald-600 hover:text-emerald-700 cursor-pointer"
+                      title="Share via WhatsApp / Mobile"
                     >
                       <div className="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-xs">
                         <Share2 className="w-4 h-4" />
@@ -1046,6 +1069,16 @@ export const BikeConditionView: React.FC<Props> = ({
 
               <button
                 type="button"
+                onClick={() => handleShareBikeCondition(selectedRecord)}
+                className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl text-xs shadow-xs flex items-center gap-1.5 cursor-pointer transition-all active:scale-95"
+                title="Share via WhatsApp / Mobile"
+              >
+                <Share2 className="w-4 h-4" />
+                <span>Share</span>
+              </button>
+
+              <button
+                type="button"
                 onClick={() => handleDownloadBikePdf(selectedRecord)}
                 disabled={isDownloading}
                 className="bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2 rounded-xl text-xs shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-60 transition-all active:scale-95"
@@ -1093,44 +1126,43 @@ export const BikeConditionView: React.FC<Props> = ({
           >
             
             {/* PAN No Top Banner */}
-            <div className="text-right text-[10px] font-bold text-slate-900 pb-1 mb-1 border-b border-[#f87171]">
-              PAN No.: AKMPV0774C
+            <div className="bg-[#ffb3b3] text-center text-[11px] font-bold text-black py-1 border-b border-[#f87171] uppercase tracking-wide">
+              PAN No.: {companyProfile?.panNo || 'AKMPV0774C'}
             </div>
 
             {/* Company Header */}
-            <div className="flex items-center justify-between border-b border-[#f87171] pb-2">
-              {/* Left Logo */}
-              <div className="w-28 shrink-0 flex items-center justify-center p-1 bg-white">
+            <div className="flex border-b border-[#f87171] min-h-[96px]">
+              {/* Left Logo Container */}
+              <div className="w-[28%] border-r border-[#f87171] flex items-center justify-center p-2 bg-white">
                 <img 
                   src={companyProfile?.logo || UPL_LOGO_BASE64 || '/urbanpro-logo.jpeg'} 
                   alt="UrbanPro Packers & Logistics Logo" 
-                  className="max-h-16 w-auto object-contain" 
+                  className="max-h-20 w-auto object-contain" 
                 />
               </div>
 
               {/* Center Company Title & Info */}
-              <div className="flex-1 text-center px-2">
-                <div style={{ fontFamily: "Georgia, serif" }}>
-                  <h1 className="text-2xl sm:text-3xl font-black tracking-tight leading-none">
+              <div className="w-[72%] p-2 text-center flex flex-col justify-center items-center bg-white">
+                <div style={{ fontFamily: "'Times New Roman', Times, serif" }}>
+                  <h1 className="text-[24px] sm:text-[28px] font-black tracking-tight leading-none">
                     <span style={{ color: '#1e3a8a' }}>Urban</span><span style={{ color: '#dc2626' }}>Pro</span>
                   </h1>
-                  <h2 className="text-xs sm:text-sm font-extrabold tracking-wider uppercase mt-0.5" style={{ color: '#1e3a8a' }}>
+                  <h2 className="text-[13px] sm:text-[15px] font-extrabold tracking-wider uppercase mt-0.5" style={{ color: '#1e3a8a' }}>
                     Packers & Logistics
                   </h2>
+                  <h3 className="text-[10.5px] font-bold text-red-700 tracking-wide uppercase mt-0.5">
+                    (A Unit of M/s Prakash & Company India)
+                  </h3>
                 </div>
-                <p className="text-[10px] leading-tight text-slate-800 font-medium mt-1">
-                  <strong>Address:</strong> Plot No 1491, Balintha Canal Road, Near Lenskart, Hanspal, Bhubaneswar, Odisha -752101
+                <p className="text-[9.5px] sm:text-[10px] leading-tight text-slate-900 font-semibold mt-0.5">
+                  <strong>Regd. Office:</strong> Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452 | Tel: 8093017402
                 </p>
-                <p className="text-[10px] leading-tight text-slate-800 font-medium mt-0.5">
-                  <strong>Mobile No.:</strong> 8093017400 • <strong>Email:</strong> urbanpro403@gmail.com
+                <p className="text-[9.5px] sm:text-[10px] leading-tight text-slate-900 font-semibold mt-0.5">
+                  <strong>Main Operational Office:</strong> Plot No 1491, Balintha Canal Road, Near Lenskart, Hanspal, Bhubaneswar, Odisha – 752101 | Mobile: 8093017400
                 </p>
-              </div>
-
-              {/* Right QR / Spacer */}
-              <div className="w-24 shrink-0 text-center">
-                <div className="border border-slate-300 rounded p-1 bg-slate-50 text-[9px] font-bold text-slate-700">
-                  ISO 9001:2015 CERTIFIED
-                </div>
+                <p className="text-[9.5px] sm:text-[10px] leading-tight text-slate-800 font-medium mt-0.5">
+                  <strong>GST No.:</strong> {companyProfile?.gstin || '22CCQPS8419D1ZC'} &nbsp;|&nbsp; <strong>Email:</strong> {companyProfile?.email || 'urbanpro403@gmail.com'}
+                </p>
               </div>
             </div>
 
@@ -1268,21 +1300,18 @@ export const BikeConditionView: React.FC<Props> = ({
                 <div className="text-[10px] text-slate-600 font-semibold mb-2">
                   Agree with Terms & Conditions as Overleaf Signature Receiver's
                 </div>
-                <div className="mt-4">
-                  {globalSignature?.image ? (
-                    <div className="flex flex-col items-end">
-                      <img src={globalSignature.image} alt="Signature Stamp" className="max-h-14 object-contain mb-1" />
-                      <span className="font-bold text-slate-900 text-[11px] border-t border-slate-300 pt-0.5">{globalSignature.text || 'VIJAY'}</span>
-                    </div>
-                  ) : (
-                    <div className="space-y-1">
-                      <div className="font-bold text-slate-900">VIJAY</div>
-                      <div className="h-10 border-b border-slate-400 w-36 ml-auto"></div>
-                    </div>
-                  )}
-                  <div className="font-bold text-slate-800 text-[11px] mt-1">Authorized Signature</div>
-                  <div className="font-bold text-[10px]">
-                    For <span className="text-[#1e3a8a]">Urban</span><span className="text-[#dc2626]">Pro</span> <span className="text-[#1e3a8a]">Packers & Logistics</span>
+                <div className="mt-4 flex flex-col items-end">
+                  <img 
+                    src={globalSignature?.image || PRAKASH_SIGNATURE_BASE64} 
+                    alt="Authorized Signature & Stamp" 
+                    className="max-h-12 max-w-[145px] object-contain mb-1" 
+                  />
+                  <div className="font-bold text-slate-800 text-[10px] uppercase border-t border-slate-300 pt-0.5 w-full text-right">
+                    Authorized Signatory & Stamp
+                  </div>
+                  <div className="font-bold text-[10px] mt-0.5 text-right">
+                    For <span className="text-[#1e3a8a]">Urban</span><span className="text-[#dc2626]">Pro</span> <span className="text-[#1e3a8a]">Packers & Logistics</span><br />
+                    <span className="text-[8.5px] text-slate-700 font-semibold">(A Unit of M/s Prakash & Company India)</span>
                   </div>
                 </div>
               </div>

@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Printer, X, Download, Share2, PackageCheck, MapPin, Phone, User, Calendar, ShieldCheck, Box, Hash } from 'lucide-react';
 import jsPDF from 'jspdf';
 import { renderElementToCanvas, downloadPdfFromElement } from '../utils/pdfExport';
+import { shareDocument } from '../utils/shareUtils';
 import { UPL_LOGO_BASE64 } from '../assets/logoBase64';
+import { PRAKASH_SIGNATURE_BASE64 } from '../assets/signatureBase64';
 
 export interface PackingListItem {
   id?: string | number;
@@ -123,18 +125,26 @@ export const PackingListPdfModal: React.FC<PackingListPdfModalProps> = ({
     }
   };
 
-  const handleShare = () => {
-    const text = `Packing List #${packingList.packingListNo} - UrbanPro Packer & Logistics for ${packingList.partyName} (${totalQty} Items): ${packingList.fromCity || 'Origin'} to ${packingList.toCity || 'Destination'}. Helpline: 8093017400`;
-    if (navigator.share) {
-      navigator.share({
-        title: `Packing List #${packingList.packingListNo}`,
-        text: text,
-        url: window.location.href,
-      }).catch(console.error);
-    } else {
-      navigator.clipboard?.writeText(text);
-      alert('Packing list details copied to clipboard!');
-    }
+  const handleShare = async () => {
+    const text = `📦 *UrbanPro Packers & Logistics*
+*PACKING LIST / INVENTORY SHEET #${packingList.packingListNo}*
+----------------------------------------
+👤 *Customer:* ${packingList.partyName}
+📞 *Mobile:* ${packingList.mobileNo || 'N/A'}
+📍 *From:* ${packingList.fromCity || 'Origin'}
+🏁 *To:* ${packingList.toCity || 'Destination'}
+🔢 *Total Items / Packages:* ${totalQty}
+📄 *Bilty / LR No:* ${packingList.lrBiltyNo || 'Attached'}
+----------------------------------------
+*Regd. Office:* Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452
+*Main Operational Office:* Plot No 1491, Balintha Canal Road, Hanspal, Bhubaneswar, Odisha – 752101
+*Helpline:* 8093017400 / 8093017402`;
+
+    await shareDocument({
+      title: `Packing List #${packingList.packingListNo} - UrbanPro`,
+      text: text,
+      phone: packingList.mobileNo,
+    });
   };
 
   return (
@@ -207,8 +217,8 @@ export const PackingListPdfModal: React.FC<PackingListPdfModalProps> = ({
             style={{ fontFamily: 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}
           >
             {/* Top PAN Number Bar */}
-            <div className="bg-[#ffb3b3] text-center font-bold py-1 border-b border-[#f87171] text-[11px] tracking-wide text-black">
-              PAN No.: AKMPV0774C
+            <div className="bg-[#ffb3b3] text-center font-bold py-1 border-b border-[#f87171] text-[11px] tracking-wide text-black uppercase">
+              PAN No.: {companyProfile?.panNo || 'AKMPV0774C'}
             </div>
 
             {/* Company Logo & Address Box */}
@@ -224,22 +234,25 @@ export const PackingListPdfModal: React.FC<PackingListPdfModalProps> = ({
 
               {/* Company Details */}
               <div className="w-[72%] p-2 text-center flex flex-col justify-center items-center bg-white">
-                <div className="mb-1" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
+                <div className="mb-0.5" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
                   <h1 className="text-[24px] sm:text-[28px] font-black tracking-tight leading-none">
                     <span style={{ color: '#1e3a8a' }}>Urban</span><span style={{ color: '#dc2626' }}>Pro</span>
                   </h1>
                   <h2 className="text-[13px] sm:text-[15px] font-extrabold tracking-wider uppercase mt-0.5" style={{ color: '#1e3a8a' }}>
                     Packers & Logistics
                   </h2>
+                  <h3 className="text-[10.5px] font-bold text-red-700 tracking-wide uppercase mt-0.5">
+                    (A Unit of M/s Prakash & Company India)
+                  </h3>
                 </div>
-                <p className="text-[11px] sm:text-[11.5px] leading-tight text-black font-medium">
-                  <strong>Address:</strong> Plot No 1491, Balintha Canal Road, Near Lenskart, Hanspal, Bhubaneswar, Odisha -752101
+                <p className="text-[10px] sm:text-[10.5px] leading-tight text-black font-semibold mt-0.5">
+                  <strong>Regd. Office:</strong> Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452 | Tel: 8093017402
                 </p>
-                <p className="text-[11px] sm:text-[11.5px] leading-tight text-black font-medium mt-0.5">
-                  <strong>Mobile No.:</strong> 8093017400
+                <p className="text-[10px] sm:text-[10.5px] leading-tight text-black font-semibold mt-0.5">
+                  <strong>Main Operational Office:</strong> Plot No 1491, Balintha Canal Road, Near Lenskart, Hanspal, Bhubaneswar, Odisha – 752101 | Mobile: 8093017400
                 </p>
-                <p className="text-[11px] sm:text-[11.5px] leading-tight text-black font-medium mt-0.5">
-                  <strong>Email:</strong> urbanpro403@gmail.com
+                <p className="text-[10px] sm:text-[10.5px] leading-tight text-black font-medium mt-0.5">
+                  <strong>GST No.:</strong> 22CCQPS8419D1ZC &nbsp;|&nbsp; <strong>Email:</strong> urbanpro403@gmail.com
                 </p>
               </div>
             </div>
@@ -356,33 +369,23 @@ export const PackingListPdfModal: React.FC<PackingListPdfModalProps> = ({
             <div className="flex border-b border-[#f87171] min-h-[145px] bg-white">
               {/* Left Signature: UrbanPro */}
               <div className="w-1/2 border-r border-[#f87171] p-3 flex flex-col justify-between items-center text-center relative group">
-                <div className="font-bold text-[12px] tracking-wide leading-tight">
+                <div className="font-bold text-[11px] tracking-wide leading-tight">
                   For <span className="text-[#1e3a8a] font-black">Urban</span><span className="text-[#dc2626] font-black">Pro</span><br />
-                  <span className="text-[#1e3a8a] font-extrabold uppercase text-[10.5px] tracking-wider">Packers & Logistics</span>
+                  <span className="text-[#1e3a8a] font-extrabold uppercase text-[10px] tracking-wider">Packers & Logistics</span><br />
+                  <span className="text-[9px] text-slate-700 font-semibold">(A Unit of M/s Prakash & Company India)</span>
                 </div>
 
                 {/* Inline Signature Display & Interactive Click-to-Choose */}
                 <div 
-                  className="flex flex-col items-center justify-center my-auto py-1 min-h-[60px] cursor-pointer relative"
+                  className="flex flex-col items-center justify-center my-auto py-1 min-h-[55px] cursor-pointer relative"
                   onClick={() => setIsEditingSign(!isEditingSign)}
                   title="Click to change signature / upload signature"
                 >
-                  {globalSignature?.image ? (
-                    <img 
-                      src={globalSignature.image} 
-                      alt="Authorized Signature" 
-                      className="max-h-12 w-auto object-contain" 
-                    />
-                  ) : (
-                    <div className="flex flex-col items-center">
-                      <svg className="w-10 h-7 text-[#2563eb]" viewBox="0 0 100 60" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M38 48 C30 35, 24 15, 36 10 C46 6, 52 24, 44 45 C40 54, 34 58, 30 59" />
-                        <path d="M46 26 C54 18, 66 14, 62 34 C58 48, 50 54, 46 58" />
-                        <path d="M52 38 C60 36, 70 38, 68 50" />
-                      </svg>
-                      <span className="font-bold text-[10.5px] text-black tracking-wider uppercase">{globalSignature?.text || authSignName || 'VIJAY'}</span>
-                    </div>
-                  )}
+                  <img 
+                    src={globalSignature?.image || PRAKASH_SIGNATURE_BASE64} 
+                    alt="Authorized Signature & Stamp" 
+                    className="max-h-12 w-auto object-contain" 
+                  />
                   <span className="text-[8px] text-blue-600 bg-blue-50 border border-blue-200 px-1 py-0.2 rounded opacity-0 group-hover:opacity-100 transition-opacity print:hidden">
                     Change signature
                   </span>

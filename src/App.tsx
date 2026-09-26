@@ -73,6 +73,7 @@ import { MoneyReceiptView } from './components/MoneyReceiptView';
 import { PaymentVoucherView } from './components/PaymentVoucherView';
 import { SetupView } from './components/SetupView';
 import { UPL_LOGO_BASE64 } from './assets/logoBase64';
+import { PRAKASH_SIGNATURE_BASE64 } from './assets/signatureBase64';
 import { INDIAN_STATES, getStateCodeByName } from './utils/indianStates';
 export { INDIAN_STATES, getStateCodeByName };
 
@@ -166,46 +167,14 @@ export default function App() {
       const saved = localStorage.getItem('upl_surveys');
       if (saved !== null) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) return parsed;
+        if (Array.isArray(parsed)) {
+          return parsed.filter(s => s.partyName !== 'Tapaswini Sahoo' && s.surveyNo !== '1001');
+        }
       }
     } catch (e) {
       console.error(e);
     }
-    return [
-      {
-        id: 1,
-        surveyNo: '1001',
-        partyName: 'Tapaswini Sahoo',
-        mobileNo: '8093017400',
-        email: 'tapaswini@example.com',
-        surveyDate: new Date().toISOString().split('T')[0],
-        packingDate: new Date().toISOString().split('T')[0],
-        dateOfDelivery: '',
-        fromCountry: 'India',
-        fromState: 'Odisha',
-        fromCity: 'Bhubaneswar',
-        fromArea: 'Hanspal, Balianta Canal Road',
-        fromPinCode: '752101',
-        fromFloor: 'Ground',
-        fromLift: 'Not Required',
-        toCountry: 'India',
-        toState: 'Odisha',
-        toCity: 'Cuttack',
-        toArea: 'CDA Sector 9',
-        toPinCode: '753014',
-        toFloor: '2nd Floor',
-        toLift: 'Available',
-        moveType: 'Household Goods',
-        items: [
-          { name: 'Double Bed with Mattress', qty: '1', value: '25000', remark: 'Dismantling & packing' },
-          { name: 'Refrigerator (Double Door)', qty: '1', value: '18000', remark: 'Bubble wrap & corrugated sheet' },
-          { name: 'Washing Machine', qty: '1', value: '15000', remark: 'Front Load' },
-          { name: 'Sofa Set 3+1+1', qty: '1', value: '30000', remark: 'Stretch film & blanket' },
-          { name: 'Dining Table + 4 Chairs', qty: '1', value: '16000', remark: 'Glass top wooden table' },
-          { name: 'Carton Boxes (Crockery & Clothes)', qty: '10', value: '10000', remark: 'Heavy duty boxes' }
-        ]
-      }
-    ];
+    return [];
   });
   
   useEffect(() => {
@@ -230,11 +199,20 @@ export default function App() {
   const [globalSignature, setGlobalSignature] = useState<{ text: string; image?: string }>(() => {
     try {
       const saved = localStorage.getItem('upl_global_signature');
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (!parsed.image || parsed.image === '') {
+          parsed.image = PRAKASH_SIGNATURE_BASE64;
+        }
+        if (!parsed.text || parsed.text === 'Authorized Signatory & Stamp' || parsed.text === 'VIJAY') {
+          parsed.text = 'M/s Prakash & Company India';
+        }
+        return parsed;
+      }
     } catch (e) {
       console.error(e);
     }
-    return { text: 'Authorized Signatory & Stamp', image: undefined };
+    return { text: 'M/s Prakash & Company India', image: PRAKASH_SIGNATURE_BASE64 };
   });
 
   useEffect(() => {
@@ -527,53 +505,60 @@ export default function App() {
     setTimeout(() => setShareToast(null), 3500);
   };
 
+  // Service Charge % options from 0% to 20% in steps of 0.5%
+  const SERVICE_CHARGE_PERCENT_OPTIONS = Array.from({ length: 41 }, (_, i) => `${i * 0.5}%`);
+
   // Quotation Management State
   const initialQuotationForm = {
-    quotationNo: '4',
+    quotationNo: '1',
     quotationDate: new Date().toISOString().split('T')[0],
     partyName: '',
     mobileNo: '',
     email: '',
     packingDate: '',
     deliveryDate: '',
-    moveType: 'Part Load, Domestic Shifting,',
+    moveType: '',
     fromCountry: 'India',
-    fromState: 'Andhra Pradesh',
+    fromState: '',
     fromCity: '',
     fromArea: '',
     fromPincode: '',
-    fromFloor: 'Ground',
+    fromFloor: '',
     fromLift: 'Not Required',
     toCountry: 'India',
-    toState: 'Maharashtra',
+    toState: '',
     toCity: '',
     toArea: '',
     toPincode: '',
-    toFloor: 'Ground',
+    toFloor: '',
     toLift: 'Not Required',
-    transportCharges: '38000',
-    packingCharges: 'Included',
-    unpackingCharges: 'Included',
-    loadingCharges: 'Included',
-    unloadingCharges: 'Included',
-    dismantlingCharges: 'N/A',
-    octroiCharges: 'N/A',
-    carCharges: 'N/A',
-    bikeCharges: 'N/A',
-    statCharges: 'N/A',
-    serviceCharge: '450',
-    subTotal: '38450',
+    transportCharges: '',
+    packingCharges: '',
+    unpackingCharges: '',
+    loadingCharges: '',
+    unloadingCharges: '',
+    dismantlingCharges: '',
+    octroiCharges: '',
+    carCharges: '',
+    bikeCharges: '',
+    statCharges: '',
+    serviceChargePercent: '0%',
+    serviceCharge: '',
+    customCharges: [] as Array<{ name: string; val: string }>,
+    subTotal: '',
+    insuranceStatus: 'Extra',
     insurancePercent: '3%',
     goodsValue: '',
     insuranceCharge: '',
+    gstStatus: 'Extra',
+    gstPercent: '18%',
     gstType: 'CGST/SGST',
-    gstPercent: '18',
-    gstCharge: 'Extra',
-    grandTotal: '38450',
-    payableInWords: 'Thirty Eight Thousand Four Hundred and Fifty',
-    advancePaid: '0.00',
-    easyAccess: 'Yes',
-    balconyItems: 'No',
+    gstCharge: '',
+    grandTotal: '',
+    payableInWords: '',
+    advancePaid: '',
+    easyAccess: '',
+    balconyItems: '',
     extraInfo: '',
     status: 'Pending'
   };
@@ -622,17 +607,74 @@ export default function App() {
       return;
     }
 
-    const tCharge = parseFloat(String(quotationForm.transportCharges).replace(/[^0-9.]/g, '')) || 0;
-    const sCharge = parseFloat(String(quotationForm.serviceCharge).replace(/[^0-9.]/g, '')) || 0;
-    const sub = tCharge + sCharge;
-    const grand = sub;
-    const words = numberToIndianWords(grand);
+    const allChargeValues = [
+      quotationForm.transportCharges,
+      quotationForm.packingCharges,
+      quotationForm.unpackingCharges,
+      quotationForm.loadingCharges,
+      quotationForm.unloadingCharges,
+      quotationForm.dismantlingCharges,
+      quotationForm.octroiCharges,
+      quotationForm.carCharges,
+      quotationForm.bikeCharges,
+      quotationForm.statCharges,
+      quotationForm.serviceCharge,
+      ...(quotationForm.customCharges || []).map((c: any) => c.val)
+    ];
+
+    let computedSub = 0;
+    for (const val of allChargeValues) {
+      const parsed = parseFloat(String(val).replace(/[^0-9.]/g, ''));
+      if (!isNaN(parsed) && parsed > 0) {
+        computedSub += parsed;
+      }
+    }
+
+    const sub = computedSub > 0 ? computedSub : (parseFloat(String(quotationForm.subTotal).replace(/[^0-9.]/g, '')) || 0);
+    let grand = sub;
+
+    // Add Insurance Charge if Extra
+    let finalInsCharge = quotationForm.insuranceCharge;
+    if (quotationForm.insuranceStatus !== 'Included' && quotationForm.insuranceStatus !== 'Exempted') {
+      const insNum = parseFloat(String(quotationForm.insuranceCharge).replace(/[^0-9.]/g, ''));
+      if (!isNaN(insNum) && insNum > 0) {
+        grand += insNum;
+      } else if (quotationForm.goodsValue) {
+        const gVal = parseFloat(String(quotationForm.goodsValue).replace(/[^0-9.]/g, '')) || 0;
+        const insPct = parseFloat(String(quotationForm.insurancePercent || '3').replace(/[^0-9.]/g, '')) || 3;
+        const autoIns = Math.round((gVal * insPct) / 100);
+        if (autoIns > 0) {
+          grand += autoIns;
+          finalInsCharge = String(autoIns);
+        }
+      }
+    }
+
+    // Add GST Charge if Extra
+    let finalGstCharge = quotationForm.gstCharge;
+    if (quotationForm.gstStatus !== 'Included' && quotationForm.gstStatus !== 'Exempted' && quotationForm.gstType !== 'Exempted') {
+      const gstNum = parseFloat(String(quotationForm.gstCharge).replace(/[^0-9.]/g, ''));
+      if (!isNaN(gstNum) && gstNum > 0) {
+        grand += gstNum;
+      } else {
+        const gstPct = parseFloat(String(quotationForm.gstPercent || '18').replace(/[^0-9.]/g, '')) || 18;
+        const autoGst = Math.round((sub * gstPct) / 100);
+        if (autoGst > 0) {
+          grand += autoGst;
+          finalGstCharge = String(autoGst);
+        }
+      }
+    }
+
+    const words = grand > 0 ? numberToIndianWords(grand) : '';
 
     const updated = {
       ...quotationForm,
-      subTotal: String(sub || quotationForm.subTotal || 38450),
-      grandTotal: String(grand || quotationForm.grandTotal || 38450),
-      payableInWords: words || quotationForm.payableInWords
+      insuranceCharge: finalInsCharge || quotationForm.insuranceCharge,
+      gstCharge: finalGstCharge || quotationForm.gstCharge,
+      subTotal: sub > 0 ? String(sub) : (quotationForm.subTotal || ''),
+      grandTotal: grand > 0 ? String(grand) : (quotationForm.grandTotal || ''),
+      payableInWords: words || quotationForm.payableInWords || ''
     };
 
     if (editingQuotationId) {
@@ -650,7 +692,16 @@ export default function App() {
   };
 
   const handleEditQuotation = (quotation: any) => {
-    setQuotationForm(quotation);
+    setQuotationForm({
+      ...initialQuotationForm,
+      ...quotation,
+      serviceChargePercent: quotation.serviceChargePercent || '0%',
+      insuranceStatus: quotation.insuranceStatus || (String(quotation.insuranceCharge).toLowerCase().includes('included') ? 'Included' : (quotation.insuranceCharge ? 'Extra' : 'Extra')),
+      insurancePercent: quotation.insurancePercent || '3%',
+      gstStatus: quotation.gstStatus || (String(quotation.gstCharge).toLowerCase().includes('included') ? 'Included' : (quotation.gstCharge ? 'Extra' : 'Extra')),
+      gstPercent: quotation.gstPercent || '18%',
+      gstType: quotation.gstType || 'CGST/SGST',
+    });
     setEditingQuotationId(quotation.id);
     setAdminTab('add-quotation');
   };
@@ -728,45 +779,21 @@ export default function App() {
   const [packingLists, setPackingLists] = useState<PackingListData[]>(() => {
     try {
       const saved = localStorage.getItem('upl_packing_lists');
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          return parsed.filter(p => p.id !== 'pl-sample-1' && p.partyName !== 'Rajesh Kumar Mishra');
+        }
+      }
     } catch (e) {
       console.error(e);
     }
-    return [
-      {
-        id: 'pl-sample-1',
-        packingListNo: '1',
-        packingListDate: '2026-09-15',
-        partyName: 'Rajesh Kumar Mishra',
-        mobileNo: '9876543210',
-        fromCountry: 'India',
-        fromState: 'Odisha',
-        fromCity: 'Bhubaneswar',
-        fromArea: 'Patia, KIIT Square',
-        fromPincode: '751024',
-        fromFloor: '2nd Floor',
-        toCountry: 'India',
-        toState: 'Odisha',
-        toCity: 'Cuttack',
-        toArea: 'CDA Sector 9',
-        toPincode: '753014',
-        toFloor: '1st Floor',
-        status: 'Packed',
-        items: [
-          { id: '1', name: 'Double Bed with Mattress (King Size)', qty: '1', boxNo: '1', value: '35000', remark: 'Bubble wrapped + Corrugated sheet' },
-          { id: '2', name: 'LG Refrigerator 260L Double Door', qty: '1', boxNo: '2', value: '24000', remark: 'Shrink wrap & corner foam pads' },
-          { id: '3', name: 'Sony Bravia 55" 4K LED TV', qty: '1', boxNo: '3', value: '55000', remark: 'Original heavy wooden crate box' },
-          { id: '4', name: 'Sofa Set (3+1+1 Leatherette)', qty: '3', boxNo: '4', value: '42000', remark: 'Full bubble wrapped' },
-          { id: '5', name: 'Kitchen Crockery & Glassware', qty: '4', boxNo: '5', value: '18000', remark: 'Fragile - Packed with bubble sheets' },
-          { id: '6', name: 'Master Bedroom Wardrobe Clothes', qty: '3', boxNo: '6', value: '30000', remark: 'Carton Boxes sealed with tape' },
-        ],
-      }
-    ];
+    return [];
   });
 
   const [packingListForm, setPackingListForm] = useState<PackingListData>({
     ...initialPackingListForm,
-    packingListNo: '2',
+    packingListNo: '1',
   });
   const [currentPackingItem, setCurrentPackingItem] = useState<PackingListItem>({
     name: '',
@@ -948,40 +975,14 @@ export default function App() {
   const [bilties, setBilties] = useState<any[]>(() => {
     try {
       const saved = localStorage.getItem('upl_bilties');
-      if (saved) return JSON.parse(saved);
-    } catch (e) { console.error(e); }
-    return [
-      {
-        id: 'lr-1',
-        biltyNo: '1',
-        biltyDate: '2026-09-11',
-        goodsDeliveryDate: '2026-09-12',
-        consignorName: 'Jagamaya sarangi',
-        consignorPhone: '916371840108',
-        consignorMobile: '916371840108',
-        consignorCity: 'Bhubaneswar',
-        fromCity: 'Bhubaneswar',
-        consigneeName: 'Jagamaya sarangi',
-        consigneePhone: '916371840108',
-        consigneeMobile: '916371840108',
-        consigneeCity: 'Baripada',
-        toCity: 'Baripada',
-        consigneeAddress: 'Near Sanika Gas Baripada',
-        truckNo: 'OD-02-AX-4821',
-        driverName: 'Ramesh Kumar',
-        driverMobile: '9437123456',
-        goodsDescription: 'Household Goods Shifting',
-        declaredValue: '50000',
-        freightCharges: '0',
-        freightToPay: 0,
-        freightToBeBilled: 0,
-        freightPaid: 0,
-        advancePaid: '0',
-        toPayAmount: '0',
-        gstPaidBy: 'Consignor',
-        paymentStatus: 'To Pay'
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          return parsed.filter(b => b.id !== 'lr-1' && b.consignorName !== 'Jagamaya sarangi');
+        }
       }
-    ];
+    } catch (e) { console.error(e); }
+    return [];
   });
 
   useEffect(() => {
@@ -989,7 +990,7 @@ export default function App() {
   }, [bilties]);
 
   const [biltyForm, setBiltyForm] = useState({
-    biltyNo: 'LR-102',
+    biltyNo: 'LR-101',
     biltyDate: new Date().toISOString().split('T')[0],
     consignorName: '',
     consignorMobile: '',
@@ -1002,7 +1003,7 @@ export default function App() {
     truckNo: '',
     driverName: '',
     driverMobile: '',
-    goodsDescription: 'Household Goods Shifting',
+    goodsDescription: '',
     declaredValue: '',
     freightCharges: '',
     advancePaid: '0',
@@ -1029,12 +1030,12 @@ export default function App() {
     }
     setTimeout(() => setShareToast(null), 3000);
     setBiltyForm({
-      biltyNo: `LR-${102 + bilties.length}`,
+      biltyNo: `LR-${101 + bilties.length + 1}`,
       biltyDate: new Date().toISOString().split('T')[0],
       consignorName: '', consignorMobile: '', consignorAddress: '',
       consigneeName: '', consigneeMobile: '', consigneeAddress: '',
       fromCity: '', toCity: '', truckNo: '', driverName: '', driverMobile: '',
-      goodsDescription: 'Household Goods Shifting', declaredValue: '',
+      goodsDescription: '', declaredValue: '',
       freightCharges: '', advancePaid: '0', toPayAmount: '', gstPaidBy: 'Consignor'
     });
     setEditingBiltyId(null);
@@ -1059,10 +1060,10 @@ export default function App() {
     date: new Date().toISOString().split('T')[0],
     ownerName: '',
     mobileNo: '',
-    carMakeModel: 'Hyundai Creta / Swift Dzire',
-    regNo: 'OD-02-BK-9988',
-    color: 'White',
-    odometerKm: '24500',
+    carMakeModel: '',
+    regNo: '',
+    color: '',
+    odometerKm: '',
     fromCity: '',
     toCity: '',
     toolKit: true,
@@ -1070,14 +1071,14 @@ export default function App() {
     wiperArms: true,
     mudFlap: true,
     floorRubberCarpet: true,
-    fuelPetrolLtr: 'Half Tank (15 Ltr)',
-    carCover: true,
+    fuelPetrolLtr: '',
+    carCover: false,
     spareWheel: true,
-    stereoMusicPlayer: true,
-    batteryBrand: 'Exide 12V',
-    keyType: '2 Keys + Remote',
-    otherAccessories: 'Dashcam installed, perfume diffuser, seat covers',
-    remarks: 'Minor scratch on rear left bumper. Overall good condition.'
+    stereoMusicPlayer: false,
+    batteryBrand: '',
+    keyType: '',
+    otherAccessories: '',
+    remarks: ''
   });
 
   const [viewingCarCondition, setViewingCarCondition] = useState<any | null>(null);
@@ -1113,17 +1114,17 @@ export default function App() {
     date: new Date().toISOString().split('T')[0],
     ownerName: '',
     mobileNo: '',
-    bikeMakeModel: 'Royal Enfield Classic 350 / Pulsar',
-    regNo: 'OD-02-BP-1234',
-    chassisNo: 'ME4J350ABC98231',
-    engineNo: 'E350XC9812',
-    color: 'Black',
-    fuelLevel: '3 Liters',
-    helmet: true,
+    bikeMakeModel: '',
+    regNo: '',
+    chassisNo: '',
+    engineNo: '',
+    color: '',
+    fuelLevel: '',
+    helmet: false,
     bothMirrors: true,
-    toolKit: true,
-    scratchesOrDents: 'Minor scratch on silencer pipe',
-    remarks: 'Loaded safely in covered vehicle box.'
+    toolKit: false,
+    scratchesOrDents: '',
+    remarks: ''
   });
 
   const [viewingBikeCondition, setViewingBikeCondition] = useState<any | null>(null);
@@ -1158,10 +1159,10 @@ export default function App() {
     gstin: '',
     fromCity: '',
     toCity: '',
-    particulars: 'Packing, Loading, Unloading & Transportation Charges for Household Shifting',
-    amount: '38500',
+    particulars: '',
+    amount: '',
     gstPercent: '18',
-    totalAmount: '45430'
+    totalAmount: ''
   });
 
   const [viewingBill, setViewingBill] = useState<any | null>(null);
@@ -1197,11 +1198,11 @@ export default function App() {
     receiptDate: new Date().toISOString().split('T')[0],
     receivedFrom: '',
     mobileNo: '',
-    amount: '15000',
-    amountInWords: 'Fifteen Thousand Only',
+    amount: '',
+    amountInWords: '',
     paymentMode: 'UPI / GPay / PhonePe',
-    againstDocNo: 'Quotation #4 / LR #101',
-    remarks: 'Advance payment towards relocation services'
+    againstDocNo: '',
+    remarks: ''
   });
 
   const [viewingReceipt, setViewingReceipt] = useState<any | null>(null);
@@ -1233,10 +1234,10 @@ export default function App() {
     voucherNo: 'PV-101',
     voucherDate: new Date().toISOString().split('T')[0],
     paidTo: '',
-    amount: '2500',
+    amount: '',
     debitHead: 'Labour & Loading Expense / Fuel',
     paymentMode: 'Cash',
-    narration: 'Labour charges paid for loading at Bhubaneswar site'
+    narration: ''
   });
 
   const [viewingVoucher, setViewingVoucher] = useState<any | null>(null);
@@ -1275,34 +1276,42 @@ export default function App() {
         if (!parsed.logo || parsed.logo.includes('upl%20logistics') || parsed.logo.length < 30000) {
           parsed.logo = UPL_LOGO_BASE64;
         }
-        // If bank details were previously auto-filled with sample Prakash & Company values, clear them per user preference
-        if (parsed.accountNo === '30789330266' || parsed.bankName === 'State Bank of India') {
-          parsed.bankName = '';
-          parsed.accountNo = '';
-          parsed.ifscCode = '';
-          parsed.accountHolder = '';
-          parsed.upiId = '';
+        if (!parsed.groupName || parsed.groupName.trim() === '') {
+          parsed.groupName = 'M/s Prakash & Company India';
         }
-        if (parsed.groupName === 'M/s Prakash & Company India') {
-          parsed.groupName = '';
+        if (!parsed.bankName || parsed.bankName.trim() === '') {
+          parsed.bankName = 'State Bank of India';
+          parsed.accountNo = '30789330266';
+          parsed.ifscCode = 'SBIN0009343';
+          parsed.accountHolder = 'M/s Prakash & Company India';
+          parsed.bankBranch = 'Dipka, Korba';
+        }
+        if (!parsed.addressLine1 || !parsed.addressLine1.includes('Dipka')) {
+          parsed.addressLine1 = 'Regd. Office: M/s Prakash & Company India, Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452';
+        }
+        if (!parsed.addressLine2 || !parsed.addressLine2.includes('Hanspal')) {
+          parsed.addressLine2 = 'Main Operational Office: Plot No. 1491, Hanspal, Balianta Canal Road, Near Lenskart, Bhubaneswar, Odisha – 752101';
         }
         return parsed;
       }
     } catch (e) { console.error(e); }
     return {
       companyName: 'UrbanPro Packer & Logistics',
-      groupName: '',
-      gstin: '21ABCDE1234F1Z5',
-      addressLine1: 'Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG - 495452',
-      addressLine2: 'Branch Office: Balianta Canal Road, Hanspal, Bhubaneswar, Odisha - 752101',
+      groupName: 'M/s Prakash & Company India',
+      gstin: '22CCQPS8419D1ZC',
+      panNo: 'AKMPV0774C',
+      regAddress: 'Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452',
+      addressLine1: 'Regd. Office: M/s Prakash & Company India, Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452',
+      addressLine2: 'Main Operational Office: Plot No. 1491, Hanspal, Balianta Canal Road, Near Lenskart, Bhubaneswar, Odisha – 752101',
       mobilePrimary: '8093017400',
       mobileSecondary: '8093017402',
-      email: 'urbanprologistics@gmail.com',
-      bankName: '',
-      accountNo: '',
-      ifscCode: '',
-      accountHolder: '',
-      upiId: '',
+      email: 'urbanpro403@gmail.com',
+      bankName: 'State Bank of India',
+      accountNo: '30789330266',
+      ifscCode: 'SBIN0009343',
+      accountHolder: 'M/s Prakash & Company India',
+      bankBranch: 'Dipka, Korba',
+      upiId: '8093017400@sbi',
       logo: UPL_LOGO_BASE64
     };
   });
@@ -2159,39 +2168,46 @@ export default function App() {
       );
     }
 
+    const handleTabSelect = (tab: string) => {
+      setAdminTab(tab);
+      if (typeof window !== 'undefined' && window.innerWidth < 768) {
+        setSidebarOpen(false);
+      }
+    };
+
     return (
       <div className="h-screen bg-[#f4f7fb] flex flex-col overflow-hidden text-slate-800">
         {/* Top Header - UrbanPro Logistics Admin */}
-        <header className="bg-[#1e293b] text-white px-4 sm:px-6 py-2.5 flex items-center justify-between z-20 shrink-0 shadow-md">
-          <div className="flex items-center gap-3">
+        <header className="bg-[#1e293b] text-white px-3 sm:px-6 py-2 sm:py-2.5 flex items-center justify-between z-20 shrink-0 shadow-md">
+          <div className="flex items-center gap-2 sm:gap-3">
             <button 
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="text-slate-300 hover:text-white p-1.5 rounded-lg hover:bg-slate-700/60 transition-colors"
+              className="text-slate-300 hover:text-white p-1.5 sm:p-2 rounded-lg hover:bg-slate-700/60 transition-colors cursor-pointer"
               title="Toggle Menu"
             >
               <Menu className="w-5 h-5" />
             </button>
-            <div className="flex items-center gap-3">
-              <div className="bg-white p-1 rounded-md flex items-center shadow-xs">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="bg-white px-2 sm:px-3 py-1 rounded-lg flex items-center gap-2 shadow-sm border border-slate-700/50">
                 <img 
                   src={activeAppLogo || '/urbanpro%20logo.jpeg'} 
                   alt="UrbanPro Logistics" 
-                  className="h-8 w-auto object-contain rounded" 
+                  className="h-7 sm:h-8 w-auto object-contain rounded" 
                 />
-              </div>
-              <div className="flex flex-col">
-                <span className="font-bold text-base tracking-tight text-white leading-tight">
-                  <span className="text-blue-400 font-black">Urban</span><span className="text-red-500 font-black">Pro</span> <span className="text-blue-400 font-extrabold">Packers & Logistics</span>
-                </span>
-                <span className="text-[11px] text-slate-400 font-medium leading-none">Admin Management Portal</span>
+                <div className="flex flex-col">
+                  <span className="font-bold text-xs sm:text-base tracking-tight leading-tight">
+                    <span className="text-[#1e3a8a] font-black">Urban</span><span className="text-[#dc2626] font-black">Pro</span> <span className="text-[#1e3a8a] font-extrabold hidden xs:inline">Packers & Logistics</span>
+                  </span>
+                  <span className="text-[9px] sm:text-[10px] text-slate-500 font-semibold leading-none">Admin Portal</span>
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-3 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <button 
               onClick={() => setIsAdminView(false)}
-              className="text-xs text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 px-3.5 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 border border-slate-700 shadow-xs cursor-pointer"
+              className="text-xs text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 px-2.5 sm:px-3.5 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 border border-slate-700 shadow-xs cursor-pointer"
               title="View Public Website"
             >
               <Globe className="w-3.5 h-3.5 text-sky-400" />
@@ -2205,29 +2221,47 @@ export default function App() {
                 setAdminPassword('');
                 setAdminTab('dashboard');
               }}
-              className="text-xs text-red-200 hover:text-white bg-red-950/40 hover:bg-red-900/60 border border-red-800/50 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer"
+              className="text-xs text-red-200 hover:text-white bg-red-950/40 hover:bg-red-900/60 border border-red-800/50 px-2.5 sm:px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer"
             >
               <LogOut className="w-3.5 h-3.5" />
-              <span>Logout</span>
+              <span className="hidden xs:inline">Logout</span>
             </button>
           </div>
         </header>
 
-        <div className="flex flex-1 overflow-hidden">
-          {/* Sidebar - UrbanPro Logistics Navigation */}
-          <aside className={`w-64 bg-[#0f172a] text-slate-300 flex flex-col justify-between shrink-0 h-full overflow-y-auto border-r border-slate-800 ${sidebarOpen ? 'block' : 'hidden md:flex'}`}>
+        {/* Mobile Backdrop Overlay */}
+        {sidebarOpen && (
+          <div 
+            className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs z-40 md:hidden animate-fadeIn" 
+            onClick={() => setSidebarOpen(false)} 
+          />
+        )}
+
+        <div className="flex flex-1 overflow-hidden relative">
+          {/* Sidebar Drawer - UrbanPro Logistics Navigation */}
+          <aside className={`fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] bg-[#0f172a] text-slate-300 flex flex-col justify-between h-full overflow-y-auto border-r border-slate-800 shadow-2xl transition-transform duration-300 ease-in-out md:static md:translate-x-0 md:w-64 md:shadow-none ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
             <div>
-              {/* Admin Portal Label */}
-              <div className="p-4 pb-2 flex items-center gap-2.5 border-b border-slate-800/80">
-                <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-sm shadow-xs">
-                  UP
+              {/* Admin Portal Label & Mobile Close Button */}
+              <div className="p-3 pb-2 border-b border-slate-800/80 flex items-center justify-between">
+                <div className="bg-white px-3 py-2 rounded-xl flex items-center gap-2.5 shadow-sm flex-1 mr-2">
+                  <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-sm shadow-xs shrink-0">
+                    UP
+                  </div>
+                  <div>
+                    <h2 className="font-bold text-sm leading-tight">
+                      <span className="text-[#1e3a8a] font-black">Urban</span><span className="text-[#dc2626] font-black">Pro</span>
+                    </h2>
+                    <p className="text-[10px] text-[#1e3a8a] font-bold">Packers & Logistics</p>
+                  </div>
                 </div>
-                <div>
-                  <h2 className="text-white font-bold text-sm leading-tight">
-                    <span className="text-blue-400">Urban</span><span className="text-red-500">Pro</span>
-                  </h2>
-                  <p className="text-[11px] text-blue-400 font-bold">Packers & Logistics</p>
-                </div>
+
+                <button 
+                  onClick={() => setSidebarOpen(false)}
+                  className="md:hidden p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
+                  title="Close Menu"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
 
               {/* Navigation Groups */}
@@ -2469,7 +2503,7 @@ export default function App() {
           </aside>
 
           {/* Main Content Area */}
-          <main className="flex-1 bg-[#f4f7fb] overflow-y-auto p-4 sm:p-6 lg:p-8 relative">
+          <main className="flex-1 bg-[#f4f7fb] overflow-y-auto p-3 sm:p-6 lg:p-8 pb-24 md:pb-8 relative">
             {/* HTML Datalists for Universal Autocomplete Across Forms */}
             <datalist id="upl-customer-parties-datalist">
               {customerProfiles.map((c, i) => (
@@ -2518,7 +2552,7 @@ export default function App() {
                             </span>
                           </div>
                           <h1 className="text-2xl sm:text-3xl font-bold text-white mt-1">
-                            <span className="text-blue-400 font-black">Urban</span><span className="text-red-500 font-black">Pro</span> <span className="text-blue-400 font-bold">Packers & Logistics</span> Portal
+                            <span className="text-sky-300 font-black">Urban</span><span className="text-red-400 font-black">Pro</span> <span className="text-sky-200 font-bold">Packers & Logistics</span> Portal
                           </h1>
                           <p className="text-blue-200 text-xs sm:text-sm mt-1">
                             Pack Smart & Move Safe • Admin Management & Documentation Suite
@@ -3784,195 +3818,723 @@ export default function App() {
                     <div className="border-2 border-cyan-400 rounded-xl p-6 pt-8 relative bg-white shadow-sm">
                       <span className="absolute -top-3.5 left-4 bg-cyan-400 text-white px-4 py-1 rounded-md text-sm font-medium shadow-sm">Charges Details</span>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="border border-slate-300 rounded-lg p-3 flex items-center justify-between focus-within:border-cyan-500 transition-all bg-white group">
-                          <input 
-                            type="text" 
-                            placeholder="Transportation Charges" 
-                            value={quotationForm.transportCharges}
-                            onChange={(e) => setQuotationForm({ ...quotationForm, transportCharges: e.target.value })}
-                            className="w-full outline-none text-slate-700 text-sm bg-transparent placeholder-slate-500" 
-                          />
-                          <div className="w-6 h-6 rounded-full bg-sky-50 flex items-center justify-center border border-sky-200 text-sky-500 group-hover:bg-sky-100 transition-colors flex-shrink-0">
-                            <Edit className="w-3 h-3" />
+                        <div className="border border-slate-300 rounded-lg p-3 focus-within:border-cyan-500 transition-all bg-white group shadow-2xs">
+                          <label className="block text-xs font-bold text-cyan-950 uppercase tracking-wider mb-1 flex items-center justify-between">
+                            <span>Transportation Charges</span>
+                            <span className="text-[10px] text-slate-400 font-medium lowercase">enter amount</span>
+                          </label>
+                          <div className="flex items-center justify-between">
+                            <input 
+                              type="text" 
+                              placeholder="Enter amount" 
+                              value={quotationForm.transportCharges}
+                              onChange={(e) => setQuotationForm({ ...quotationForm, transportCharges: e.target.value })}
+                              className="w-full outline-none text-slate-800 text-sm font-semibold bg-transparent placeholder-slate-400" 
+                            />
+                            <div className="w-6 h-6 rounded-full bg-sky-50 flex items-center justify-center border border-sky-200 text-sky-500 group-hover:bg-sky-100 transition-colors flex-shrink-0 ml-1">
+                              <Edit className="w-3 h-3" />
+                            </div>
                           </div>
                         </div>
 
-                        <div className="border border-slate-300 rounded-lg p-3 flex items-center justify-between focus-within:border-cyan-500 transition-all bg-white group">
-                          <input 
-                            type="text" 
-                            placeholder="Packing Charges" 
-                            value={quotationForm.packingCharges}
-                            onChange={(e) => setQuotationForm({ ...quotationForm, packingCharges: e.target.value })}
-                            className="w-full outline-none text-slate-700 text-sm bg-transparent placeholder-slate-500" 
-                          />
-                          <div className="w-6 h-6 rounded-full bg-sky-50 flex items-center justify-center border border-sky-200 text-sky-500 group-hover:bg-sky-100 transition-colors flex-shrink-0">
-                            <Edit className="w-3 h-3" />
+                        <div className="border border-slate-300 rounded-lg p-3 focus-within:border-cyan-500 transition-all bg-white group shadow-2xs">
+                          <label className="block text-xs font-bold text-cyan-950 uppercase tracking-wider mb-1 flex items-center justify-between">
+                            <span>Packing Charges</span>
+                            <span className="text-[10px] text-slate-400 font-medium lowercase">enter amount</span>
+                          </label>
+                          <div className="flex items-center justify-between">
+                            <input 
+                              type="text" 
+                              placeholder="Enter amount" 
+                              value={quotationForm.packingCharges}
+                              onChange={(e) => setQuotationForm({ ...quotationForm, packingCharges: e.target.value })}
+                              className="w-full outline-none text-slate-800 text-sm font-semibold bg-transparent placeholder-slate-400" 
+                            />
+                            <div className="w-6 h-6 rounded-full bg-sky-50 flex items-center justify-center border border-sky-200 text-sky-500 group-hover:bg-sky-100 transition-colors flex-shrink-0 ml-1">
+                              <Edit className="w-3 h-3" />
+                            </div>
                           </div>
                         </div>
 
-                        <div className="border border-slate-300 rounded-lg p-3 flex items-center justify-between focus-within:border-cyan-500 transition-all bg-white group">
-                          <input 
-                            type="text" 
-                            placeholder="Unpacking Charges" 
-                            value={quotationForm.unpackingCharges}
-                            onChange={(e) => setQuotationForm({ ...quotationForm, unpackingCharges: e.target.value })}
-                            className="w-full outline-none text-slate-700 text-sm bg-transparent placeholder-slate-500" 
-                          />
-                          <div className="w-6 h-6 rounded-full bg-sky-50 flex items-center justify-center border border-sky-200 text-sky-500 group-hover:bg-sky-100 transition-colors flex-shrink-0">
-                            <Edit className="w-3 h-3" />
+                        <div className="border border-slate-300 rounded-lg p-3 focus-within:border-cyan-500 transition-all bg-white group shadow-2xs">
+                          <label className="block text-xs font-bold text-cyan-950 uppercase tracking-wider mb-1 flex items-center justify-between">
+                            <span>Unpacking Charges</span>
+                            <span className="text-[10px] text-slate-400 font-medium lowercase">enter amount</span>
+                          </label>
+                          <div className="flex items-center justify-between">
+                            <input 
+                              type="text" 
+                              placeholder="Enter amount" 
+                              value={quotationForm.unpackingCharges}
+                              onChange={(e) => setQuotationForm({ ...quotationForm, unpackingCharges: e.target.value })}
+                              className="w-full outline-none text-slate-800 text-sm font-semibold bg-transparent placeholder-slate-400" 
+                            />
+                            <div className="w-6 h-6 rounded-full bg-sky-50 flex items-center justify-center border border-sky-200 text-sky-500 group-hover:bg-sky-100 transition-colors flex-shrink-0 ml-1">
+                              <Edit className="w-3 h-3" />
+                            </div>
                           </div>
                         </div>
 
-                        <div className="border border-slate-300 rounded-lg p-3 flex items-center justify-between focus-within:border-cyan-500 transition-all bg-white group">
-                          <input 
-                            type="text" 
-                            placeholder="Loading Charges" 
-                            value={quotationForm.loadingCharges}
-                            onChange={(e) => setQuotationForm({ ...quotationForm, loadingCharges: e.target.value })}
-                            className="w-full outline-none text-slate-700 text-sm bg-transparent placeholder-slate-500" 
-                          />
-                          <div className="w-6 h-6 rounded-full bg-sky-50 flex items-center justify-center border border-sky-200 text-sky-500 group-hover:bg-sky-100 transition-colors flex-shrink-0">
-                            <Edit className="w-3 h-3" />
+                        <div className="border border-slate-300 rounded-lg p-3 focus-within:border-cyan-500 transition-all bg-white group shadow-2xs">
+                          <label className="block text-xs font-bold text-cyan-950 uppercase tracking-wider mb-1 flex items-center justify-between">
+                            <span>Loading Charges</span>
+                            <span className="text-[10px] text-slate-400 font-medium lowercase">enter amount</span>
+                          </label>
+                          <div className="flex items-center justify-between">
+                            <input 
+                              type="text" 
+                              placeholder="Enter amount" 
+                              value={quotationForm.loadingCharges}
+                              onChange={(e) => setQuotationForm({ ...quotationForm, loadingCharges: e.target.value })}
+                              className="w-full outline-none text-slate-800 text-sm font-semibold bg-transparent placeholder-slate-400" 
+                            />
+                            <div className="w-6 h-6 rounded-full bg-sky-50 flex items-center justify-center border border-sky-200 text-sky-500 group-hover:bg-sky-100 transition-colors flex-shrink-0 ml-1">
+                              <Edit className="w-3 h-3" />
+                            </div>
                           </div>
                         </div>
 
-                        <div className="border border-slate-300 rounded-lg p-3 flex items-center justify-between focus-within:border-cyan-500 transition-all bg-white group">
-                          <input 
-                            type="text" 
-                            placeholder="Unloading Charges" 
-                            value={quotationForm.unloadingCharges}
-                            onChange={(e) => setQuotationForm({ ...quotationForm, unloadingCharges: e.target.value })}
-                            className="w-full outline-none text-slate-700 text-sm bg-transparent placeholder-slate-500" 
-                          />
-                          <div className="w-6 h-6 rounded-full bg-sky-50 flex items-center justify-center border border-sky-200 text-sky-500 group-hover:bg-sky-100 transition-colors flex-shrink-0">
-                            <Edit className="w-3 h-3" />
+                        <div className="border border-slate-300 rounded-lg p-3 focus-within:border-cyan-500 transition-all bg-white group shadow-2xs">
+                          <label className="block text-xs font-bold text-cyan-950 uppercase tracking-wider mb-1 flex items-center justify-between">
+                            <span>Unloading Charges</span>
+                            <span className="text-[10px] text-slate-400 font-medium lowercase">enter amount</span>
+                          </label>
+                          <div className="flex items-center justify-between">
+                            <input 
+                              type="text" 
+                              placeholder="Enter amount" 
+                              value={quotationForm.unloadingCharges}
+                              onChange={(e) => setQuotationForm({ ...quotationForm, unloadingCharges: e.target.value })}
+                              className="w-full outline-none text-slate-800 text-sm font-semibold bg-transparent placeholder-slate-400" 
+                            />
+                            <div className="w-6 h-6 rounded-full bg-sky-50 flex items-center justify-center border border-sky-200 text-sky-500 group-hover:bg-sky-100 transition-colors flex-shrink-0 ml-1">
+                              <Edit className="w-3 h-3" />
+                            </div>
                           </div>
                         </div>
 
-                        <div className="border border-slate-300 rounded-lg p-3 flex items-center justify-between focus-within:border-cyan-500 transition-all bg-white group">
-                          <input 
-                            type="text" 
-                            placeholder="Dismantling/Assembling Charges" 
-                            value={quotationForm.dismantlingCharges}
-                            onChange={(e) => setQuotationForm({ ...quotationForm, dismantlingCharges: e.target.value })}
-                            className="w-full outline-none text-slate-700 text-sm bg-transparent placeholder-slate-500" 
-                          />
-                          <div className="w-6 h-6 rounded-full bg-sky-50 flex items-center justify-center border border-sky-200 text-sky-500 group-hover:bg-sky-100 transition-colors flex-shrink-0">
-                            <Edit className="w-3 h-3" />
+                        <div className="border border-slate-300 rounded-lg p-3 focus-within:border-cyan-500 transition-all bg-white group shadow-2xs">
+                          <label className="block text-xs font-bold text-cyan-950 uppercase tracking-wider mb-1 flex items-center justify-between">
+                            <span>Dismantling/Assembling Charges</span>
+                            <span className="text-[10px] text-slate-400 font-medium lowercase">enter amount</span>
+                          </label>
+                          <div className="flex items-center justify-between">
+                            <input 
+                              type="text" 
+                              placeholder="Enter amount" 
+                              value={quotationForm.dismantlingCharges}
+                              onChange={(e) => setQuotationForm({ ...quotationForm, dismantlingCharges: e.target.value })}
+                              className="w-full outline-none text-slate-800 text-sm font-semibold bg-transparent placeholder-slate-400" 
+                            />
+                            <div className="w-6 h-6 rounded-full bg-sky-50 flex items-center justify-center border border-sky-200 text-sky-500 group-hover:bg-sky-100 transition-colors flex-shrink-0 ml-1">
+                              <Edit className="w-3 h-3" />
+                            </div>
                           </div>
                         </div>
 
-                        <div className="border border-slate-300 rounded-lg p-3 flex items-center justify-between focus-within:border-cyan-500 transition-all bg-white group">
-                          <input 
-                            type="text" 
-                            placeholder="Octroi/Entry Charges" 
-                            value={quotationForm.octroiCharges}
-                            onChange={(e) => setQuotationForm({ ...quotationForm, octroiCharges: e.target.value })}
-                            className="w-full outline-none text-slate-700 text-sm bg-transparent placeholder-slate-500" 
-                          />
-                          <div className="w-6 h-6 rounded-full bg-sky-50 flex items-center justify-center border border-sky-200 text-sky-500 group-hover:bg-sky-100 transition-colors flex-shrink-0">
-                            <Edit className="w-3 h-3" />
+                        <div className="border border-slate-300 rounded-lg p-3 focus-within:border-cyan-500 transition-all bg-white group shadow-2xs">
+                          <label className="block text-xs font-bold text-cyan-950 uppercase tracking-wider mb-1 flex items-center justify-between">
+                            <span>Octroi/Entry Charges</span>
+                            <span className="text-[10px] text-slate-400 font-medium lowercase">enter amount</span>
+                          </label>
+                          <div className="flex items-center justify-between">
+                            <input 
+                              type="text" 
+                              placeholder="Enter amount" 
+                              value={quotationForm.octroiCharges}
+                              onChange={(e) => setQuotationForm({ ...quotationForm, octroiCharges: e.target.value })}
+                              className="w-full outline-none text-slate-800 text-sm font-semibold bg-transparent placeholder-slate-400" 
+                            />
+                            <div className="w-6 h-6 rounded-full bg-sky-50 flex items-center justify-center border border-sky-200 text-sky-500 group-hover:bg-sky-100 transition-colors flex-shrink-0 ml-1">
+                              <Edit className="w-3 h-3" />
+                            </div>
                           </div>
                         </div>
 
-                        <div className="border border-slate-300 rounded-lg p-3 flex items-center justify-between focus-within:border-cyan-500 transition-all bg-white group">
-                          <input 
-                            type="text" 
-                            placeholder="Car Transportation Charges" 
-                            value={quotationForm.carCharges}
-                            onChange={(e) => setQuotationForm({ ...quotationForm, carCharges: e.target.value })}
-                            className="w-full outline-none text-slate-700 text-sm bg-transparent placeholder-slate-500" 
-                          />
-                          <div className="w-6 h-6 rounded-full bg-sky-50 flex items-center justify-center border border-sky-200 text-sky-500 group-hover:bg-sky-100 transition-colors flex-shrink-0">
-                            <Edit className="w-3 h-3" />
+                        <div className="border border-slate-300 rounded-lg p-3 focus-within:border-cyan-500 transition-all bg-white group shadow-2xs">
+                          <label className="block text-xs font-bold text-cyan-950 uppercase tracking-wider mb-1 flex items-center justify-between">
+                            <span>Car Transportation Charges</span>
+                            <span className="text-[10px] text-slate-400 font-medium lowercase">enter amount</span>
+                          </label>
+                          <div className="flex items-center justify-between">
+                            <input 
+                              type="text" 
+                              placeholder="Enter amount" 
+                              value={quotationForm.carCharges}
+                              onChange={(e) => setQuotationForm({ ...quotationForm, carCharges: e.target.value })}
+                              className="w-full outline-none text-slate-800 text-sm font-semibold bg-transparent placeholder-slate-400" 
+                            />
+                            <div className="w-6 h-6 rounded-full bg-sky-50 flex items-center justify-center border border-sky-200 text-sky-500 group-hover:bg-sky-100 transition-colors flex-shrink-0 ml-1">
+                              <Edit className="w-3 h-3" />
+                            </div>
                           </div>
                         </div>
 
-                        <div className="border border-slate-300 rounded-lg p-3 flex items-center justify-between focus-within:border-cyan-500 transition-all bg-white group">
-                          <input 
-                            type="text" 
-                            placeholder="Bike Transportation Charges" 
-                            value={quotationForm.bikeCharges}
-                            onChange={(e) => setQuotationForm({ ...quotationForm, bikeCharges: e.target.value })}
-                            className="w-full outline-none text-slate-700 text-sm bg-transparent placeholder-slate-500" 
-                          />
-                          <div className="w-6 h-6 rounded-full bg-sky-50 flex items-center justify-center border border-sky-200 text-sky-500 group-hover:bg-sky-100 transition-colors flex-shrink-0">
-                            <Edit className="w-3 h-3" />
+                        <div className="border border-slate-300 rounded-lg p-3 focus-within:border-cyan-500 transition-all bg-white group shadow-2xs">
+                          <label className="block text-xs font-bold text-cyan-950 uppercase tracking-wider mb-1 flex items-center justify-between">
+                            <span>Bike Transportation Charges</span>
+                            <span className="text-[10px] text-slate-400 font-medium lowercase">enter amount</span>
+                          </label>
+                          <div className="flex items-center justify-between">
+                            <input 
+                              type="text" 
+                              placeholder="Enter amount" 
+                              value={quotationForm.bikeCharges}
+                              onChange={(e) => setQuotationForm({ ...quotationForm, bikeCharges: e.target.value })}
+                              className="w-full outline-none text-slate-800 text-sm font-semibold bg-transparent placeholder-slate-400" 
+                            />
+                            <div className="w-6 h-6 rounded-full bg-sky-50 flex items-center justify-center border border-sky-200 text-sky-500 group-hover:bg-sky-100 transition-colors flex-shrink-0 ml-1">
+                              <Edit className="w-3 h-3" />
+                            </div>
                           </div>
                         </div>
 
-                        <div className="border border-slate-300 rounded-lg p-3 flex items-center justify-between focus-within:border-cyan-500 transition-all bg-white group">
-                          <input 
-                            type="text" 
-                            placeholder="Statistical/Document Charges" 
-                            value={quotationForm.statCharges}
-                            onChange={(e) => setQuotationForm({ ...quotationForm, statCharges: e.target.value })}
-                            className="w-full outline-none text-slate-700 text-sm bg-transparent placeholder-slate-500" 
-                          />
-                          <div className="w-6 h-6 rounded-full bg-sky-50 flex items-center justify-center border border-sky-200 text-sky-500 group-hover:bg-sky-100 transition-colors flex-shrink-0">
-                            <Edit className="w-3 h-3" />
+                        <div className="border border-slate-300 rounded-lg p-3 focus-within:border-cyan-500 transition-all bg-white group shadow-2xs">
+                          <label className="block text-xs font-bold text-cyan-950 uppercase tracking-wider mb-1 flex items-center justify-between">
+                            <span>Statistical/Document Charges</span>
+                            <span className="text-[10px] text-slate-400 font-medium lowercase">enter amount</span>
+                          </label>
+                          <div className="flex items-center justify-between">
+                            <input 
+                              type="text" 
+                              placeholder="Enter amount" 
+                              value={quotationForm.statCharges}
+                              onChange={(e) => setQuotationForm({ ...quotationForm, statCharges: e.target.value })}
+                              className="w-full outline-none text-slate-800 text-sm font-semibold bg-transparent placeholder-slate-400" 
+                            />
+                            <div className="w-6 h-6 rounded-full bg-sky-50 flex items-center justify-center border border-sky-200 text-sky-500 group-hover:bg-sky-100 transition-colors flex-shrink-0 ml-1">
+                              <Edit className="w-3 h-3" />
+                            </div>
                           </div>
                         </div>
+                      </div>
+
+                      {/* Additional / Custom Charges (New Entries) */}
+                      <div className="mt-6 pt-5 border-t border-cyan-200">
+                        <div className="flex items-center justify-between mb-3">
+                          <div>
+                            <span className="text-xs font-bold text-cyan-950 uppercase tracking-wider flex items-center gap-1.5">
+                              <Plus className="w-3.5 h-3.5 text-cyan-600" />
+                              Custom / Additional Charges (New Entries)
+                            </span>
+                            <p className="text-[11px] text-slate-500 mt-0.5">Add any new charge item by entering its name and applied amount</p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const existing = quotationForm.customCharges || [];
+                              setQuotationForm({
+                                ...quotationForm,
+                                customCharges: [...existing, { name: '', val: '' }]
+                              });
+                            }}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg text-xs font-bold shadow-xs transition-colors cursor-pointer"
+                          >
+                            <Plus className="w-3.5 h-3.5" /> + Add New Charge
+                          </button>
+                        </div>
+
+                        {(!quotationForm.customCharges || quotationForm.customCharges.length === 0) ? (
+                          <div className="bg-slate-50 border border-dashed border-slate-300 rounded-lg p-3 text-center">
+                            <p className="text-xs text-slate-500">Need to add another charge? Click <strong className="text-cyan-700">+ Add New Charge</strong> to add any new service or fee.</p>
+                          </div>
+                        ) : (
+                          <div className="space-y-2.5">
+                            {quotationForm.customCharges.map((cc: any, idx: number) => (
+                              <div key={idx} className="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center bg-cyan-50/60 p-2.5 rounded-lg border border-cyan-200">
+                                <div className="sm:col-span-6">
+                                  <label className="block text-[10px] font-bold text-cyan-900 uppercase tracking-wider mb-0.5">Charge Name (Visible on Quotation)</label>
+                                  <input
+                                    type="text"
+                                    placeholder="Enter charge name"
+                                    value={cc.name}
+                                    onChange={(e) => {
+                                      const updated = [...(quotationForm.customCharges || [])];
+                                      updated[idx] = { ...updated[idx], name: e.target.value };
+                                      setQuotationForm({ ...quotationForm, customCharges: updated });
+                                    }}
+                                    className="w-full bg-white border border-slate-300 rounded-md px-2.5 py-1.5 text-xs text-slate-800 font-medium outline-none focus:border-cyan-500"
+                                  />
+                                </div>
+                                <div className="sm:col-span-5">
+                                  <label className="block text-[10px] font-bold text-cyan-900 uppercase tracking-wider mb-0.5">Applied Amount</label>
+                                  <input
+                                    type="text"
+                                    placeholder="Enter amount"
+                                    value={cc.val}
+                                    onChange={(e) => {
+                                      const updated = [...(quotationForm.customCharges || [])];
+                                      updated[idx] = { ...updated[idx], val: e.target.value };
+                                      setQuotationForm({ ...quotationForm, customCharges: updated });
+                                    }}
+                                    className="w-full bg-white border border-slate-300 rounded-md px-2.5 py-1.5 text-xs text-slate-800 font-bold outline-none focus:border-cyan-500"
+                                  />
+                                </div>
+                                <div className="sm:col-span-1 flex justify-end sm:pt-4">
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const updated = (quotationForm.customCharges || []).filter((_: any, i: number) => i !== idx);
+                                      setQuotationForm({ ...quotationForm, customCharges: updated });
+                                    }}
+                                    className="text-red-500 hover:text-red-700 p-1.5 rounded-md hover:bg-red-50 transition-colors cursor-pointer"
+                                    title="Remove Charge"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </div>
 
                     {/* Service/GST/Insurance */}
                     <div className="border-2 border-slate-900 rounded-xl p-6 pt-8 relative bg-white shadow-sm">
                       <span className="absolute -top-3.5 left-4 bg-slate-900 text-white px-4 py-1 rounded-md text-sm font-medium shadow-sm">Service/GST/Insurance</span>
+                      
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="border border-slate-300 rounded-lg p-3 flex items-center justify-between focus-within:border-slate-500 transition-all bg-white group">
-                          <input 
-                            type="text" 
-                            placeholder="Service Charge" 
-                            value={quotationForm.serviceCharge}
-                            onChange={(e) => setQuotationForm({ ...quotationForm, serviceCharge: e.target.value })}
-                            className="w-full outline-none text-slate-700 text-sm bg-transparent placeholder-slate-500" 
-                          />
-                          <div className="w-6 h-6 rounded-full bg-sky-50 flex items-center justify-center border border-sky-200 text-sky-500 group-hover:bg-sky-100 transition-colors flex-shrink-0">
-                            <Edit className="w-3 h-3" />
+                        {/* 1. Service Charge % */}
+                        <div className="border border-slate-300 rounded-lg p-3 focus-within:border-slate-800 transition-all bg-white relative shadow-2xs">
+                          <label className="block text-xs font-bold text-slate-900 uppercase tracking-wider mb-1 flex items-center justify-between">
+                            <span className="flex items-center gap-1.5">
+                              <span className="w-2 h-2 rounded-full bg-blue-600"></span>
+                              Service Charge %
+                            </span>
+                            <span className="text-[10px] text-slate-400 font-medium lowercase">dropdown (0% - 20%)</span>
+                          </label>
+                          <select 
+                            value={quotationForm.serviceChargePercent || '0%'}
+                            onChange={(e) => setQuotationForm({ ...quotationForm, serviceChargePercent: e.target.value })}
+                            className="w-full outline-none text-slate-800 text-sm font-semibold bg-transparent appearance-none cursor-pointer py-1"
+                          >
+                            {SERVICE_CHARGE_PERCENT_OPTIONS.map((pct) => (
+                              <option key={pct} value={pct}>{pct}</option>
+                            ))}
+                          </select>
+                        </div>
+
+                        {/* 2. Service Charge Amount Value Input */}
+                        <div className="border border-slate-300 rounded-lg p-3 focus-within:border-slate-800 transition-all bg-white group shadow-2xs">
+                          <label className="block text-xs font-bold text-slate-900 uppercase tracking-wider mb-1 flex items-center justify-between">
+                            <span className="flex items-center gap-1.5">
+                              <span className="w-2 h-2 rounded-full bg-blue-600"></span>
+                              Service Charge
+                            </span>
+                            <span className="text-[10px] text-slate-400 font-medium lowercase">enter value</span>
+                          </label>
+                          <div className="flex items-center justify-between">
+                            <input 
+                              type="text" 
+                              placeholder="Enter service charge value" 
+                              value={quotationForm.serviceCharge}
+                              onChange={(e) => setQuotationForm({ ...quotationForm, serviceCharge: e.target.value })}
+                              className="w-full outline-none text-slate-800 text-sm font-semibold bg-transparent placeholder-slate-400" 
+                            />
+                            <div className="w-6 h-6 rounded-full bg-sky-50 flex items-center justify-center border border-sky-200 text-sky-500 group-hover:bg-sky-100 transition-colors flex-shrink-0 ml-1">
+                              <Edit className="w-3 h-3" />
+                            </div>
                           </div>
                         </div>
 
-                        <div className="border border-slate-300 rounded-lg p-2 focus-within:border-slate-500 transition-all bg-white relative">
-                          <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Insurance %</label>
+                        {/* 3. Insurance % & Status */}
+                        <div className="border border-slate-300 rounded-lg p-3 focus-within:border-emerald-600 transition-all bg-white relative shadow-2xs">
+                          <div className="flex items-center justify-between mb-1.5">
+                            <label className="block text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                              <span className="w-2 h-2 rounded-full bg-emerald-600"></span>
+                              Insurance %
+                            </label>
+                            {/* Toggle Pills: Extra / Included / Exempted */}
+                            <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setQuotationForm({ 
+                                    ...quotationForm, 
+                                    insuranceStatus: 'Extra', 
+                                    insuranceCharge: quotationForm.insuranceCharge === 'Included' || quotationForm.insuranceCharge === 'Exempted' ? '' : quotationForm.insuranceCharge 
+                                  });
+                                }}
+                                className={`px-1.5 py-0.5 text-[10px] font-bold rounded cursor-pointer transition-colors ${
+                                  (quotationForm.insuranceStatus || 'Extra') === 'Extra'
+                                    ? 'bg-amber-600 text-white shadow-2xs'
+                                    : 'text-slate-600 hover:text-slate-900'
+                                }`}
+                              >
+                                Extra
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setQuotationForm({ ...quotationForm, insuranceStatus: 'Included', insuranceCharge: 'Included' });
+                                }}
+                                className={`px-1.5 py-0.5 text-[10px] font-bold rounded cursor-pointer transition-colors ${
+                                  quotationForm.insuranceStatus === 'Included'
+                                    ? 'bg-emerald-600 text-white shadow-2xs'
+                                    : 'text-slate-600 hover:text-slate-900'
+                                }`}
+                              >
+                                Included
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setQuotationForm({ ...quotationForm, insuranceStatus: 'Exempted', insuranceCharge: 'Exempted' });
+                                }}
+                                className={`px-1.5 py-0.5 text-[10px] font-bold rounded cursor-pointer transition-colors ${
+                                  quotationForm.insuranceStatus === 'Exempted'
+                                    ? 'bg-slate-700 text-white shadow-2xs'
+                                    : 'text-slate-600 hover:text-slate-900'
+                                }`}
+                              >
+                                Exempted
+                              </button>
+                            </div>
+                          </div>
                           <select 
-                            value={quotationForm.insurancePercent}
-                            onChange={(e) => setQuotationForm({ ...quotationForm, insurancePercent: e.target.value })}
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent appearance-none cursor-pointer"
+                            value={quotationForm.insurancePercent || '3%'}
+                            onChange={(e) => {
+                              const newPct = e.target.value;
+                              let newInsCharge = quotationForm.insuranceCharge;
+                              if (quotationForm.insuranceStatus !== 'Included' && quotationForm.insuranceStatus !== 'Exempted' && quotationForm.goodsValue) {
+                                const gv = parseFloat(String(quotationForm.goodsValue).replace(/[^0-9.]/g, '')) || 0;
+                                const pctNum = parseFloat(newPct.replace(/[^0-9.]/g, '')) || 0;
+                                const auto = Math.round((gv * pctNum) / 100);
+                                if (auto > 0) newInsCharge = String(auto);
+                              }
+                              setQuotationForm({ ...quotationForm, insurancePercent: newPct, insuranceCharge: newInsCharge });
+                            }}
+                            className="w-full outline-none text-slate-800 text-sm font-semibold bg-transparent appearance-none cursor-pointer py-1"
                           >
-                            <option>3%</option>
-                            <option>0.5%</option>
-                            <option>1%</option>
-                            <option>1.5%</option>
-                            <option>2%</option>
-                            <option>2.5%</option>
-                            <option>3%</option>
+                            <option value="3%">3% (Standard Relocation)</option>
+                            <option value="2.5%">2.5%</option>
+                            <option value="2%">2%</option>
+                            <option value="1.5%">1.5%</option>
+                            <option value="1%">1%</option>
+                            <option value="0.5%">0.5%</option>
+                            <option value="0%">0% (Nil)</option>
+                            <option value="3.5%">3.5%</option>
+                            <option value="4%">4%</option>
+                            <option value="5%">5%</option>
                           </select>
                         </div>
 
-                        <div className="border border-slate-300 rounded-lg p-3 focus-within:border-slate-500 transition-all bg-white">
-                          <input 
-                            type="text" 
-                            placeholder="Goods Total Value in (Rs.)" 
-                            value={quotationForm.goodsValue}
-                            onChange={(e) => setQuotationForm({ ...quotationForm, goodsValue: e.target.value })}
-                            className="w-full outline-none text-slate-700 text-sm bg-transparent placeholder-slate-500" 
-                          />
+                        {/* 4. Insurance Charge */}
+                        <div className="border border-slate-300 rounded-lg p-3 focus-within:border-emerald-600 transition-all bg-white group shadow-2xs">
+                          <label className="block text-xs font-bold text-slate-900 uppercase tracking-wider mb-1 flex items-center justify-between">
+                            <span className="flex items-center gap-1.5">
+                              <span className="w-2 h-2 rounded-full bg-emerald-600"></span>
+                              Insurance Charge
+                            </span>
+                            <span className="text-[10px] text-slate-400 font-medium lowercase">
+                              {quotationForm.insuranceStatus === 'Included' ? 'charge included' : quotationForm.insuranceStatus === 'Exempted' ? 'exempted' : 'enter value / auto-calc'}
+                            </span>
+                          </label>
+                          <div className="flex items-center justify-between">
+                            <input 
+                              type="text" 
+                              placeholder={quotationForm.insuranceStatus === 'Included' ? 'Included' : quotationForm.insuranceStatus === 'Exempted' ? 'Exempted' : 'Enter amount or value'} 
+                              value={quotationForm.insuranceCharge || ''}
+                              onChange={(e) => setQuotationForm({ ...quotationForm, insuranceCharge: e.target.value })}
+                              className="w-full outline-none text-slate-800 text-sm font-semibold bg-transparent placeholder-slate-400" 
+                            />
+                            {quotationForm.goodsValue && quotationForm.insuranceStatus !== 'Included' && quotationForm.insuranceStatus !== 'Exempted' && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const gv = parseFloat(String(quotationForm.goodsValue).replace(/[^0-9.]/g, '')) || 0;
+                                  const pct = parseFloat(String(quotationForm.insurancePercent || '3').replace(/[^0-9.]/g, '')) || 3;
+                                  const calc = Math.round((gv * pct) / 100);
+                                  if (calc > 0) {
+                                    setQuotationForm({ ...quotationForm, insuranceCharge: String(calc) });
+                                  }
+                                }}
+                                title="Auto-calculate Insurance from Goods Value"
+                                className="text-[11px] text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 px-2 py-0.5 rounded ml-1 cursor-pointer shrink-0 font-bold"
+                              >
+                                Calc
+                              </button>
+                            )}
+                            <div className="w-6 h-6 rounded-full bg-emerald-50 flex items-center justify-center border border-emerald-200 text-emerald-600 group-hover:bg-emerald-100 transition-colors flex-shrink-0 ml-1">
+                              <Edit className="w-3 h-3" />
+                            </div>
+                          </div>
                         </div>
 
-                        <div className="border border-slate-300 rounded-lg p-2 focus-within:border-slate-500 transition-all bg-white relative">
-                          <label className="block text-[11px] text-slate-500 font-medium mb-0.5">GST Type</label>
+                        {/* 5. GST Charge % & Status */}
+                        <div className="border border-slate-300 rounded-lg p-3 focus-within:border-purple-600 transition-all bg-white relative shadow-2xs">
+                          <div className="flex items-center justify-between mb-1.5">
+                            <label className="block text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                              <span className="w-2 h-2 rounded-full bg-purple-600"></span>
+                              GST Charge %
+                            </label>
+                            {/* Toggle Pills: Extra / Included / Exempted */}
+                            <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setQuotationForm({ 
+                                    ...quotationForm, 
+                                    gstStatus: 'Extra', 
+                                    gstCharge: quotationForm.gstCharge === 'Included' || quotationForm.gstCharge === 'Exempted' ? '' : quotationForm.gstCharge 
+                                  });
+                                }}
+                                className={`px-1.5 py-0.5 text-[10px] font-bold rounded cursor-pointer transition-colors ${
+                                  (quotationForm.gstStatus || 'Extra') === 'Extra'
+                                    ? 'bg-amber-600 text-white shadow-2xs'
+                                    : 'text-slate-600 hover:text-slate-900'
+                                }`}
+                              >
+                                Extra
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setQuotationForm({ ...quotationForm, gstStatus: 'Included', gstCharge: 'Included' });
+                                }}
+                                className={`px-1.5 py-0.5 text-[10px] font-bold rounded cursor-pointer transition-colors ${
+                                  quotationForm.gstStatus === 'Included'
+                                    ? 'bg-emerald-600 text-white shadow-2xs'
+                                    : 'text-slate-600 hover:text-slate-900'
+                                }`}
+                              >
+                                Included
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setQuotationForm({ ...quotationForm, gstStatus: 'Exempted', gstCharge: 'Exempted' });
+                                }}
+                                className={`px-1.5 py-0.5 text-[10px] font-bold rounded cursor-pointer transition-colors ${
+                                  quotationForm.gstStatus === 'Exempted'
+                                    ? 'bg-slate-700 text-white shadow-2xs'
+                                    : 'text-slate-600 hover:text-slate-900'
+                                }`}
+                              >
+                                Exempted
+                              </button>
+                            </div>
+                          </div>
                           <select 
-                            value={quotationForm.gstType}
-                            onChange={(e) => setQuotationForm({ ...quotationForm, gstType: e.target.value })}
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent appearance-none cursor-pointer"
+                            value={quotationForm.gstPercent || '18%'}
+                            onChange={(e) => setQuotationForm({ ...quotationForm, gstPercent: e.target.value })}
+                            className="w-full outline-none text-slate-800 text-sm font-semibold bg-transparent appearance-none cursor-pointer py-1"
                           >
-                            <option>CGST/SGST</option>
-                            <option>IGST</option>
-                            <option>Exempted</option>
+                            <option value="18%">18% (Standard Logistics & Packers)</option>
+                            <option value="12%">12% (Standard Goods Moving)</option>
+                            <option value="5%">5% (Goods Transport Agency / GTA)</option>
+                            <option value="28%">28% (Luxury / Special Move)</option>
+                            <option value="0%">0% (Nil / Exempted Tax)</option>
+                          </select>
+                        </div>
+
+                        {/* 6. GST Charge */}
+                        <div className="border border-slate-300 rounded-lg p-3 focus-within:border-purple-600 transition-all bg-white group shadow-2xs">
+                          <label className="block text-xs font-bold text-slate-900 uppercase tracking-wider mb-1 flex items-center justify-between">
+                            <span className="flex items-center gap-1.5">
+                              <span className="w-2 h-2 rounded-full bg-purple-600"></span>
+                              GST Charge
+                            </span>
+                            <span className="text-[10px] text-slate-400 font-medium lowercase">
+                              {quotationForm.gstStatus === 'Included' ? 'charge included' : quotationForm.gstStatus === 'Exempted' ? 'exempted' : 'enter value / auto-calc'}
+                            </span>
+                          </label>
+                          <div className="flex items-center justify-between">
+                            <input 
+                              type="text" 
+                              placeholder={quotationForm.gstStatus === 'Included' ? 'Included' : quotationForm.gstStatus === 'Exempted' ? 'Exempted' : 'Enter amount or value'} 
+                              value={quotationForm.gstCharge || ''}
+                              onChange={(e) => setQuotationForm({ ...quotationForm, gstCharge: e.target.value })}
+                              className="w-full outline-none text-slate-800 text-sm font-semibold bg-transparent placeholder-slate-400" 
+                            />
+                            {quotationForm.gstStatus !== 'Included' && quotationForm.gstStatus !== 'Exempted' && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const allCharges = [
+                                    quotationForm.transportCharges,
+                                    quotationForm.packingCharges,
+                                    quotationForm.unpackingCharges,
+                                    quotationForm.loadingCharges,
+                                    quotationForm.unloadingCharges,
+                                    quotationForm.dismantlingCharges,
+                                    quotationForm.octroiCharges,
+                                    quotationForm.carCharges,
+                                    quotationForm.bikeCharges,
+                                    quotationForm.statCharges,
+                                    quotationForm.serviceCharge,
+                                    ...(quotationForm.customCharges || []).map((c: any) => c.val)
+                                  ];
+                                  let sub = 0;
+                                  for (const val of allCharges) {
+                                    const p = parseFloat(String(val).replace(/[^0-9.]/g, ''));
+                                    if (!isNaN(p) && p > 0) sub += p;
+                                  }
+                                  if (sub === 0 && quotationForm.subTotal) {
+                                    sub = parseFloat(String(quotationForm.subTotal).replace(/[^0-9.]/g, '')) || 0;
+                                  }
+                                  const pct = parseFloat(String(quotationForm.gstPercent || '18').replace(/[^0-9.]/g, '')) || 18;
+                                  const calc = Math.round((sub * pct) / 100);
+                                  if (calc > 0) {
+                                    setQuotationForm({ ...quotationForm, gstCharge: String(calc) });
+                                  }
+                                }}
+                                title="Auto-calculate GST from Sub Total"
+                                className="text-[11px] text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-300 px-2 py-0.5 rounded ml-1 cursor-pointer shrink-0 font-bold"
+                              >
+                                Calc ({quotationForm.gstPercent || '18%'})
+                              </button>
+                            )}
+                            <div className="w-6 h-6 rounded-full bg-purple-50 flex items-center justify-center border border-purple-200 text-purple-600 group-hover:bg-purple-100 transition-colors flex-shrink-0 ml-1">
+                              <Edit className="w-3 h-3" />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* 7. Goods Total Value */}
+                        <div className="border border-slate-300 rounded-lg p-3 focus-within:border-slate-800 transition-all bg-white group shadow-2xs">
+                          <label className="block text-xs font-bold text-slate-900 uppercase tracking-wider mb-1 flex items-center justify-between">
+                            <span className="flex items-center gap-1.5">
+                              <span className="w-2 h-2 rounded-full bg-slate-600"></span>
+                              Goods Total Value (Rs.)
+                            </span>
+                            <span className="text-[10px] text-slate-400 font-medium lowercase">declared value</span>
+                          </label>
+                          <div className="flex items-center justify-between">
+                            <input 
+                              type="text" 
+                              placeholder="Declared Goods Value" 
+                              value={quotationForm.goodsValue || ''}
+                              onChange={(e) => {
+                                const newGoodsVal = e.target.value;
+                                let newIns = quotationForm.insuranceCharge;
+                                if (quotationForm.insuranceStatus !== 'Included' && quotationForm.insuranceStatus !== 'Exempted') {
+                                  const gvNum = parseFloat(newGoodsVal.replace(/[^0-9.]/g, '')) || 0;
+                                  const pctNum = parseFloat(String(quotationForm.insurancePercent || '3').replace(/[^0-9.]/g, '')) || 3;
+                                  if (gvNum > 0) {
+                                    newIns = String(Math.round((gvNum * pctNum) / 100));
+                                  } else if (newGoodsVal.trim() === '') {
+                                    newIns = '';
+                                  }
+                                }
+                                setQuotationForm({ ...quotationForm, goodsValue: newGoodsVal, insuranceCharge: newIns });
+                              }}
+                              className="w-full outline-none text-slate-800 text-sm font-semibold bg-transparent placeholder-slate-400" 
+                            />
+                            <div className="w-6 h-6 rounded-full bg-slate-50 flex items-center justify-center border border-slate-200 text-slate-600 group-hover:bg-slate-100 transition-colors flex-shrink-0 ml-1">
+                              <Edit className="w-3 h-3" />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* 8. GST Type */}
+                        <div className="border border-slate-300 rounded-lg p-3 focus-within:border-slate-800 transition-all bg-white relative shadow-2xs">
+                          <label className="block text-xs font-bold text-slate-900 uppercase tracking-wider mb-1 flex items-center justify-between">
+                            <span className="flex items-center gap-1.5">
+                              <span className="w-2 h-2 rounded-full bg-slate-600"></span>
+                              GST Type
+                            </span>
+                            <span className="text-[10px] text-slate-400 font-medium lowercase">tax category</span>
+                          </label>
+                          <select 
+                            value={quotationForm.gstType || 'CGST/SGST'}
+                            onChange={(e) => setQuotationForm({ ...quotationForm, gstType: e.target.value })}
+                            className="w-full outline-none text-slate-800 text-sm font-semibold bg-transparent appearance-none cursor-pointer py-1"
+                          >
+                            <option value="CGST/SGST">CGST/SGST (In-State Moving)</option>
+                            <option value="IGST">IGST (Inter-State Moving)</option>
+                            <option value="Exempted">Exempted / Nil Tax</option>
                           </select>
                         </div>
                       </div>
+
+                      {/* Live Calculation Breakdown Banner */}
+                      {(() => {
+                        const allCharges = [
+                          quotationForm.transportCharges,
+                          quotationForm.packingCharges,
+                          quotationForm.unpackingCharges,
+                          quotationForm.loadingCharges,
+                          quotationForm.unloadingCharges,
+                          quotationForm.dismantlingCharges,
+                          quotationForm.octroiCharges,
+                          quotationForm.carCharges,
+                          quotationForm.bikeCharges,
+                          quotationForm.statCharges,
+                          quotationForm.serviceCharge,
+                          ...(quotationForm.customCharges || []).map((c: any) => c.val)
+                        ];
+                        let liveSub = 0;
+                        for (const val of allCharges) {
+                          const p = parseFloat(String(val).replace(/[^0-9.]/g, ''));
+                          if (!isNaN(p) && p > 0) liveSub += p;
+                        }
+                        if (liveSub === 0 && quotationForm.subTotal) {
+                          liveSub = parseFloat(String(quotationForm.subTotal).replace(/[^0-9.]/g, '')) || 0;
+                        }
+
+                        // Insurance calculation
+                        let liveIns = 0;
+                        if (quotationForm.insuranceStatus !== 'Included' && quotationForm.insuranceStatus !== 'Exempted') {
+                          const insP = parseFloat(String(quotationForm.insuranceCharge).replace(/[^0-9.]/g, ''));
+                          if (!isNaN(insP) && insP > 0) {
+                            liveIns = insP;
+                          } else if (quotationForm.goodsValue) {
+                            const gVal = parseFloat(String(quotationForm.goodsValue).replace(/[^0-9.]/g, '')) || 0;
+                            const pct = parseFloat(String(quotationForm.insurancePercent || '3').replace(/[^0-9.]/g, '')) || 3;
+                            liveIns = Math.round((gVal * pct) / 100);
+                          }
+                        }
+
+                        // GST calculation
+                        let liveGst = 0;
+                        if (quotationForm.gstStatus !== 'Included' && quotationForm.gstStatus !== 'Exempted' && quotationForm.gstType !== 'Exempted') {
+                          const gstP = parseFloat(String(quotationForm.gstCharge).replace(/[^0-9.]/g, ''));
+                          if (!isNaN(gstP) && gstP > 0) {
+                            liveGst = gstP;
+                          } else {
+                            const pct = parseFloat(String(quotationForm.gstPercent || '18').replace(/[^0-9.]/g, '')) || 18;
+                            liveGst = Math.round((liveSub * pct) / 100);
+                          }
+                        }
+
+                        const liveGrand = liveSub + liveIns + liveGst;
+
+                        return (
+                          <div className="mt-4 p-3.5 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl flex flex-wrap items-center justify-between gap-3">
+                            <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-slate-700">
+                              <div>
+                                <span className="text-slate-500">Sub Total:</span>{' '}
+                                <strong className="text-slate-900 font-mono">₹ {liveSub.toLocaleString()}</strong>
+                              </div>
+                              {liveIns > 0 && (
+                                <div className="text-emerald-700">
+                                  <span>+ Ins ({quotationForm.insurancePercent || '3%'} Extra):</span>{' '}
+                                  <strong className="font-mono">₹ {liveIns.toLocaleString()}</strong>
+                                </div>
+                              )}
+                              {liveGst > 0 && (
+                                <div className="text-purple-700">
+                                  <span>+ GST ({quotationForm.gstPercent || '18%'} Extra):</span>{' '}
+                                  <strong className="font-mono">₹ {liveGst.toLocaleString()}</strong>
+                                </div>
+                              )}
+                              {quotationForm.gstStatus === 'Included' && (
+                                <span className="text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded font-bold text-[11px]">
+                                  GST Included
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs uppercase font-extrabold text-blue-900 tracking-wider">Grand Total:</span>
+                              <span className="text-lg font-black text-blue-950 font-mono bg-white px-3 py-1 rounded-lg border border-blue-300 shadow-2xs">
+                                ₹ {liveGrand.toLocaleString()}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })()}
                     </div>
 
                     {/* Other Details */}
@@ -5481,29 +6043,39 @@ export default function App() {
                     companyName: companyProfile.companyName || 'UrbanPro Packer & Logistics',
                     brandName: companyProfile.groupName || 'M/s Prakash & Company India',
                     tagline: 'Pack Smart & Move Safe',
-                    gstin: companyProfile.gstin || '21AAAAA0000A1Z5',
-                    regAddress: 'Hanspal, Balianta Canal Road, Bhubaneswar, Odisha',
-                    branchAddress: 'Dipka, Korba, Chhattisgarh',
+                    gstin: companyProfile.gstin || '22CCQPS8419D1ZC',
+                    panNo: companyProfile.panNo || 'AKMPV0774C',
+                    regAddress: companyProfile.regAddress || companyProfile.addressLine1 || 'Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452',
+                    branchAddress: companyProfile.addressLine2 || 'Plot No. 1491, Balianta Canal Road, Near Lenskart, Hanspal, Bhubaneswar, Odisha – 752101',
                     phone1: companyProfile.mobilePrimary || '8093017400',
-                    phone2: '8093017401',
-                    email: 'urbanpro403@gmail.com',
+                    phone2: companyProfile.mobileSecondary || '8093017402',
+                    email: companyProfile.email || 'urbanpro403@gmail.com',
                     website: 'https://urbanprologistics.com',
-                    bankName: companyProfile.bankName || 'HDFC Bank',
-                    bankAccNo: companyProfile.accountNo || '50200012345678',
-                    bankIfsc: companyProfile.ifscCode || 'HDFC0001234',
-                    bankBranch: 'Bhubaneswar Main',
-                    upiId: 'urbanpro@hdfcbank',
+                    bankName: companyProfile.bankName || 'State Bank of India',
+                    bankAccNo: companyProfile.accountNo || '30789330266',
+                    bankIfsc: companyProfile.ifscCode || 'SBIN0009343',
+                    bankBranch: companyProfile.bankBranch || 'Dipka, Korba',
+                    upiId: companyProfile.upiId || '8093017400@sbi',
                     termsAndConditions: 'Goods transported at owner risk.'
                   }}
                   onSaveProfile={(p) => {
                     setCompanyProfile({
+                      ...companyProfile,
                       companyName: p.companyName,
                       groupName: p.brandName,
                       gstin: p.gstin,
+                      panNo: p.panNo,
+                      regAddress: p.regAddress,
+                      addressLine1: `Regd. Office: M/s Prakash & Company India, ${p.regAddress}`,
+                      addressLine2: `Main Operational Office: ${p.branchAddress}`,
                       mobilePrimary: p.phone1,
+                      mobileSecondary: p.phone2,
+                      email: p.email,
                       bankName: p.bankName,
                       accountNo: p.bankAccNo,
-                      ifscCode: p.bankIfsc
+                      ifscCode: p.bankIfsc,
+                      bankBranch: p.bankBranch,
+                      accountHolder: p.brandName || 'M/s Prakash & Company India'
                     });
                     setShareToast('Company settings saved successfully!');
                     setTimeout(() => setShareToast(null), 3000);
@@ -5520,6 +6092,53 @@ export default function App() {
             </div>
           </main>
         </div>
+
+        {/* Mobile Bottom Navigation Bar for Phone Ergonomics */}
+        <nav className="fixed bottom-0 left-0 right-0 z-30 bg-[#0f172a]/95 backdrop-blur-md border-t border-slate-800 px-1 py-1.5 flex items-center justify-around md:hidden shadow-2xl">
+          <button 
+            type="button"
+            onClick={() => handleTabSelect('dashboard')} 
+            className={`flex flex-col items-center py-1 px-2.5 rounded-xl text-[10px] font-medium transition-colors cursor-pointer ${adminTab === 'dashboard' ? 'text-sky-400 font-bold bg-sky-950/60' : 'text-slate-400 hover:text-slate-200'}`}
+          >
+            <LayoutDashboard className="w-5 h-5 mb-0.5" />
+            <span>Home</span>
+          </button>
+          <button 
+            type="button"
+            onClick={() => handleTabSelect('list-quotation')} 
+            className={`flex flex-col items-center py-1 px-2.5 rounded-xl text-[10px] font-medium transition-colors relative cursor-pointer ${adminTab.includes('quotation') ? 'text-amber-400 font-bold bg-amber-950/60' : 'text-slate-400 hover:text-slate-200'}`}
+          >
+            <FileText className="w-5 h-5 mb-0.5" />
+            <span>Quotes</span>
+            {quotations.length > 0 && <span className="absolute top-0.5 right-1 w-3.5 h-3.5 bg-amber-500 text-slate-950 text-[8.5px] font-black rounded-full flex items-center justify-center">{quotations.length}</span>}
+          </button>
+          <button 
+            type="button"
+            onClick={() => handleTabSelect('bill')} 
+            className={`flex flex-col items-center py-1 px-2.5 rounded-xl text-[10px] font-medium transition-colors relative cursor-pointer ${adminTab === 'bill' ? 'text-blue-400 font-bold bg-blue-950/60' : 'text-slate-400 hover:text-slate-200'}`}
+          >
+            <FileText className="w-5 h-5 mb-0.5" />
+            <span>GST Bills</span>
+            {bills.length > 0 && <span className="absolute top-0.5 right-1 w-3.5 h-3.5 bg-blue-500 text-white text-[8.5px] font-black rounded-full flex items-center justify-center">{bills.length}</span>}
+          </button>
+          <button 
+            type="button"
+            onClick={() => handleTabSelect('list-bilty')} 
+            className={`flex flex-col items-center py-1 px-2.5 rounded-xl text-[10px] font-medium transition-colors relative cursor-pointer ${adminTab.includes('bilty') ? 'text-emerald-400 font-bold bg-emerald-950/60' : 'text-slate-400 hover:text-slate-200'}`}
+          >
+            <Truck className="w-5 h-5 mb-0.5" />
+            <span>Bilty</span>
+            {bilties.length > 0 && <span className="absolute top-0.5 right-1 w-3.5 h-3.5 bg-emerald-500 text-white text-[8.5px] font-black rounded-full flex items-center justify-center">{bilties.length}</span>}
+          </button>
+          <button 
+            type="button"
+            onClick={() => setSidebarOpen(true)} 
+            className="flex flex-col items-center py-1 px-2.5 rounded-xl text-[10px] font-medium text-slate-300 hover:text-white cursor-pointer"
+          >
+            <Menu className="w-5 h-5 mb-0.5 text-sky-400" />
+            <span>All Tools</span>
+          </button>
+        </nav>
 
         {/* Modals and Toasts inside Admin View */}
         {renderSharedModalsAndToasts()}
@@ -6142,15 +6761,9 @@ export default function App() {
                 animate={{ opacity: 1, height: 'auto' }}
                 className="pt-6 mt-6 border-t border-blue-800 space-y-4 text-xs sm:text-sm text-blue-200"
               >
-                <div className="grid sm:grid-cols-2 gap-4">
-                  <div className="bg-blue-950/60 p-4 rounded-xl border border-blue-700/60">
-                    <h5 className="font-bold text-white text-sm mb-1 text-yellow-300">Responsible Handling</h5>
-                    <p className="leading-relaxed">Every item, from delicate household chinaware to corporate IT servers, is treated with maximum caution, packing precision, and dedicated transport insurance cover.</p>
-                  </div>
-                  <div className="bg-blue-950/60 p-4 rounded-xl border border-blue-700/60">
-                    <h5 className="font-bold text-white text-sm mb-1 text-yellow-300">Fleet & Manpower Assurance</h5>
-                    <p className="leading-relaxed">Equipped with customized container vehicles (14ft, 17ft, 22ft closed containers, open trailers) and full-time trained packing supervisors.</p>
-                  </div>
+                <div className="bg-blue-950/60 p-4 rounded-xl border border-blue-700/60">
+                  <h5 className="font-bold text-white text-sm mb-1 text-yellow-300">Responsible Handling</h5>
+                  <p className="leading-relaxed">Every item, from delicate household chinaware to corporate IT servers, is treated with maximum caution, packing precision, and dedicated transport insurance cover.</p>
                 </div>
               </motion.div>
             )}
@@ -6741,10 +7354,23 @@ export default function App() {
               <span className="text-xs font-bold text-yellow-400 uppercase tracking-widest bg-yellow-400/10 px-3.5 py-1.5 rounded-full border border-yellow-400/30">
                 CONTACT US:
               </span>
-              <h2 className="text-3xl font-bold text-white mt-3 mb-1">
-                <span className="text-blue-400 font-black">Urban</span><span className="text-red-500 font-black">Pro</span> <span className="text-blue-400 font-bold">Packers & Logistics</span>
-              </h2>
-              <div className="flex items-center gap-2 text-yellow-400 font-bold text-base sm:text-lg mt-2">
+              <div className="mt-4 mb-2">
+                <div className="inline-flex items-center gap-3.5 bg-white px-5 sm:px-6 py-2.5 sm:py-3 rounded-2xl shadow-xl border border-slate-200">
+                  <img 
+                    src={activeAppLogo || '/urbanpro%20logo.jpeg'} 
+                    alt="UrbanPro Logo" 
+                    className="h-9 sm:h-11 w-auto object-contain shrink-0" 
+                  />
+                  <div className="leading-tight">
+                    <h2 className="text-2xl sm:text-3xl font-black tracking-tight">
+                      <span className="text-[#1e3a8a]">Urban</span>
+                      <span className="text-[#dc2626]">Pro</span>{' '}
+                      <span className="text-[#1e3a8a] font-extrabold">Packers & Logistics</span>
+                    </h2>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 text-yellow-400 font-bold text-base sm:text-lg mt-3">
                 <PhoneCall className="w-5 h-5 text-yellow-400" />
                 <span>All India Customer Care:</span>
                 <a href="tel:8093017400" className="text-white hover:text-yellow-300 underline underline-offset-4 transition-colors">

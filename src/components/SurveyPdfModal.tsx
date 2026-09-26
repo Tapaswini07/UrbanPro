@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Printer, X, Download, Upload, Check, AlertCircle, FileText, ExternalLink } from 'lucide-react';
+import { Printer, X, Download, Upload, Check, AlertCircle, FileText, ExternalLink, Share2 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import { renderElementToCanvas, triggerPdfDownload } from '../utils/pdfExport';
+import { shareDocument } from '../utils/shareUtils';
 import { UPL_LOGO_BASE64 } from '../assets/logoBase64';
+import { PRAKASH_SIGNATURE_BASE64 } from '../assets/signatureBase64';
 
 interface SurveyItem {
   name: string;
@@ -141,6 +143,29 @@ export const SurveyPdfModal: React.FC<SurveyPdfModalProps> = ({ survey, onClose,
     }
   };
 
+  const handleShareSurvey = async () => {
+    const itemCount = survey.items?.length || 0;
+    const shareText = `📋 *UrbanPro Packers & Logistics*
+*PRE-MOVE SURVEY LIST #${survey.surveyNo || survey.id}*
+----------------------------------------
+👤 *Customer:* ${survey.partyName || 'Customer'}
+📞 *Mobile:* ${survey.mobileNo || 'N/A'}
+📅 *Survey Date:* ${survey.surveyDate || ''}
+📍 *From:* ${survey.fromCity || ''} ${survey.fromArea ? `(${survey.fromArea})` : ''}
+🏁 *To:* ${survey.toCity || ''} ${survey.toArea ? `(${survey.toArea})` : ''}
+📦 *Total Surveyed Items:* ${itemCount} articles
+----------------------------------------
+*Regd. Office:* Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452
+*Main Operational Office:* Plot No 1491, Balintha Canal Road, Hanspal, Bhubaneswar, Odisha – 752101
+*Helpline:* 8093017400 / 8093017402`;
+
+    await shareDocument({
+      title: `Survey List #${survey.surveyNo || survey.id} - UrbanPro`,
+      text: shareText,
+      phone: survey.mobileNo,
+    });
+  };
+
   const handleOpenInNewTab = async () => {
     if (pdfBlobUrl) {
       window.open(pdfBlobUrl, '_blank');
@@ -244,6 +269,15 @@ export const SurveyPdfModal: React.FC<SurveyPdfModalProps> = ({ survey, onClose,
               )}
             </button>
 
+            {/* Share Button */}
+            <button 
+              onClick={handleShareSurvey}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer"
+              title="Share via WhatsApp / Native Share"
+            >
+              <Share2 className="w-4 h-4" /> <span className="hidden sm:inline">Share</span>
+            </button>
+
             {/* Print Button */}
             <button 
               onClick={handlePrint}
@@ -294,8 +328,8 @@ export const SurveyPdfModal: React.FC<SurveyPdfModalProps> = ({ survey, onClose,
             className="bg-white w-full max-w-[794px] shadow-lg border-2 border-[#f87171] text-[12px] text-black font-sans box-border relative mx-auto my-auto print:border print:border-[#f87171] print:shadow-none print:w-full print:max-w-none"
           >
             {/* Top PAN Number Bar */}
-            <div className="bg-[#ffb3b3] text-center font-bold py-1 border-b border-[#f87171] text-[11px] tracking-wide text-black">
-              PAN No.: AKMPV0774C
+            <div className="bg-[#ffb3b3] text-center font-bold py-1 border-b border-[#f87171] text-[11px] tracking-wide text-black uppercase">
+              PAN No.: {companyProfile?.panNo || 'AKMPV0774C'}
             </div>
 
             {/* Company Logo & Address Box */}
@@ -311,22 +345,25 @@ export const SurveyPdfModal: React.FC<SurveyPdfModalProps> = ({ survey, onClose,
 
               {/* Company Details */}
               <div className="w-[72%] p-2 text-center flex flex-col justify-center items-center bg-white">
-                <div className="mb-1" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
+                <div className="mb-0.5" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
                   <h1 className="text-[24px] sm:text-[28px] font-black tracking-tight leading-none">
                     <span style={{ color: '#1e3a8a' }}>Urban</span><span style={{ color: '#dc2626' }}>Pro</span>
                   </h1>
                   <h2 className="text-[13px] sm:text-[15px] font-extrabold tracking-wider uppercase mt-0.5" style={{ color: '#1e3a8a' }}>
                     Packers & Logistics
                   </h2>
+                  <h3 className="text-[10.5px] font-bold text-red-700 tracking-wide uppercase mt-0.5">
+                    (A Unit of M/s Prakash & Company India)
+                  </h3>
                 </div>
-                <p className="text-[11px] sm:text-[11.5px] leading-tight text-black font-medium">
-                  <strong>Address:</strong> Plot No 1491, Balintha Canal Road, Near Lenskart, Hanspal, Bhubaneswar, Odisha -752101
+                <p className="text-[10px] sm:text-[10.5px] leading-tight text-black font-semibold mt-0.5">
+                  <strong>Regd. Office:</strong> Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452 | Tel: 8093017402
                 </p>
-                <p className="text-[11px] sm:text-[11.5px] leading-tight text-black font-medium mt-0.5">
-                  <strong>Mobile No.:</strong> 8093017400
+                <p className="text-[10px] sm:text-[10.5px] leading-tight text-black font-semibold mt-0.5">
+                  <strong>Main Operational Office:</strong> Plot No 1491, Balintha Canal Road, Near Lenskart, Hanspal, Bhubaneswar, Odisha – 752101 | Mobile: 8093017400
                 </p>
-                <p className="text-[11px] sm:text-[11.5px] leading-tight text-black font-medium mt-0.5">
-                  <strong>Email:</strong> urbanpro403@gmail.com
+                <p className="text-[10px] sm:text-[10.5px] leading-tight text-black font-medium mt-0.5">
+                  <strong>GST No.:</strong> 22CCQPS8419D1ZC &nbsp;|&nbsp; <strong>Email:</strong> urbanpro403@gmail.com
                 </p>
               </div>
             </div>
@@ -438,61 +475,28 @@ export const SurveyPdfModal: React.FC<SurveyPdfModalProps> = ({ survey, onClose,
             <div className="flex border-b border-[#f87171] min-h-[145px] bg-white">
               {/* Left Signature: UrbanPro */}
               <div className="w-1/2 border-r border-[#f87171] p-3 flex flex-col justify-between items-center text-center relative group">
-                <div className="font-bold text-[12px] tracking-wide">
-                  For <span className="text-[#1e3a8a]">Urban</span><span className="text-[#dc2626]">Pro</span> <span className="text-[#1e3a8a]">Packers & Logistics</span>
+                <div className="font-bold text-[11px] tracking-wide leading-tight">
+                  For <span className="text-[#1e3a8a]">Urban</span><span className="text-[#dc2626]">Pro</span> <span className="text-[#1e3a8a]">Packers & Logistics</span><br />
+                  <span className="text-[9px] text-slate-700 font-semibold">(A Unit of M/s Prakash & Company India)</span>
                 </div>
 
                 {/* Inline Signature Display & Interactive Click-to-Choose */}
                 <div 
-                  className="flex flex-col items-center justify-center my-auto py-1 min-h-[60px] cursor-pointer relative"
+                  className="flex flex-col items-center justify-center my-auto py-1 min-h-[55px] cursor-pointer relative"
                   onClick={() => setIsEditingSign(!isEditingSign)}
                   title="Click to change signature / upload signature"
                 >
-                  {globalSignature?.image ? (
-                    <img 
-                      src={globalSignature.image} 
-                      alt="Authorized Signature Stamp" 
-                      className="max-h-14 max-w-[140px] object-contain"
-                    />
-                  ) : authSignMode === 'image' && authSignImage ? (
-                    <img 
-                      src={authSignImage} 
-                      alt="Authorized Signature" 
-                      className="max-h-14 max-w-[140px] object-contain"
-                    />
-                  ) : authSignMode === 'text' ? (
-                    <div className="flex flex-col items-center">
-                      <span 
-                        className="text-[#1d4ed8] text-2xl font-bold tracking-wide italic"
-                        style={{ fontFamily: "'Brush Script MT', 'Dancing Script', 'Caveat', cursive, serif" }}
-                      >
-                        {authSignName || 'Authorized'}
-                      </span>
-                    </div>
-                  ) : (
-                    /* Default Authentic Signature Stamp matching the uploaded sample */
-                    <div className="flex flex-col items-center justify-center">
-                      <svg 
-                        className="w-14 h-9 text-[#2563eb]" 
-                        viewBox="0 0 100 60" 
-                        fill="none" 
-                        stroke="currentColor" 
-                        strokeWidth="2.5" 
-                        strokeLinecap="round" 
-                        strokeLinejoin="round"
-                      >
-                        <path d="M38 48 C30 35, 24 15, 36 10 C46 6, 52 24, 44 45 C40 54, 34 58, 30 59" />
-                        <path d="M46 26 C54 18, 66 14, 62 34 C58 48, 50 54, 46 58" />
-                        <path d="M52 38 C60 36, 70 38, 68 50" />
-                      </svg>
-                      <span className="font-bold text-[11px] text-black tracking-wider mt-0.5">
-                        {authSignName || 'VIJAY'}
-                      </span>
-                    </div>
-                  )}
+                  <img 
+                    src={globalSignature?.image || authSignImage || PRAKASH_SIGNATURE_BASE64} 
+                    alt="Authorized Signature & Stamp" 
+                    className="max-h-13 max-w-[145px] object-contain"
+                  />
+                  <div className="font-bold text-blue-900 text-[9.5px] uppercase border-t border-slate-300 pt-0.5 mt-0.5">
+                    Authorized Signatory & Stamp
+                  </div>
 
                   {/* Gentle hover hint for editing directly on the signature area (hidden during print) */}
-                  <span className="text-[9.5px] text-blue-600 bg-blue-50 border border-blue-200 px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity mt-1 print:hidden">
+                  <span className="text-[8.5px] text-blue-600 bg-blue-50 border border-blue-200 px-1 py-0.2 rounded opacity-0 group-hover:opacity-100 transition-opacity mt-0.5 print:hidden">
                     Click to change signature
                   </span>
                 </div>

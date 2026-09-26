@@ -23,16 +23,28 @@ export async function renderElementToCanvas(element: HTMLElement): Promise<HTMLC
     allowTaint: true,
     backgroundColor: '#ffffff',
     logging: false,
-    imageTimeout: 10000,
+    imageTimeout: 15000,
     windowWidth: 1024,
-    onclone: (clonedDoc) => {
-      // Clean any stylesheets containing unsupported modern CSS color formats like oklch or oklab
+    onclone: (clonedDoc, clonedElement) => {
+      // Ensure target element has rigid A4 width in cloned DOM
+      if (clonedElement) {
+        clonedElement.style.width = '794px';
+        clonedElement.style.minWidth = '794px';
+        clonedElement.style.maxWidth = '794px';
+        clonedElement.style.boxSizing = 'border-box';
+        clonedElement.style.margin = '0 auto';
+        clonedElement.style.transform = 'none';
+      }
+
+      // Clean any stylesheets containing unsupported modern CSS color formats like oklch, oklab, color-mix
       const styleElements = clonedDoc.querySelectorAll('style');
       styleElements.forEach((styleTag) => {
-        if (styleTag.textContent && (styleTag.textContent.includes('oklch') || styleTag.textContent.includes('oklab'))) {
+        if (styleTag.textContent) {
           styleTag.textContent = styleTag.textContent
-            .replace(/oklch\([^)]+\)/g, '#0f172a')
-            .replace(/oklab\([^)]+\)/g, '#0f172a');
+            .replace(/oklch\([^)]+\)/gi, '#0f172a')
+            .replace(/oklab\([^)]+\)/gi, '#0f172a')
+            .replace(/color-mix\([^)]+\)/gi, '#0f172a')
+            .replace(/light-dark\([^)]+\)/gi, '#0f172a');
         }
       });
     },
@@ -40,72 +52,36 @@ export async function renderElementToCanvas(element: HTMLElement): Promise<HTMLC
 }
 
 /**
- * Multi-layer PDF download trigger that handles browser iframe sandbox limits
+ * Multi-layer PDF download trigger that handles browser iframe sandbox limits cleanly
  */
 export function triggerPdfDownload(pdf: jsPDF, filename: string): { success: boolean; blobUrl?: string } {
-  let downloaded = false;
   let blobUrl: string | undefined = undefined;
 
   try {
     const blob = pdf.output('blob');
     blobUrl = URL.createObjectURL(blob);
-  } catch (e) {
-    console.warn('Error creating blob output:', e);
-  }
 
-  // Strategy 1: jsPDF native save
-  try {
-    pdf.save(filename);
-    downloaded = true;
-  } catch (e) {
-    console.warn('pdf.save direct call failed:', e);
-  }
-
-  // Strategy 2: Blob URL anchor download
-  if (blobUrl) {
-    try {
-      const link = document.createElement('a');
-      link.href = blobUrl;
-      link.download = filename;
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
-      document.body.appendChild(link);
-      link.click();
-      setTimeout(() => {
-        if (link.parentNode) document.body.removeChild(link);
-      }, 5000);
-      downloaded = true;
-    } catch (e) {
-      console.warn('Blob anchor download failed:', e);
-    }
-  }
-
-  // Strategy 3: Data URI download link
-  try {
-    const dataUri = pdf.output('datauristring');
-    const a = document.createElement('a');
-    a.href = dataUri;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
+    // Single clean download anchor
+    const link = document.createElement('a');
+    link.href = blobUrl;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
     setTimeout(() => {
-      if (a.parentNode) document.body.removeChild(a);
-    }, 3000);
-    downloaded = true;
-  } catch (e) {
-    console.warn('Data URI download failed:', e);
-  }
+      if (link.parentNode) document.body.removeChild(link);
+    }, 1500);
 
-  // Strategy 4: If running inside an iframe or embedded environment, open in a new tab if suppressed
-  if (blobUrl && window.self !== window.top) {
+    return { success: true, blobUrl };
+  } catch (e) {
+    console.warn('Blob URL download failed, trying native pdf.save:', e);
     try {
-      window.open(blobUrl, '_blank');
-    } catch (e) {
-      console.warn('Failed to open PDF in new tab:', e);
+      pdf.save(filename);
+      return { success: true };
+    } catch (saveErr) {
+      console.error('pdf.save direct call failed:', saveErr);
+      return { success: false };
     }
   }
-
-  return { success: downloaded, blobUrl };
 }
 
 /**

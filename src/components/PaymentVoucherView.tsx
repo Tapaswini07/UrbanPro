@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Printer, Save, Plus, FileText, Search, Trash2, Pencil, Share2, Phone, Download, Check, ExternalLink, Loader2 } from 'lucide-react';
 import { UPL_LOGO_BASE64 } from '../assets/logoBase64';
+import { PRAKASH_SIGNATURE_BASE64 } from '../assets/signatureBase64';
 import { downloadPdfFromElement, openElementInPrintWindow } from '../utils/pdfExport';
+import { shareDocument } from '../utils/shareUtils';
 
 export interface PaymentVoucherData {
   id: string;
@@ -89,6 +91,29 @@ export const PaymentVoucherView: React.FC<Props> = ({ vouchers, onSave, onDelete
     } else {
       window.print();
     }
+  };
+
+  const handleShareVoucher = async (voucher: PaymentVoucherData) => {
+    const shareText = `💵 *UrbanPro Packers & Logistics*
+*PAYMENT VOUCHER #${voucher.voucherNo}*
+----------------------------------------
+👤 *Receiver Name:* ${voucher.receiverName}
+📞 *Mobile:* ${voucher.receiverMobile || 'N/A'}
+📅 *Date:* ${voucher.date}
+💼 *Towards:* ${voucher.payFor || 'Relocation Services'}
+💳 *Payment Mode:* ${voucher.paymentMode} ${voucher.transactionNo ? `(Txn: ${voucher.transactionNo})` : ''}
+💰 *Amount:* Rs. ${Number(voucher.amount).toLocaleString()}/-
+📝 *Approved By:* ${voucher.approvedBy || 'Manager'}
+----------------------------------------
+*Regd. Office:* Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452
+*Main Operational Office:* Plot No 1491, Balintha Canal Road, Hanspal, Bhubaneswar, Odisha – 752101
+*Helpline:* 8093017400 / 8093017402`;
+
+    await shareDocument({
+      title: `Payment Voucher #${voucher.voucherNo} - UrbanPro`,
+      text: shareText,
+      phone: voucher.receiverMobile,
+    });
   };
 
   const initialForm: PaymentVoucherData = {
@@ -430,12 +455,9 @@ export const PaymentVoucherView: React.FC<Props> = ({ vouchers, onSave, onDelete
 
                       <button
                         type="button"
-                        onClick={() => {
-                          if (navigator.share) {
-                            navigator.share({ title: `Payment Voucher #${rec.voucherNo}`, text: `Voucher for ${rec.receiverName} - Rs.${rec.amount}` });
-                          }
-                        }}
+                        onClick={() => handleShareVoucher(rec)}
                         className="flex flex-col items-center gap-1 text-emerald-600 hover:text-emerald-700 cursor-pointer"
+                        title="Share via WhatsApp / Mobile"
                       >
                         <div className="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-xs">
                           <Share2 className="w-4 h-4" />
@@ -507,6 +529,16 @@ export const PaymentVoucherView: React.FC<Props> = ({ vouchers, onSave, onDelete
 
               <button
                 type="button"
+                onClick={() => handleShareVoucher(selectedRecord)}
+                className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl text-xs shadow-xs flex items-center gap-1.5 cursor-pointer transition-all active:scale-95"
+                title="Share via WhatsApp / Mobile"
+              >
+                <Share2 className="w-4 h-4" />
+                <span>Share</span>
+              </button>
+
+              <button
+                type="button"
                 onClick={() => handleDownloadVoucherPdf(selectedRecord)}
                 disabled={isDownloading}
                 className="bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2 rounded-xl text-xs shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-60 transition-all active:scale-95"
@@ -552,37 +584,44 @@ export const PaymentVoucherView: React.FC<Props> = ({ vouchers, onSave, onDelete
             id="printable-payment-voucher-pdf"
             className="bg-white rounded-xl border-2 border-[#f87171] shadow-xl p-8 sm:p-12 text-slate-900 space-y-5 print:border-2 print:border-[#f87171] print:p-8"
           >
-            {/* Top PAN Strip (Pink background matching uploaded PDF) */}
+            {/* Top PAN Strip (Pink background) */}
             <div className="text-center bg-[#fca5a5] py-1 text-[11px] font-bold text-slate-900 uppercase tracking-wider">
-              PAN No.: AKMPV0774C
+              PAN No.: {companyProfile?.panNo || 'AKMPV0774C'}
             </div>
 
-            {/* Header */}
-            <div className="border-b border-[#f87171] pb-3 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-20 h-16 shrink-0 flex items-center justify-center p-1 bg-white border border-slate-200 rounded">
-                  <img 
-                    src={companyProfile?.logo || UPL_LOGO_BASE64 || '/urbanpro-logo.jpeg'} 
-                    alt="UrbanPro Logo" 
-                    className="max-h-14 w-auto object-contain" 
-                  />
+            {/* Company Logo & Address Box (Matching Survey PDF Reference) */}
+            <div className="flex border-b border-[#f87171] min-h-[96px]">
+              {/* Logo Container on Side */}
+              <div className="w-[28%] border-r border-[#f87171] flex items-center justify-center p-2 bg-white">
+                <img 
+                  src={companyProfile?.logo || UPL_LOGO_BASE64 || '/urbanpro-logo.jpeg'} 
+                  alt="UrbanPro Logo" 
+                  className="max-h-20 w-auto object-contain" 
+                />
+              </div>
+
+              {/* Company Details in Middle */}
+              <div className="w-[72%] p-2 text-center flex flex-col justify-center items-center bg-white">
+                <div className="mb-0.5" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
+                  <h1 className="text-[24px] sm:text-[28px] font-black tracking-tight leading-none">
+                    <span style={{ color: '#1e3a8a' }}>Urban</span><span style={{ color: '#dc2626' }}>Pro</span>
+                  </h1>
+                  <h2 className="text-[13px] sm:text-[15px] font-extrabold tracking-wider uppercase mt-0.5" style={{ color: '#1e3a8a' }}>
+                    Packers & Logistics
+                  </h2>
+                  <h3 className="text-[10.5px] font-bold text-red-700 tracking-wide uppercase mt-0.5">
+                    (A Unit of M/s Prakash & Company India)
+                  </h3>
                 </div>
-                <div>
-                  <div className="leading-none" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
-                    <h1 className="text-[22px] sm:text-[25px] font-black tracking-tight">
-                      <span style={{ color: '#1e3a8a' }}>Urban</span><span style={{ color: '#dc2626' }}>Pro</span>
-                    </h1>
-                    <h2 className="text-xs sm:text-sm font-extrabold tracking-wider uppercase mt-0.5" style={{ color: '#1e3a8a' }}>
-                      Packers & Logistics
-                    </h2>
-                  </div>
-                  <p className="text-[11px] leading-tight text-black font-medium mt-1">
-                    <strong>Address:</strong> Plot No 1491, Balintha Canal Road, Near Lenskart, Hanspal, Bhubaneswar, Odisha -752101
-                  </p>
-                  <p className="text-[11px] leading-tight text-black font-medium mt-0.5">
-                    <strong>Mobile No.:</strong> 8093017400 • <strong>Email:</strong> urbanpro403@gmail.com
-                  </p>
-                </div>
+                <p className="text-[9.5px] sm:text-[10px] leading-tight text-slate-900 font-semibold mt-0.5">
+                  <strong>Regd. Office:</strong> Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452 | Tel: 8093017402
+                </p>
+                <p className="text-[9.5px] sm:text-[10px] leading-tight text-slate-900 font-semibold mt-0.5">
+                  <strong>Main Operational Office:</strong> Plot No 1491, Balintha Canal Road, Near Lenskart, Hanspal, Bhubaneswar, Odisha – 752101 | Mobile: 8093017400
+                </p>
+                <p className="text-[9.5px] sm:text-[10px] leading-tight text-slate-800 font-medium mt-0.5">
+                  <strong>GST No.:</strong> {companyProfile?.gstin || '22CCQPS8419D1ZC'} &nbsp;|&nbsp; <strong>Email:</strong> {companyProfile?.email || 'urbanpro403@gmail.com'}
+                </p>
               </div>
             </div>
 
@@ -653,16 +692,17 @@ export const PaymentVoucherView: React.FC<Props> = ({ vouchers, onSave, onDelete
 
               <div className="text-right space-y-1">
                 <div className="h-14 flex items-end justify-end">
-                  {globalSignature?.image ? (
-                    <img src={globalSignature.image} alt="Signature" className="h-12 object-contain" />
-                  ) : (
-                    <span className="text-xs font-serif italic text-blue-900 font-bold">Authorized Signatory</span>
-                  )}
+                  <img 
+                    src={globalSignature?.image || PRAKASH_SIGNATURE_BASE64} 
+                    alt="Authorized Signature & Stamp" 
+                    className="max-h-12 max-w-[140px] object-contain" 
+                  />
                 </div>
-                <p className="font-bold text-[11px] border-t border-slate-300 pt-1">
-                  For <span className="text-[#1e3a8a]">Urban</span><span className="text-[#dc2626]">Pro</span> <span className="text-[#1e3a8a]">Packers & Logistics</span>
+                <p className="font-bold text-[10px] border-t border-slate-300 pt-0.5 leading-tight">
+                  For <span className="text-[#1e3a8a]">Urban</span><span className="text-[#dc2626]">Pro</span> <span className="text-[#1e3a8a]">Packers & Logistics</span><br />
+                  <span className="text-[8.5px] text-slate-700 font-semibold">(A Unit of M/s Prakash & Company India)</span>
                 </p>
-                <p className="text-[10px] text-slate-500 font-medium">Authorized Signature</p>
+                <p className="text-[9px] text-blue-900 font-bold uppercase">Authorized Signatory & Stamp</p>
               </div>
             </div>
           </div>
