@@ -1,0 +1,98 @@
+@import "tailwindcss";
+
+:root {
+  --color-slate-50: #f8fafc;
+  --color-slate-100: #f1f5f9;
+  --color-slate-200: #e2e8f0;
+  --color-slate-300: #cbd5e1;
+  --color-slate-400: #94a3b8;
+  --color-slate-500: #64748b;
+  --color-slate-600: #475569;
+  --color-slate-700: #334155;
+  --color-slate-800: #1e293b;
+  --color-slate-900: #0f172a;
+  --color-slate-950: #020617;
+  --color-blue-50: #eff6ff;
+  --color-blue-100: #dbeafe;
+}
+
+@media print {
+  html, body {
+    background: white !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  /* Reset all modal containers so they do not clip or offset printable pages */
+  .fixed, .overflow-y-auto, .overflow-hidden {
+    position: static !important;
+    overflow: visible !important;
+    max-height: none !important;
+    height: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  #printable-survey-pdf,
+  #printable-survey-pdf *,
+  #printable-packing-list-pdf,
+  #printable-packing-list-pdf *,
+  #quotation-page-1,
+  #quotation-page-1 *,
+  #quotation-page-2,
+  #quotation-page-2 *,
+  #printable-bilty-pdf,
+  #printable-bilty-pdf *,
+  #printable-bill-invoice-pdf,
+  #printable-bill-invoice-pdf *,
+  #printable-car-condition-pdf,
+  #printable-car-condition-pdf *,
+  #printable-bike-condition-pdf,
+  #printable-bike-condition-pdf *,
+  #printable-money-receipt-pdf,
+  #printable-money-receipt-pdf *,
+  #printable-payment-voucher-pdf,
+  #printable-payment-voucher-pdf * {
+    visibility: visible;
+  }
+
+  #printable-survey-pdf,
+  #printable-packing-list-pdf,
+  #quotation-page-1,
+  #quotation-page-2,
+  #printable-bilty-pdf,
+  #printable-bill-invoice-pdf,
+  #printable-car-condition-pdf,
+  #printable-bike-condition-pdf,
+  #printable-money-receipt-pdf,
+  #printable-payment-voucher-pdf {
+    position: relative !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    box-shadow: none !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  #quotation-page-2 {
+    page-break-before: always !important;
+    break-before: page !important;
+  }
+
+  @page {
+    size: A4 portrait;
+    margin: 4mm;
+  }
+}
