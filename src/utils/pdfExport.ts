@@ -6,6 +6,7 @@ import jsPDF from 'jspdf';
  * viewport zoom/scale, parent transforms, or Tailwind v4 color issues.
  */
 export async function renderElementToCanvas(element: HTMLElement): Promise<HTMLCanvasElement> {
+  const measuredHeight = Math.ceil(element.scrollHeight || element.offsetHeight || 1123);
   // Create an off-screen container to isolate the element from modal transforms, zoom, or parent flex/grid styling
   const wrapper = document.createElement('div');
   wrapper.style.position = 'fixed';
@@ -20,16 +21,19 @@ export async function renderElementToCanvas(element: HTMLElement): Promise<HTMLC
   clone.style.minWidth = '794px';
   clone.style.maxWidth = '794px';
   clone.style.height = 'auto';
-  clone.style.minHeight = '1123px';
+  clone.style.minHeight = `${Math.max(1123, measuredHeight)}px`;
   clone.style.transform = 'none';
   clone.style.margin = '0';
-  clone.style.padding = '12px';
   clone.style.boxShadow = 'none';
   clone.style.borderRadius = '0';
   clone.style.boxSizing = 'border-box';
 
   wrapper.appendChild(clone);
   document.body.appendChild(wrapper);
+
+  if (document.fonts?.ready) {
+    await document.fonts.ready;
+  }
 
   // Wait for all images in the clone to load completely
   const images = Array.from(clone.querySelectorAll('img'));
@@ -166,7 +170,7 @@ export async function downloadPdfFromElement(
     const printableHeight = pdfHeight - margin * 2; // 293mm
 
     const imgHeight = (canvas.height * printableWidth) / canvas.width;
-    const imgData = canvas.toDataURL('image/jpeg', 0.98);
+    const imgData = canvas.toDataURL('image/png');
 
     // If within 125% of single page height, fit completely on 1st page in A4 paper format without distortion
     if (imgHeight <= printableHeight * 1.25) {
@@ -208,9 +212,9 @@ export async function downloadPdfFromElement(
             0, yOffsetPx, canvas.width, currentSliceHeightPx,
             0, 0, canvas.width, currentSliceHeightPx
           );
-          const sliceImgData = sliceCanvas.toDataURL('image/jpeg', 0.98);
+          const sliceImgData = sliceCanvas.toDataURL('image/png');
           const sliceMmHeight = (currentSliceHeightPx * printableWidth) / canvas.width;
-          pdf.addImage(sliceImgData, 'JPEG', margin, margin, printableWidth, sliceMmHeight, undefined, 'NONE');
+          pdf.addImage(sliceImgData, 'PNG', margin, margin, printableWidth, sliceMmHeight);
         }
 
         yOffsetPx += pageHeightPx;
@@ -294,4 +298,3 @@ export function openElementInPrintWindow(element: HTMLElement, title: string = '
   printWindow.document.close();
   printWindow.focus();
 }
-

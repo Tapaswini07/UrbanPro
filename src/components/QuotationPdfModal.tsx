@@ -241,7 +241,7 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
     // Render Page 1 if requested
     if (shouldRenderP1 && p1) {
       const canvas1 = await renderElementToCanvas(p1);
-      const img1 = canvas1.toDataURL('image/jpeg', 0.98);
+      const img1 = canvas1.toDataURL('image/png');
       const aspect = canvas1.height / canvas1.width;
       let renderW = printableWidth;
       let renderH = printableWidth * aspect;
@@ -253,7 +253,7 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
       }
       const xOffset = margin + (printableWidth - renderW) / 2;
       const yOffset = margin;
-      pdf.addImage(img1, 'JPEG', xOffset, yOffset, renderW, renderH, undefined, 'NONE');
+      pdf.addImage(img1, 'PNG', xOffset, yOffset, renderW, renderH);
       pagesAdded++;
     }
 
@@ -263,7 +263,7 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
         pdf.addPage();
       }
       const canvas2 = await renderElementToCanvas(p2);
-      const img2 = canvas2.toDataURL('image/jpeg', 0.98);
+      const img2 = canvas2.toDataURL('image/png');
       const aspect2 = canvas2.height / canvas2.width;
       let renderW2 = printableWidth;
       let renderH2 = printableWidth * aspect2;
@@ -275,7 +275,7 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
       }
       const xOffset2 = margin + (printableWidth - renderW2) / 2;
       const yOffset2 = margin + Math.max(0, (printableHeight - renderH2) / 2);
-      pdf.addImage(img2, 'JPEG', xOffset2, yOffset2, renderW2, renderH2, undefined, 'NONE');
+      pdf.addImage(img2, 'PNG', xOffset2, yOffset2, renderW2, renderH2);
     }
 
     const blob = pdf.output('blob');

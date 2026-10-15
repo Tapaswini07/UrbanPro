@@ -102,7 +102,7 @@ export const SurveyPdfModal: React.FC<SurveyPdfModalProps> = ({ survey, onClose,
     // Render the survey sheet to a high-resolution canvas
     const canvas = await renderElementToCanvas(element);
 
-    const imgData = canvas.toDataURL('image/jpeg', 0.98);
+    const imgData = canvas.toDataURL('image/png');
 
     // Create A4 PDF in portrait (210mm x 297mm)
     const pdf = new jsPDF({
@@ -133,7 +133,7 @@ export const SurveyPdfModal: React.FC<SurveyPdfModalProps> = ({ survey, onClose,
     const yOffset = margin + Math.max(0, (printableHeight - renderH) / 2);
 
     // Add survey canvas image starting at top margin
-    pdf.addImage(imgData, 'JPEG', xOffset, yOffset, renderW, renderH, undefined, 'NONE');
+    pdf.addImage(imgData, 'PNG', xOffset, yOffset, renderW, renderH);
 
     const blob = pdf.output('blob');
     const url = URL.createObjectURL(blob);
