@@ -230,9 +230,11 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
 
     const pdfWidth = 210;
     const pdfHeight = 297;
-    const margin = 4; // 4mm margin for maximum printable area
-    const printableWidth = pdfWidth - margin * 2; // 202mm
-    const printableHeight = pdfHeight - margin * 2; // 289mm
+    // The preview is an edge-to-edge A4 sheet, so keep the downloaded pages
+    // at the same scale instead of shrinking them inside an extra margin.
+    const margin = 0;
+    const printableWidth = pdfWidth;
+    const printableHeight = pdfHeight;
     let pagesAdded = 0;
 
     const shouldRenderP1 = p1 && (activePage === 'both' || activePage === 'page1');

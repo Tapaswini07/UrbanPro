@@ -17,6 +17,24 @@ export async function renderElementToCanvas(element: HTMLElement): Promise<HTMLC
   wrapper.style.background = '#ffffff';
 
   const clone = element.cloneNode(true) as HTMLElement;
+  const copyComputedStyles = (source: HTMLElement, target: HTMLElement) => {
+    const computedStyle = window.getComputedStyle(source);
+    for (let index = 0; index < computedStyle.length; index += 1) {
+      const property = computedStyle[index];
+      target.style.setProperty(property, computedStyle.getPropertyValue(property));
+    }
+
+    const sourceChildren = Array.from(source.children);
+    const targetChildren = Array.from(target.children);
+    sourceChildren.forEach((sourceChild, index) => {
+      const targetChild = targetChildren[index];
+      if (targetChild instanceof HTMLElement && sourceChild instanceof HTMLElement) {
+        copyComputedStyles(sourceChild, targetChild);
+      }
+    });
+  };
+
+  copyComputedStyles(element, clone);
   clone.style.width = '794px';
   clone.style.minWidth = '794px';
   clone.style.maxWidth = '794px';
@@ -186,7 +204,7 @@ export async function downloadPdfFromElement(
       const xOffset = margin + (printableWidth - renderW) / 2;
       const yOffset = margin;
 
-      pdf.addImage(imgData, 'JPEG', xOffset, yOffset, renderW, renderH, undefined, 'NONE');
+      pdf.addImage(imgData, 'PNG', xOffset, yOffset, renderW, renderH);
     } else {
       // Clean multi-page canvas slicing to avoid squashing or overlapping
       const pageHeightPx = Math.floor((printableHeight * canvas.width) / printableWidth);
