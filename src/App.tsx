@@ -1935,7 +1935,7 @@ export default function App() {
       details: [
         { 
           title: 'Comprehensive household relocation with multi-layer packing for furniture, appliances, kitchenware, and fragile items', 
-          text: 'Comprehensive household relocation with multi-layer packing for furniture, appliances, kitchenware, and fragile items ensuring zero damage during transit.' 
+          text: 'Comprehensive household relocation with multi-layer packing for furniture, appliances, kitchenware, and fragile items.' 
         },
         { 
           title: 'Safe Packing & Unpacking', 
@@ -3017,7 +3017,7 @@ export default function App() {
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 text-xs text-slate-300">
                       <div>
                         <span className="font-semibold text-yellow-400 block mb-1">MAIN OPERATIONAL OFFICE</span>
-                        Plot No. 1481, Hanspal, Balianta Canal Road, Bhubaneswar, Odisha – 752101<br />
+                        Plot No. 1491, Hanspal, Balianta Canal Road, Bhubaneswar, Odisha – 752101<br />
                         <span className="text-slate-400">Office: 8093017400</span>
                       </div>
                       <div>
@@ -6444,10 +6444,10 @@ export default function App() {
           <div className="flex items-center gap-2">
             <img src={activeAppLogo || '/urbanpro%20logo.jpeg'} alt="UrbanPro Packer & Logistics" className="h-14 sm:h-16 w-auto object-contain" />
             <div className="ml-4 leading-tight hidden sm:block" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
-              <div className="text-2xl font-black tracking-tight">
+              <div className="text-3xl font-black tracking-tight">
                 <span style={{ color: '#1e3a8a', fontWeight: 900 }}>Urban</span><span style={{ color: '#dc2626', fontWeight: 900 }}>Pro</span>
               </div>
-              <div className="text-xs font-black tracking-wider uppercase" style={{ color: '#1e3a8a' }}>
+              <div className="text-2xl font-black tracking-wider uppercase" style={{ color: '#1e3a8a' }}>
                 Packers & Logistics
               </div>
             </div>
@@ -7134,11 +7134,11 @@ export default function App() {
               </p>
             </div>
 
-            <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-7 sm:p-8">
-              <div className="w-12 h-12 rounded-xl bg-amber-600 text-white flex items-center justify-center font-bold text-xl mb-4 shadow-sm">
+            <div className="bg-blue-50/70 border border-blue-200 rounded-2xl p-7 sm:p-8">
+              <div className="w-12 h-12 rounded-xl bg-blue-900 text-yellow-400 flex items-center justify-center font-bold text-xl mb-4 shadow-sm">
                 🎯
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-2">Our Mission</h3>
+              <h3 className="text-xl font-bold text-blue-950 mb-2">Our Mission</h3>
               <p className="text-sm text-slate-700 leading-relaxed">
                 To deliver dependable, efficient, and affordable shifting solutions with high standards of safety, integrity, and care for every household and commercial client.
               </p>
@@ -7151,8 +7151,10 @@ export default function App() {
       <section id="packing-labour" className="py-20 px-4 bg-slate-900 text-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-14 space-y-3">
-            <span className="text-xs font-bold text-blue-200 uppercase tracking-widest bg-blue-800/40 px-3.5 py-1.5 rounded-full border border-blue-500/50">
-              PACKING MATERIAL & LABOUR SUPPLY
+            <span className="inline-flex items-center gap-2 text-xs font-bold text-blue-200 uppercase tracking-widest bg-blue-800/40 px-3.5 py-1.5 rounded-full border border-blue-500/50">
+              <span>Packing Material</span>
+              <span>&amp;</span>
+              <span>Labour Supply</span>
             </span>
             <h2 className="text-3xl sm:text-4xl font-bold text-white">Everything You Need for a Smooth Move</h2>
             <div className="w-20 h-1 bg-red-600 mx-auto rounded"></div>
@@ -7466,8 +7468,8 @@ export default function App() {
               <div className="w-12 h-12 rounded-xl bg-blue-900 text-yellow-400 flex items-center justify-center font-bold text-xl mb-4 shadow-sm">
                 🎯
               </div>
-              <span className="text-xs font-bold text-red-600 uppercase tracking-widest block mb-1">Guiding Purpose</span>
-              <h3 className="text-2xl font-bold text-slate-900 mb-3">OUR MISSION</h3>
+              <span className="text-xs font-bold text-blue-700 uppercase tracking-widest block mb-1">Guiding Purpose</span>
+              <h3 className="text-2xl font-bold text-blue-900 mb-3">OUR MISSION</h3>
               <p className="text-sm text-slate-700 leading-relaxed mb-4">
                 Our mission is to provide safe, reliable, systematic and customer-focused Packer & Mover & Logistics services.
               </p>
@@ -7482,7 +7484,7 @@ export default function App() {
                 ★
               </div>
               <span className="text-xs font-bold text-blue-900 uppercase tracking-widest block mb-1">Long-Term Goal</span>
-              <h3 className="text-2xl font-bold text-slate-900 mb-3">OUR VISION</h3>
+              <h3 className="text-2xl font-bold text-blue-900 mb-3">OUR VISION</h3>
               <p className="text-sm text-slate-700 leading-relaxed">
                 Our vision is to establish UrbanPro Packer & Logistics as a trusted and recognized name in India's Packer & Mover and Logistics industry by continuously improving our services and building lasting relationships with our customers.
               </p>
