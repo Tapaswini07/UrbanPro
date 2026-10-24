@@ -1964,22 +1964,29 @@ export default function App() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Format the message for WhatsApp
+    // Prepare the enquiry for the admin's WhatsApp.
     const finalItem = formData.item === 'Other' ? (formData.otherItem || 'Custom requirement') : formData.item;
-    const emailText = formData.email ? `%0A*Email:* ${encodeURIComponent(formData.email)}` : '';
     const itemListText = formData.itemRows
       .filter(row => row.name.trim())
-      .map((row, index) => `%0A*Item ${index + 1}:* ${encodeURIComponent(row.name)}%0A*Item Value:* ${encodeURIComponent(row.value || 'Not specified')}`)
-      .join('');
-    const message = `*New Quote Request from Website*%0A%0A*Name:* ${encodeURIComponent(formData.name)}%0A*Phone:* ${encodeURIComponent(formData.phone)}${emailText}%0A*Moving Date:* ${encodeURIComponent(formData.date)}%0A*Service Type:* ${encodeURIComponent(finalItem)}${itemListText}%0A*Moving From:* ${encodeURIComponent(formData.movingFrom)}%0A*Moving To:* ${encodeURIComponent(formData.movingTo)}`;
-    
-    // Primary contact number without spaces or symbols
+      .map((row, index) => `Item ${index + 1}: ${row.name}\nItem Value: ${row.value || 'Not specified'}`)
+      .join('\n');
+    const message = [
+      'New Quote Request from Website',
+      '',
+      `Name: ${formData.name}`,
+      `Phone: ${formData.phone}`,
+      ...(formData.email ? [`Email: ${formData.email}`] : []),
+      `Moving Date: ${formData.date}`,
+      `Service Type: ${finalItem}`,
+      ...(itemListText ? [itemListText] : []),
+      `Moving From: ${formData.movingFrom}`,
+      `Moving To: ${formData.movingTo}`,
+    ].join('\n');
     const whatsappNumber = "918093017400";
+    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+
+    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
     
-    // Create the WhatsApp API URL
-    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${message}`;
-    
-    // Save details for on-page success display
     setSubmittedQuoteDetails({
       name: formData.name,
       phone: formData.phone,
@@ -6239,8 +6246,18 @@ export default function App() {
         >
           <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" />
           <span className="flex-1">
-            Enquiry submitted successfully. Thank you for contacting UrbanPro!
+            Your enquiry is ready for WhatsApp. Tap Send in WhatsApp to deliver it to UrbanPro.
           </span>
+          {submittedQuoteDetails?.whatsappUrl && (
+            <a
+              href={submittedQuoteDetails.whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shrink-0 rounded-lg bg-white px-3 py-1.5 text-xs font-bold text-emerald-800 hover:bg-emerald-50"
+            >
+              Open WhatsApp
+            </a>
+          )}
           <button
             type="button"
             onClick={() => setShowQuoteSubmitToast(false)}
