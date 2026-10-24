@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Printer, X, Download, Share2, PackageCheck, MapPin, Phone, User, Calendar, ShieldCheck, Box, Hash } from 'lucide-react';
-import jsPDF from 'jspdf';
-import { renderElementToCanvas, downloadPdfFromElement } from '../utils/pdfExport';
+import { downloadPdfFromElement } from '../utils/pdfExport';
 import { shareDocument } from '../utils/shareUtils';
 import { UPL_LOGO_BASE64 } from '../assets/logoBase64';
 import { PRAKASH_SIGNATURE_BASE64 } from '../assets/signatureBase64';
@@ -216,11 +215,6 @@ export const PackingListPdfModal: React.FC<PackingListPdfModalProps> = ({
             className="bg-white w-[794px] max-w-[794px] min-h-[1123px] shadow-2xl border-2 border-[#1e3a8a] text-[12px] text-black font-sans box-border relative mx-auto my-auto flex flex-col justify-between print:border print:border-[#1e3a8a] print:shadow-none print:w-[794px] print:max-w-[794px] print:min-h-[1120px]"
             style={{ fontFamily: 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}
           >
-            {/* Top PAN Number Bar - Navy Blue */}
-            <div className="bg-[#1e3a8a] text-center font-bold py-1 border-b border-[#1e3a8a] text-[11px] tracking-wide text-white uppercase">
-              PAN No.: {companyProfile?.panNo || 'AKMPV0774C'}
-            </div>
-
             {/* Company Logo & Address Box */}
             <div className="flex border-b border-[#1e3a8a] min-h-[96px]">
               {/* Logo Container */}
@@ -241,8 +235,6 @@ export const PackingListPdfModal: React.FC<PackingListPdfModalProps> = ({
                   <h2 className="text-[13px] sm:text-[15px] font-extrabold tracking-wider uppercase mt-0.5" style={{ color: '#1e3a8a' }}>
                     Packers & Logistics
                   </h2>
-                  <h3 className="text-[10.5px] font-bold text-red-700 tracking-wide uppercase mt-0.5">
-                  </h3>
                 </div>
                 <p className="text-[10px] sm:text-[10.5px] leading-tight text-black font-semibold mt-0.5">
                   <strong>Regd. Office:</strong> Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452 | Tel: 8093017400
@@ -251,7 +243,7 @@ export const PackingListPdfModal: React.FC<PackingListPdfModalProps> = ({
                   <strong>Main Operational Office:</strong> Plot No 1491, Balintha Canal Road, Near Lenskart, Hanspal, Bhubaneswar, Odisha – 752101 | Mobile: 8093017400
                 </p>
                 <p className="text-[10px] sm:text-[10.5px] leading-tight text-black font-medium mt-0.5">
-                  <strong>GST No.:</strong> 22CCQPS8419D1ZC &nbsp;|&nbsp; <strong>Email:</strong> urbanpro403@gmail.com
+                  <strong>Email:</strong> urbanpro403@gmail.com
                 </p>
               </div>
             </div>

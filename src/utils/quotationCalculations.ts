@@ -3,8 +3,8 @@
  * Accurately cross-verifies:
  * - Base Moving Charges (Transportation, Packing, Unpacking, Loading, Unloading, Dismantling, Octroi, Car, Bike, Statistical, Custom)
  * - Sub Total
- * - Insurance (% on Goods Declared Value, Extra / Included / Exempted)
- * - GST (% on Sub Total, Extra / Included / Exempted, CGST/SGST vs IGST)
+ * - Insurance (% on Goods Declared Value, Exempted or calculated)
+ * - GST (% on Sub Total, Exempted or calculated, CGST/SGST vs IGST)
  * - Grand Total
  * - Advance Paid & Balance Due
  */
@@ -138,7 +138,9 @@ export function calculateQuotationTotals(data: any): QuotationCalculationResult 
     data.carCharges,
     data.bikeCharges,
     data.statCharges,
-    ...(data.customCharges || []).map((c: any) => c?.val)
+    ...(data.customCharges || [])
+      .filter((charge: any) => charge?.name?.trim())
+      .map((charge: any) => charge.val)
   ];
 
   let baseTotal = 0;
@@ -153,73 +155,45 @@ export function calculateQuotationTotals(data: any): QuotationCalculationResult 
   const serviceChargeNum = 0;
   const serviceChargePercent = '0%';
 
-  // 3. Sub Total is manually entered when provided; otherwise use charge details.
-  const manualSub = parseChargeNumber(data.subTotal);
+  // 3. Subtotal is the sum of charge details, including custom charges.
   const chargeSubTotal = baseTotal + serviceChargeNum;
-  const subTotal = manualSub > 0 ? manualSub : chargeSubTotal;
+  const subTotal = chargeSubTotal;
 
   // 4. Insurance Charge
+  const insPctValue = Number.parseFloat(String(data.insurancePercent ?? '').replace(/[^0-9.]/g, ''));
   const insRawStatus = String(data.insuranceStatus || '').toLowerCase();
-  const insRawVal = String(data.insuranceCharge || '').toLowerCase();
-  let insStatus: 'Extra' | 'Included' | 'Exempted' = 'Extra';
-  if (insRawStatus === 'included' || insRawVal === 'included') {
-    insStatus = 'Included';
-  } else if (insRawStatus === 'exempted' || insRawVal === 'exempted' || String(data.insurancePercent || '').includes('0%')) {
-    insStatus = 'Exempted';
-  } else {
-    insStatus = 'Extra';
-  }
+  const insStatus: 'Extra' | 'Included' | 'Exempted' =
+    insRawStatus === 'exempted' || (Number.isFinite(insPctValue) && insPctValue === 0) ? 'Exempted' : 'Extra';
 
-  const insPctClean = String(data.insurancePercent || '3%').replace(/[^0-9.]/g, '');
-  const insPct = parseFloat(insPctClean) || 3;
+  const insPct = Number.isFinite(insPctValue) ? insPctValue : 3;
   const insPercent = data.insurancePercent || `${insPct}%`;
-  const insManual = parseChargeNumber(data.insuranceCharge);
   const goodsVal = parseChargeNumber(data.goodsValue);
 
   let insuranceNum = 0;
   if (insStatus !== 'Exempted') {
-    if (insManual > 0) {
-      insuranceNum = insManual;
-    } else if (goodsVal > 0 && insPct > 0) {
+    if (goodsVal > 0 && insPct > 0) {
       insuranceNum = Math.round((goodsVal * insPct) / 100);
     }
   }
 
   // 5. GST Charge
-  const gstRawStatus = String(data.gstStatus || '').toLowerCase();
-  const gstRawVal = String(data.gstCharge || '').toLowerCase();
   const gstType = String(data.gstType || '');
-  let gstStatus: 'Extra' | 'Included' | 'Exempted' = 'Extra';
+  const gstPctValue = Number.parseFloat(String(data.gstPercent ?? '').replace(/[^0-9.]/g, ''));
+  const gstRawStatus = String(data.gstStatus || '').toLowerCase();
+  const gstStatus: 'Extra' | 'Included' | 'Exempted' =
+    gstType === 'Exempted' || gstRawStatus === 'exempted' || (Number.isFinite(gstPctValue) && gstPctValue === 0) ? 'Exempted' : 'Extra';
 
-  if (gstType === 'Exempted' || gstRawStatus === 'exempted' || gstRawVal === 'exempted' || String(data.gstPercent || '').includes('0%')) {
-    gstStatus = 'Exempted';
-  } else if (gstRawStatus === 'included' || gstRawVal === 'included') {
-    gstStatus = 'Included';
-  } else {
-    gstStatus = 'Extra';
-  }
-
-  const gstPctClean = String(data.gstPercent || '18%').replace(/[^0-9.]/g, '');
-  const gstPct = parseFloat(gstPctClean) || 18;
+  const gstPct = Number.isFinite(gstPctValue) ? gstPctValue : 18;
   const gstPercent = data.gstPercent || `${gstPct}%`;
-  const gstManual = parseChargeNumber(data.gstCharge);
-
   let gstNum = 0;
   if (gstStatus !== 'Exempted') {
-    if (gstManual > 0) {
-      gstNum = gstManual;
-    } else if (subTotal > 0 && gstPct > 0) {
+    if (subTotal > 0 && gstPct > 0) {
       gstNum = Math.round((subTotal * gstPct) / 100);
     }
   }
 
   // 6. Grand Total includes GST on subtotal and insurance on declared goods value.
   let grandTotal = subTotal + gstNum + goodsVal + insuranceNum;
-  const manualGrand = parseChargeNumber(data.grandTotal);
-  if (grandTotal === 0 && manualGrand > 0) {
-    grandTotal = manualGrand;
-  }
-
   // 7. Advance Paid & Balance Due
   const advanceNum = parseChargeNumber(data.advancePaid);
   const balanceDue = Math.max(0, grandTotal - advanceNum);

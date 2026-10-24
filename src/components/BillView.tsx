@@ -48,7 +48,6 @@ export interface BillData {
   partyName: string;
   mobileNo: string;
   gstin: string;
-  panNo?: string;
   country?: string;
   state?: string;
   stateCode?: string;
@@ -216,7 +215,6 @@ export const BillView: React.FC<Props> = ({
     partyName: '',
     mobileNo: '',
     gstin: '',
-    panNo: '',
     country: 'India',
     state: 'N/A',
     stateCode: '',
@@ -286,6 +284,12 @@ export const BillView: React.FC<Props> = ({
   const [form, setForm] = useState<BillData>(initialForm);
 
   // Calculations
+  const calcInsuranceAmt = (f: BillData) => {
+    const goodsValue = Number(f.goodsValue) || 0;
+    const insurancePercent = Number(f.insurancePercent ?? 3);
+    return Math.round((goodsValue * insurancePercent) / 100);
+  };
+
   const calcSubTotal = (f: BillData) => {
     return (
       (Number(f.freightAmount) || 0) +
@@ -297,20 +301,19 @@ export const BillView: React.FC<Props> = ({
       (Number(f.octroiCharges) || 0) +
       (Number(f.carTransportationCharges) || 0) +
       (Number(f.bikeTransportationCharges) || 0) +
-      (Number(f.statCharges) || 0) +
-      (Number(f.serviceCharge) || 0)
+      (Number(f.statCharges) || 0)
     );
   };
 
   const calcGstAmt = (f: BillData) => {
     const sub = calcSubTotal(f);
     if (f.gstType === 'Exempted' || f.gstRate === 0) return 0;
-    return (sub * (Number(f.gstRate) || 0)) / 100;
+    return Math.round((sub * (Number(f.gstRate) || 0)) / 100);
   };
 
   const calcGrandTotal = (f: BillData) => {
     const sub = calcSubTotal(f);
-    const ins = Number(f.insuranceCharges) || 0;
+    const ins = calcInsuranceAmt(f);
     const gst = calcGstAmt(f);
     const goodsVal = Number(f.goodsValue) || 0;
     return sub + ins + gst + goodsVal;
@@ -319,13 +322,13 @@ export const BillView: React.FC<Props> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const calculated = calcGrandTotal(form);
-    const grand = form.totalAmount && form.totalAmount > 0 ? form.totalAmount : calculated;
     const gstCalculated = calcGstAmt(form);
     const finalRecord: BillData = {
       ...form,
+      insuranceCharges: calcInsuranceAmt(form),
       gstCharge: gstCalculated,
-      totalAmount: grand,
-      payableInWords: numberToWordsIndian(grand)
+      totalAmount: calculated,
+      payableInWords: numberToWordsIndian(calculated)
     };
     onSave(finalRecord);
     setSelectedRecord(finalRecord);
@@ -333,7 +336,7 @@ export const BillView: React.FC<Props> = ({
   };
 
   const handleShareBill = async (bill: BillData) => {
-    const totalAmt = bill.totalAmount || calcGrandTotal(bill);
+    const totalAmt = calcGrandTotal(bill);
     const words = bill.payableInWords || numberToWordsIndian(totalAmt);
     const shareText = `🧾 *UrbanPro Packers & Logistics*
 *TAX INVOICE / GST BILL #${bill.billNo}*
@@ -684,32 +687,6 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
 
               <div className="border border-slate-300 rounded-xl p-3 bg-white">
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  GSTIN
-                </label>
-                <input
-                  type="text"
-                  placeholder="GSTIN Number"
-                  value={form.gstin}
-                  onChange={e => setForm({ ...form, gstin: e.target.value.toUpperCase() })}
-                  className="w-full outline-none font-mono uppercase font-semibold text-slate-800 text-sm"
-                />
-              </div>
-
-              <div className="border border-slate-300 rounded-xl p-3 bg-white">
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  PAN No. (Client Permanent Account No.)
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. ABCDE1234F"
-                  value={form.panNo || ''}
-                  onChange={e => setForm({ ...form, panNo: e.target.value.toUpperCase() })}
-                  className="w-full outline-none font-mono uppercase font-semibold text-slate-800 text-sm"
-                />
-              </div>
-
-              <div className="border border-slate-300 rounded-xl p-3 bg-white">
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
                   Country
                 </label>
                 <input
@@ -891,16 +868,6 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                 </div>
 
                 <div className="border border-slate-300 rounded-xl p-3 bg-white">
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Consignor GSTIN</label>
-                  <input
-                    type="text"
-                    value={form.consignorGstin}
-                    onChange={e => setForm({ ...form, consignorGstin: e.target.value })}
-                    className="w-full outline-none font-medium text-slate-800 text-sm"
-                  />
-                </div>
-
-                <div className="border border-slate-300 rounded-xl p-3 bg-white">
                   <label className="block text-xs font-semibold text-slate-700 mb-1">Consignor Address</label>
                   <input
                     type="text"
@@ -942,19 +909,6 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                   placeholder="Consignee Phone"
                   value={form.consigneePhone}
                   onChange={e => setForm({ ...form, consigneePhone: e.target.value })}
-                  className="w-full outline-none font-medium text-slate-800 text-sm"
-                />
-              </div>
-
-              <div className="border border-slate-300 rounded-xl p-3 bg-white">
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  GSTIN
-                </label>
-                <input
-                  type="text"
-                  placeholder="Consignee GSTIN"
-                  value={form.consigneeGstin}
-                  onChange={e => setForm({ ...form, consigneeGstin: e.target.value })}
                   className="w-full outline-none font-medium text-slate-800 text-sm"
                 />
               </div>
@@ -1287,50 +1241,13 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="border border-slate-300 rounded-xl p-3 bg-white">
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Service Charge % (Percent)
-                </label>
-                <select
-                  value={form.serviceChargePercent || 0}
-                  onChange={e => {
-                    const pct = parseFloat(e.target.value) || 0;
-                    const subWithoutService = calcSubTotal({ ...form, serviceCharge: 0 });
-                    const sc = (subWithoutService * pct) / 100;
-                    setForm({ ...form, serviceChargePercent: pct, serviceCharge: sc });
-                  }}
-                  className="w-full outline-none font-medium text-slate-800 text-sm bg-transparent"
-                >
-                  {Array.from({ length: 41 }, (_, i) => i * 0.5).map(val => (
-                    <option key={val} value={val}>{val}%</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="border border-slate-300 rounded-xl p-3 bg-white flex items-center justify-between">
-                <div className="flex-1">
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Service Charge (₹)
-                  </label>
-                  <input
-                    type="number"
-                    value={form.serviceCharge}
-                    onChange={e => setForm({ ...form, serviceCharge: parseFloat(e.target.value) || 0 })}
-                    className="w-full outline-none font-bold text-slate-900 text-sm"
-                  />
-                </div>
-                <div className="w-8 h-8 rounded-full bg-sky-50 text-sky-600 border border-sky-200 flex items-center justify-center shrink-0">
-                  <Pencil className="w-3.5 h-3.5" />
-                </div>
-              </div>
-
-              <div className="border border-slate-300 rounded-xl p-3 bg-white">
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
                   Insurance %
                 </label>
                 <select
-                  value={form.insurancePercent || 3}
+                  value={form.insurancePercent ?? 3}
                   onChange={e => {
                     const pct = parseFloat(e.target.value) || 0;
-                    const ins = ((form.goodsValue || 0) * pct) / 100;
+                    const ins = Math.round(((form.goodsValue || 0) * pct) / 100);
                     setForm({ ...form, insurancePercent: pct, insuranceCharges: ins });
                   }}
                   className="w-full outline-none font-medium text-slate-800 text-sm bg-transparent"
@@ -1352,7 +1269,7 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                   value={form.goodsValue}
                   onChange={e => {
                     const val = parseFloat(e.target.value) || 0;
-                    const ins = (val * (form.insurancePercent || 3)) / 100;
+                    const ins = Math.round((val * (form.insurancePercent ?? 3)) / 100);
                     setForm({ ...form, goodsValue: val, insuranceCharges: ins });
                   }}
                   className="w-full outline-none font-bold text-slate-900 text-sm"
@@ -1367,7 +1284,7 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                   <input
                     type="number"
                     value={form.insuranceCharges}
-                    onChange={e => setForm({ ...form, insuranceCharges: parseFloat(e.target.value) || 0 })}
+                    readOnly
                     className="w-full outline-none font-bold text-slate-900 text-sm"
                   />
                 </div>
@@ -1396,7 +1313,7 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                   GST % (Percent)
                 </label>
                 <select
-                  value={form.gstRate || 18}
+                  value={form.gstRate ?? 18}
                   onChange={e => setForm({ ...form, gstRate: parseFloat(e.target.value) || 0 })}
                   className="w-full outline-none font-medium text-slate-800 text-sm bg-transparent"
                 >
@@ -1413,29 +1330,19 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                     <label className="block text-xs font-bold text-emerald-950 uppercase tracking-wide">
                       Total Payable Bill Amount (Grand Total ₹) *
                     </label>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const calculated = calcGrandTotal(form);
-                        setForm({ ...form, totalAmount: calculated });
-                      }}
-                      className="text-xs text-emerald-700 hover:text-emerald-900 font-bold underline cursor-pointer"
-                    >
-                      Auto-Calculate (₹{calcGrandTotal(form).toLocaleString()})
-                    </button>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-xl font-black text-emerald-800">₹</span>
                     <input
                       type="number"
-                      value={form.totalAmount !== undefined && form.totalAmount !== 0 ? form.totalAmount : (calcGrandTotal(form) || '')}
-                      onChange={e => setForm({ ...form, totalAmount: parseFloat(e.target.value) || 0 })}
-                      className="w-full outline-none font-black text-emerald-950 text-xl bg-white px-3 py-1.5 rounded-lg border border-emerald-300 focus:ring-2 focus:ring-emerald-500 shadow-2xs"
+                      value={calcGrandTotal(form)}
+                      readOnly
+                      className="w-full outline-none font-black text-emerald-950 text-xl bg-white px-3 py-1.5 rounded-lg border border-emerald-300 shadow-2xs"
                       placeholder={String(calcGrandTotal(form))}
                     />
                   </div>
                   <p className="text-[11px] text-emerald-800 mt-1 font-medium">
-                    Fully editable! Includes Sub Total (₹{calcSubTotal(form).toLocaleString()}) + Insurance (₹{(form.insuranceCharges || 0).toLocaleString()}) + GST (₹{calcGstAmt(form).toLocaleString()}) + Goods Total Value (₹{(form.goodsValue || 0).toLocaleString()})
+                    Calculated as Sub Total (₹{calcSubTotal(form).toLocaleString()}) + GST on Sub Total (₹{calcGstAmt(form).toLocaleString()}) + Goods Total Value (₹{(form.goodsValue || 0).toLocaleString()}) + Insurance on Goods Value (₹{calcInsuranceAmt(form).toLocaleString()})
                   </p>
                 </div>
                 <div className="w-9 h-9 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
@@ -1529,7 +1436,7 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                           <div>
                             <span className="block text-[10px] text-slate-400 font-normal">Total Bill Amount</span>
                             <span className="text-emerald-700 font-bold text-sm">
-                              ₹{(rec.totalAmount || calcGrandTotal(rec)).toLocaleString()}
+                              ₹{calcGrandTotal(rec).toLocaleString()}
                             </span>
                           </div>
                         </div>
@@ -1734,11 +1641,6 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
             id="printable-bill-invoice-pdf"
             className="bg-white border-2 border-[#1e3a8a] shadow-xl p-4 sm:p-6 text-slate-900 font-sans print:border-0 print:shadow-none print:p-0 print:m-0 print:w-full"
           >
-            {/* PAN No Top Banner - Navy Blue */}
-            <div className="bg-[#1e3a8a] text-center text-[11px] font-bold text-white py-1 border-b border-[#1e3a8a] uppercase tracking-wide">
-              PAN No.: {companyProfile?.panNo || 'AKMPV0774C'}
-            </div>
-
             {/* Company Header */}
             <div className="flex border-b border-[#1e3a8a] min-h-[96px]">
               {/* Left Logo Container (28%) */}
@@ -1759,8 +1661,6 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                   <h2 className="text-[13px] sm:text-[15px] font-extrabold tracking-wider uppercase mt-0.5" style={{ color: '#1e3a8a' }}>
                     Packers & Logistics
                   </h2>
-                  <h3 className="text-[10.5px] font-bold text-red-700 tracking-wide uppercase mt-0.5">
-                  </h3>
                 </div>
                 <p className="text-[9.5px] sm:text-[10px] leading-tight text-slate-900 font-semibold mt-0.5">
                   <strong>Regd. Office:</strong> Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452 | Tel: 8093017400
@@ -1769,14 +1669,14 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                   <strong>Main Operational Office:</strong> Plot No 1491, Balintha Canal Road, Near Lenskart, Hanspal, Bhubaneswar, Odisha – 752101 | Mobile: 8093017400
                 </p>
                 <p className="text-[9.5px] sm:text-[10px] leading-tight text-slate-800 font-medium mt-0.5">
-                  <strong>GST No.:</strong> {companyProfile?.gstin || '22CCQPS8419D1ZC'} &nbsp;|&nbsp; <strong>Email:</strong> {companyProfile?.email || 'urbanpro403@gmail.com'}
+                  <strong>Email:</strong> {companyProfile?.email || 'urbanpro403@gmail.com'}
                 </p>
               </div>
             </div>
 
             {/* Title Bar */}
             <div className="bg-[#1e3a8a] border-b border-[#1e3a8a] text-center py-1 text-xs font-black tracking-wider uppercase text-white">
-              Bill (Tax Invoice)
+              Bill
             </div>
 
             {/* Main Content 2-Column Grid */}
@@ -1806,10 +1706,7 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                 <div className="p-2 space-y-0.5 text-[11px]">
                   <div><span className="font-bold">Name:</span> {selectedRecord.partyName}</div>
                   <div><span className="font-bold">Phone:</span> {selectedRecord.mobileNo}</div>
-                  <div>
-                    <span className="font-bold">GST No:</span> {selectedRecord.gstin || ''} &nbsp;&nbsp;
-                    <span className="font-bold">State:</span> {selectedRecord.state || 'N/A'}
-                  </div>
+                  <div><span className="font-bold">State:</span> {selectedRecord.state || 'N/A'}</div>
                   <div><span className="font-bold">Address:</span> {selectedRecord.address}</div>
                   <div>
                     <span className="font-bold">Pin/City/Country:</span> {selectedRecord.pincode || ''}/{selectedRecord.city || ''}/{selectedRecord.country || 'India'}
@@ -1827,7 +1724,6 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                   <div className="p-2 border-r border-[#1e3a8a] space-y-0.5">
                     <div><span className="font-bold">Name:</span> {selectedRecord.consignorName || selectedRecord.partyName}</div>
                     <div><span className="font-bold">Phone:</span> {selectedRecord.consignorPhone || selectedRecord.mobileNo}</div>
-                    <div><span className="font-bold">GST No:</span> {selectedRecord.consignorGstin || ''}</div>
                     <div><span className="font-bold">Address:</span> {selectedRecord.consignorAddress || selectedRecord.address}</div>
                     <div><span className="font-bold">Pin/City/Country:</span> {selectedRecord.fromPincode || ''}/{selectedRecord.fromCity || ''}/{selectedRecord.fromCountry || 'India'}</div>
                   </div>
@@ -1835,7 +1731,6 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                   <div className="p-2 space-y-0.5">
                     <div><span className="font-bold">Name:</span> {selectedRecord.consigneeName || ''}</div>
                     <div><span className="font-bold">Phone:</span> {selectedRecord.consigneePhone || ''}</div>
-                    <div><span className="font-bold">GST No:</span> {selectedRecord.consigneeGstin || ''}</div>
                     <div><span className="font-bold">Address:</span> {selectedRecord.consigneeAddress || ''}</div>
                     <div><span className="font-bold">Pin/City/Country:</span> {selectedRecord.toPincode || ''}/{selectedRecord.toCity || ''}/{selectedRecord.toCountry || 'India'}</div>
                   </div>
@@ -1867,13 +1762,13 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
 
                 {/* Insurance charge note */}
                 <div className="border-t border-[#1e3a8a] p-2 text-[11px]">
-                  <span className="font-bold">Insurance charge @3% on declaration value of goods ₹</span> {selectedRecord.insuranceCharges ? selectedRecord.insuranceCharges.toLocaleString() : ''}
+                  <span className="font-bold">Insurance charge @{selectedRecord.insurancePercent || 0}% on declaration value of goods ₹</span> {calcInsuranceAmt(selectedRecord).toLocaleString()}
                 </div>
 
                 {/* Total Amount in Words */}
                 <div className="border-t border-[#1e3a8a] p-2 text-[11px]">
                   <div className="font-bold underline">Total amount in words:</div>
-                  <div className="font-bold capitalize">{selectedRecord.payableInWords || numberToWordsIndian(selectedRecord.totalAmount || calcGrandTotal(selectedRecord))}</div>
+                  <div className="font-bold capitalize">{numberToWordsIndian(calcGrandTotal(selectedRecord))}</div>
                 </div>
 
               </div>
@@ -1928,10 +1823,6 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                       <td className="p-1 border-r border-[#1e3a8a]">Statistical/Document Charges</td>
                       <td className="p-1 text-right font-mono">{selectedRecord.statCharges ? `₹ ${selectedRecord.statCharges.toLocaleString()}` : ''}</td>
                     </tr>
-                    <tr>
-                      <td className="p-1 border-r border-[#1e3a8a]">Service Charge</td>
-                      <td className="p-1 text-right font-mono">{selectedRecord.serviceCharge ? `₹ ${selectedRecord.serviceCharge.toLocaleString()}` : ''}</td>
-                    </tr>
                     <tr className="bg-[#1e3a8a] border-y border-[#1e3a8a] font-bold text-white">
                       <td className="p-1 border-r border-[#1e3a8a]">Sub Total</td>
                       <td className="p-1 text-right font-mono">₹ {calcSubTotal(selectedRecord).toLocaleString()}</td>
@@ -1944,17 +1835,17 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                       </tr>
                     )}
                     <tr>
-                      <td className="p-1 border-r border-[#1e3a8a]">Insurance Charge</td>
-                      <td className="p-1 text-right font-mono">{selectedRecord.insuranceCharges ? `₹ ${selectedRecord.insuranceCharges.toLocaleString()}` : ''}</td>
+                      <td className="p-1 border-r border-[#1e3a8a]">Insurance on Goods Total Value</td>
+                      <td className="p-1 text-right font-mono">{calcInsuranceAmt(selectedRecord) ? `₹ ${calcInsuranceAmt(selectedRecord).toLocaleString()}` : ''}</td>
                     </tr>
                     <tr>
-                      <td className="p-1 border-r border-[#1e3a8a]">CGST/SGST</td>
+                      <td className="p-1 border-r border-[#1e3a8a]">GST on Sub Total</td>
                       <td className="p-1 text-right font-mono">{calcGstAmt(selectedRecord) ? `₹ ${calcGstAmt(selectedRecord).toLocaleString()}` : ''}</td>
                     </tr>
                     <tr className="bg-[#1e3a8a] border-t border-[#1e3a8a] font-bold text-white">
                       <td className="p-1 border-r border-[#1e3a8a]">Grand Total</td>
                       <td className="p-1 text-right font-mono font-black text-sm">
-                        ₹ {Number(selectedRecord.totalAmount || calcGrandTotal(selectedRecord)).toLocaleString()}
+                        ₹ {calcGrandTotal(selectedRecord).toLocaleString()}
                       </td>
                     </tr>
                   </tbody>

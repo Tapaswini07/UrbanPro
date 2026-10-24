@@ -12,7 +12,6 @@ export interface CompanyProfileData {
   brandName: string;
   tagline: string;
   gstin: string;
-  panNo?: string;
   regAddress: string;
   branchAddress: string;
   phone1: string;
@@ -269,7 +268,7 @@ export const SetupView: React.FC<Props> = ({
             </div>
             <div>
               <h2 className="text-lg font-bold text-slate-800">Company Profile & Branding</h2>
-              <p className="text-xs text-slate-500">Official company header, addresses, phone numbers, GST & bank details</p>
+              <p className="text-xs text-slate-500">Official company header, addresses, phone numbers, and bank details</p>
             </div>
           </div>
 
@@ -344,15 +343,6 @@ export const SetupView: React.FC<Props> = ({
               <input type="text" value={form.tagline} onChange={e => setForm({ ...form, tagline: e.target.value })} className="w-full border border-slate-300 rounded-xl p-2.5 outline-none font-medium text-slate-800 focus:border-blue-500" />
             </div>
 
-            <div>
-              <label className="block font-semibold text-slate-700 mb-1">GSTIN Number</label>
-              <input type="text" value={form.gstin} onChange={e => setForm({ ...form, gstin: e.target.value })} className="w-full border border-slate-300 rounded-xl p-2.5 outline-none font-medium text-slate-800 uppercase focus:border-blue-500" />
-            </div>
-
-            <div>
-              <label className="block font-semibold text-slate-700 mb-1">PAN Card Number</label>
-              <input type="text" placeholder="e.g. AKMPV0774C" value={form.panNo || ''} onChange={e => setForm({ ...form, panNo: e.target.value })} className="w-full border border-slate-300 rounded-xl p-2.5 outline-none font-medium text-slate-800 uppercase focus:border-blue-500" />
-            </div>
 
             <div>
               <label className="block font-semibold text-slate-700 mb-1">Primary Phone / Helpline *</label>

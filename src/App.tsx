@@ -101,7 +101,7 @@ export default function App() {
     otherItem: '',
     movingFrom: '',
     movingTo: '',
-    serviceList: '',
+    itemRows: [{ name: '', value: '' }],
   });
 
   const [expandedService, setExpandedService] = useState<number | null>(null);
@@ -147,22 +147,19 @@ export default function App() {
 
   // Survey State & Helper Functions
   const generateNextSurveyNo = (existingSurveys: any[]): string => {
-    let maxNum = 1000;
-    existingSurveys.forEach(s => {
-      const val = String(s.surveyNo || '').replace(/\D/g, '');
-      if (val) {
-        const num = parseInt(val, 10);
-        if (!isNaN(num) && num > maxNum) {
-          maxNum = num;
-        }
-      }
-    });
-    return String(maxNum + 1);
+    const usedNumbers = new Set(
+      existingSurveys
+        .map(s => Number.parseInt(String(s.surveyNo || '').replace(/\D/g, ''), 10))
+        .filter(Number.isFinite)
+    );
+    let nextNumber = 1;
+    while (usedNumbers.has(nextNumber)) nextNumber += 1;
+    return String(nextNumber);
   };
 
   const initialSurveyForm = {
     id: Date.now(),
-    surveyNo: '1042',
+    surveyNo: '1',
     surveyDate: new Date().toISOString().split('T')[0],
     partyName: '',
     mobileNo: '',
@@ -195,7 +192,7 @@ export default function App() {
 
   const [surveyForm, setSurveyForm] = useState(() => ({
     ...initialSurveyForm,
-    surveyNo: '1002'
+    surveyNo: '1'
   }));
   const [surveys, setSurveys] = useState<any[]>(() => {
     try {
@@ -203,7 +200,14 @@ export default function App() {
       if (saved !== null) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed;
+          const hasSurveyOne = parsed.some(s => String(s.surveyNo || '').trim() === '1');
+          const hasLegacyNumbering = parsed.every(s => {
+            const number = Number.parseInt(String(s.surveyNo || '').replace(/\D/g, ''), 10);
+            return Number.isFinite(number) && number >= 1000;
+          });
+          return !hasSurveyOne && hasLegacyNumbering
+            ? parsed.map((survey, index) => ({ ...survey, surveyNo: String(index + 1) }))
+            : parsed;
         }
       }
     } catch (e) {
@@ -213,7 +217,7 @@ export default function App() {
     const sampleSurveys = [
       {
         id: 1711800000001,
-        surveyNo: '1001',
+        surveyNo: '1',
         surveyDate: new Date().toISOString().split('T')[0],
         partyName: 'Rahul Sharma',
         mobileNo: '9876543210',
@@ -419,17 +423,29 @@ export default function App() {
   const applySurveyToQuotation = (surveyNoOrId: string) => {
     if (!surveyNoOrId || !surveyNoOrId.trim()) return;
     const query = surveyNoOrId.trim().toLowerCase();
+    const numericQuery = Number.parseInt(query, 10);
     const match = surveys.find(
-      s => String(s.surveyNo || '').trim().toLowerCase() === query || 
+      s => String(s.surveyNo || '').trim().toLowerCase() === query ||
+           (Number.isInteger(numericQuery) &&
+             Number.parseInt(String(s.surveyNo || '').trim(), 10) === numericQuery) ||
            String(s.id) === query ||
            String(s.partyName || '').trim().toLowerCase().includes(query)
-    );
+    ) || (Number.isInteger(numericQuery) && numericQuery > 0 ? surveys[numericQuery - 1] : undefined);
 
     if (!match) {
       setShareToast(`No survey found matching "${surveyNoOrId}"`);
       setTimeout(() => setShareToast(null), 3000);
       return;
     }
+
+    const surveyItems = (match.items || []).filter((item: any) => item.name?.trim());
+    const surveyItemsSummary = surveyItems.length > 0
+      ? `Survey items: ${surveyItems.map((item: any) => `${item.name} (Qty: ${item.qty || 1}, Value: ${item.value || 0})`).join(', ')}`
+      : '';
+    const surveyGoodsValue = surveyItems.reduce((total: number, item: any) => {
+      const value = Number.parseFloat(String(item.value || '').replace(/,/g, ''));
+      return total + (Number.isFinite(value) ? value : 0);
+    }, 0);
 
     setQuotationForm(prev => ({
       ...prev,
@@ -455,10 +471,11 @@ export default function App() {
       toLift: match.toLift || prev.toLift || 'Not Required',
       easyAccess: match.easyAccess || prev.easyAccess || 'Yes',
       balconyItems: match.balconyItems || prev.balconyItems || 'No',
-      extraInfo: match.extraInfo || prev.extraInfo || '',
+      goodsValue: surveyGoodsValue > 0 ? String(surveyGoodsValue) : prev.goodsValue,
+      extraInfo: match.extraInfo || surveyItemsSummary || prev.extraInfo || '',
     }));
 
-    setSelectedSurveyForQuotationAutoFill(String(match.surveyNo));
+    setSelectedSurveyForQuotationAutoFill(surveyNoOrId.trim());
     setShareToast(`✓ Auto-filled details from Survey #${match.surveyNo} for ${match.partyName}`);
     setTimeout(() => setShareToast(null), 3500);
   };
@@ -517,6 +534,14 @@ export default function App() {
 
   const handleCreateQuotationFromSurvey = (survey: any) => {
     setEditingQuotationId(null);
+    const surveyItems = (survey.items || []).filter((item: any) => item.name?.trim());
+    const surveyItemsSummary = surveyItems.length > 0
+      ? `Survey items: ${surveyItems.map((item: any) => `${item.name} (Qty: ${item.qty || 1}, Value: ${item.value || 0})`).join(', ')}`
+      : '';
+    const surveyGoodsValue = surveyItems.reduce((total: number, item: any) => {
+      const value = Number.parseFloat(String(item.value || '').replace(/,/g, ''));
+      return total + (Number.isFinite(value) ? value : 0);
+    }, 0);
     setQuotationForm({
       ...initialQuotationForm,
       quotationNo: getNextQuotationNumber(),
@@ -543,7 +568,8 @@ export default function App() {
       toLift: survey.toLift || 'Not Required',
       easyAccess: survey.easyAccess || 'Yes',
       balconyItems: survey.balconyItems || 'No',
-      extraInfo: survey.extraInfo || '',
+      goodsValue: surveyGoodsValue > 0 ? String(surveyGoodsValue) : '',
+      extraInfo: survey.extraInfo || surveyItemsSummary || '',
     });
     setSelectedSurveyForQuotationAutoFill(String(survey.surveyNo));
     setAdminTab('add-quotation');
@@ -694,6 +720,18 @@ export default function App() {
   const [surveySearchQuery, setSurveySearchQuery] = useState('');
   const [shareToast, setShareToast] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (
+      adminTab === 'add-quotation' &&
+      !editingQuotationId &&
+      !quotationForm.partyName.trim() &&
+      quotationForm.quotationNo === '1' &&
+      quotations.some(quotation => Number.parseInt(String(quotation.quotationNo || ''), 10) === 1)
+    ) {
+      setQuotationForm(prev => ({ ...prev, quotationNo: getNextQuotationNumber() }));
+    }
+  }, [adminTab, editingQuotationId, quotations]);
+
   const handleSaveQuotation = () => {
     if (!quotationForm.partyName.trim()) {
       setShareToast('Please enter Party Name');
@@ -708,18 +746,10 @@ export default function App() {
       ...quotationForm,
       serviceCharge: '',
       serviceChargePercent: '0%',
-      insuranceCharge: totals.insStatus === 'Included' 
-        ? (totals.insuranceNum > 0 ? String(totals.insuranceNum) : 'Included')
-        : totals.insStatus === 'Exempted'
-          ? 'Exempted'
-          : (totals.insuranceNum > 0 ? String(totals.insuranceNum) : (quotationForm.insuranceCharge || '')),
-      gstCharge: totals.gstStatus === 'Included'
-        ? (totals.gstNum > 0 ? String(totals.gstNum) : 'Included')
-        : totals.gstStatus === 'Exempted'
-          ? 'Exempted'
-          : (totals.gstNum > 0 ? String(totals.gstNum) : (quotationForm.gstCharge || '')),
-      subTotal: totals.subTotal > 0 ? String(totals.subTotal) : (quotationForm.subTotal || ''),
-      grandTotal: totals.grandTotal > 0 ? String(totals.grandTotal) : (quotationForm.grandTotal || ''),
+      insuranceCharge: totals.insStatus === 'Exempted' ? 'Exempted' : '',
+      gstCharge: totals.gstStatus === 'Exempted' ? 'Exempted' : '',
+      subTotal: String(totals.subTotal),
+      grandTotal: String(totals.grandTotal),
       payableInWords: words || quotationForm.payableInWords || ''
     };
 
@@ -1348,10 +1378,10 @@ export default function App() {
           parsed.bankBranch = '';
           parsed.upiId = '';
         }
-        if (!parsed.addressLine1 || !parsed.addressLine1.includes('Dipka')) {
+        if (!parsed.addressLine1) {
           parsed.addressLine1 = 'Regd. Office: UrbanPro Packer & Logistics, Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452';
         }
-        if (!parsed.addressLine2 || !parsed.addressLine2.includes('Hanspal')) {
+        if (!parsed.addressLine2) {
           parsed.addressLine2 = 'Main Operational Office: Plot No. 1491, Hanspal, Balianta Canal Road, Near Lenskart, Bhubaneswar, Odisha – 752101';
         }
         return parsed;
@@ -1360,8 +1390,7 @@ export default function App() {
     return {
       companyName: 'UrbanPro Packer & Logistics',
       groupName: 'UrbanPro Packer & Logistics',
-      gstin: '22CCQPS8419D1ZC',
-      panNo: 'AKMPV0774C',
+      gstin: '',
       regAddress: 'Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452',
       addressLine1: 'Regd. Office: UrbanPro Packer & Logistics, Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452',
       addressLine2: 'Main Operational Office: Plot No. 1491, Hanspal, Balianta Canal Road, Near Lenskart, Bhubaneswar, Odisha – 752101',
@@ -1896,8 +1925,11 @@ export default function App() {
     // Format the message for WhatsApp
     const finalItem = formData.item === 'Other' ? (formData.otherItem || 'Custom requirement') : formData.item;
     const emailText = formData.email ? `%0A*Email:* ${encodeURIComponent(formData.email)}` : '';
-    const serviceListText = formData.serviceList ? `%0A*Service List:* ${encodeURIComponent(formData.serviceList)}` : '';
-    const message = `*New Quote Request from Website*%0A%0A*Name:* ${encodeURIComponent(formData.name)}%0A*Phone:* ${encodeURIComponent(formData.phone)}${emailText}%0A*Moving Date:* ${encodeURIComponent(formData.date)}%0A*Service Type:* ${encodeURIComponent(finalItem)}${serviceListText}%0A*Moving From:* ${encodeURIComponent(formData.movingFrom)}%0A*Moving To:* ${encodeURIComponent(formData.movingTo)}`;
+    const itemListText = formData.itemRows
+      .filter(row => row.name.trim())
+      .map((row, index) => `%0A*Item ${index + 1}:* ${encodeURIComponent(row.name)}%0A*Item Value:* ${encodeURIComponent(row.value || 'Not specified')}`)
+      .join('');
+    const message = `*New Quote Request from Website*%0A%0A*Name:* ${encodeURIComponent(formData.name)}%0A*Phone:* ${encodeURIComponent(formData.phone)}${emailText}%0A*Moving Date:* ${encodeURIComponent(formData.date)}%0A*Service Type:* ${encodeURIComponent(finalItem)}${itemListText}%0A*Moving From:* ${encodeURIComponent(formData.movingFrom)}%0A*Moving To:* ${encodeURIComponent(formData.movingTo)}`;
     
     // Primary contact number without spaces or symbols
     const whatsappNumber = "918093017400";
@@ -1918,7 +1950,25 @@ export default function App() {
     window.location.href = whatsappUrl;
 
     // Clear the form
-    setFormData({ name: '', phone: '', email: '', date: '', item: '', otherItem: '', movingFrom: '', movingTo: '', serviceList: '' });
+    setFormData({ name: '', phone: '', email: '', date: '', item: '', otherItem: '', movingFrom: '', movingTo: '', itemRows: [{ name: '', value: '' }] });
+  };
+
+  const updateItemRow = (index: number, field: 'name' | 'value', value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      itemRows: prev.itemRows.map((row, rowIndex) => rowIndex === index ? { ...row, [field]: value } : row)
+    }));
+  };
+
+  const addItemRow = () => {
+    setFormData(prev => ({ ...prev, itemRows: [...prev.itemRows, { name: '', value: '' }] }));
+  };
+
+  const removeItemRow = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      itemRows: prev.itemRows.length > 1 ? prev.itemRows.filter((_, rowIndex) => rowIndex !== index) : prev.itemRows
+    }));
   };
 
   const toggleService = (index: number) => {
@@ -2791,11 +2841,9 @@ export default function App() {
                       <div className="flex items-center gap-4">
                         <div>
                           <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                            <span className="text-[11px] font-bold text-red-700 uppercase tracking-widest bg-red-50 px-2.5 py-0.5 rounded-full border border-red-200">
-                              UrbanPro Packer & Logistics
-                            </span>
-                            <span className="text-[11px] font-bold text-[#1e3a8a] bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200">
-                              GSTIN: 22CCQPS8419D1ZC
+                            <span className="text-[11px] font-bold uppercase tracking-widest bg-red-50 px-2.5 py-0.5 rounded-full border border-red-200">
+                              <span className="text-[#1e3a8a]">Urban</span><span className="text-[#dc2626]">Pro</span>{' '}
+                              <span className="text-[#1e3a8a]">Packer & Logistics</span>
                             </span>
                           </div>
                           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-baseline flex-wrap gap-1.5">
@@ -3020,15 +3068,11 @@ export default function App() {
                   <div className="bg-slate-900 text-white rounded-2xl p-6 border border-slate-800">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
                       <div>
-                        <h4 className="font-bold text-white text-sm">UrbanPro Packer & Logistics</h4>
-                        <p className="text-xs text-slate-400">Official Company Profile & Banking Details for Client Billing</p>
+                        <h4 className="font-bold text-white text-sm">Company Details</h4>
                       </div>
-                      <span className="text-xs font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-800/80 px-3 py-1 rounded-full">
-                        GSTIN: 22CCQPS8419D1ZC
-                      </span>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 text-xs text-slate-300">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 text-xs text-slate-300">
                       <div>
                         <span className="font-semibold text-yellow-400 block mb-1">MAIN OPERATIONAL OFFICE</span>
                         Plot No. 1491, Hanspal, Balianta Canal Road, Bhubaneswar, Odisha – 752101<br />
@@ -3036,20 +3080,8 @@ export default function App() {
                       </div>
                       <div>
                         <span className="font-semibold text-yellow-400 block mb-1">REGISTERED OFFICE</span>
-                        UrbanPro Packer & Logistics, Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452<br />
+                        Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452<br />
                         <span className="text-slate-400">Mobile: 8093017400</span>
-                      </div>
-                      <div>
-                        <span className="font-semibold text-yellow-400 block mb-1">BANK ACCOUNT</span>
-                        {companyProfile?.accountNo ? (
-                          <>
-                            A/C: {companyProfile.accountNo}<br />
-                            IFSC: {companyProfile.ifscCode}<br />
-                            Bank: {companyProfile.bankName}
-                          </>
-                        ) : (
-                          <span className="text-slate-400 italic">Not set (Add in Setup Profile)</span>
-                        )}
                       </div>
                     </div>
                   </div>
@@ -3229,10 +3261,6 @@ export default function App() {
                       {/* Quick-Pick Existing Clients Carousel */}
                       {customerProfiles.length > 0 && (
                         <div className="mt-4 pt-3 border-t border-slate-100">
-                          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-500 mb-2">
-                            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                            <span>Quick Pick Customer Profile (Auto-fills phone, email & route):</span>
-                          </div>
                           <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto">
                             {customerProfiles.slice(0, 8).map((cp, idx) => (
                               <button
@@ -3871,9 +3899,9 @@ export default function App() {
                             }}
                           >
                             <option value="">-- Select Survey to Load Client & Route --</option>
-                            {surveys.map((s) => (
-                              <option key={s.id} value={s.surveyNo || s.id}>
-                                Survey #{s.surveyNo} — {s.partyName} ({s.fromCity || 'From'} → {s.toCity || 'To'})
+                            {surveys.map((s, index) => (
+                              <option key={s.id} value={String(index + 1)}>
+                                Survey #{index + 1} — {s.partyName} ({s.fromCity || 'From'} → {s.toCity || 'To'})
                               </option>
                             ))}
                           </select>
@@ -3883,10 +3911,27 @@ export default function App() {
                             <label className="block text-[11px] font-semibold text-slate-700 mb-1">Or Enter Survey No:</label>
                             <input 
                               type="text" 
-                              placeholder="e.g. 1001 or 1042"
+                              placeholder="e.g. 1 or 2"
                               className="w-full bg-white border border-emerald-300 rounded-xl px-3 py-2 text-xs sm:text-sm font-medium text-slate-800 outline-none focus:ring-2 focus:ring-emerald-500 shadow-xs"
                               value={selectedSurveyForQuotationAutoFill}
-                              onChange={(e) => setSelectedSurveyForQuotationAutoFill(e.target.value)}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                setSelectedSurveyForQuotationAutoFill(value);
+                                const numericValue = Number.parseInt(value.trim(), 10);
+                                const exactSurvey = surveys.find(survey =>
+                                  String(survey.surveyNo || '').trim() === value.trim() ||
+                                  (Number.isInteger(numericValue) &&
+                                    Number.parseInt(String(survey.surveyNo || '').trim(), 10) === numericValue)
+                                );
+                                if ((exactSurvey || (Number.isInteger(numericValue) && numericValue > 0)) && value.trim()) {
+                                  applySurveyToQuotation(value);
+                                }
+                              }}
+                              onBlur={() => {
+                                if (selectedSurveyForQuotationAutoFill.trim()) {
+                                  applySurveyToQuotation(selectedSurveyForQuotationAutoFill);
+                                }
+                              }}
                               onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
                                   e.preventDefault();
@@ -3998,10 +4043,6 @@ export default function App() {
                       {/* Quick-Pick Existing Clients Carousel for Quotation */}
                       {customerProfiles.length > 0 && (
                         <div className="mt-4 pt-3 border-t border-slate-100">
-                          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-500 mb-2">
-                            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                            <span>Quick Pick Customer Profile (Auto-fills phone, email & route into Quotation):</span>
-                          </div>
                           <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto">
                             {customerProfiles.slice(0, 8).map((cp, idx) => (
                               <button
@@ -4261,9 +4302,7 @@ export default function App() {
                           };
 
                           return (
-                            <div key={item.key} className={`border rounded-lg p-3 transition-all bg-white group shadow-2xs ${
-                              isIncluded ? 'border-emerald-400 bg-emerald-50/20 focus-within:border-emerald-500' : isExcluded ? 'border-rose-300 bg-rose-50/20 focus-within:border-rose-400' : 'border-slate-300 focus-within:border-cyan-500'
-                            }`}>
+                            <div key={item.key} className="border border-slate-300 rounded-lg p-3 transition-all bg-white group shadow-2xs focus-within:border-cyan-500">
                               <div className="flex items-center justify-between mb-1.5">
                                 <label className="block text-xs font-bold text-cyan-950 uppercase tracking-wider">
                                   {item.label}
@@ -4278,9 +4317,8 @@ export default function App() {
                                         ? 'bg-emerald-600 text-white border-emerald-600 shadow-2xs'
                                         : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
                                     }`}
-                                    title={isIncluded ? 'Click to remove Included tag' : `Mark ${item.label} as Included in Total`}
+                                    title={isIncluded ? 'Select Included to clear' : 'Select Included'}
                                   >
-                                    {isIncluded && <span>✓</span>}
                                     Included
                                   </button>
                                   <button
@@ -4291,9 +4329,8 @@ export default function App() {
                                         ? 'bg-rose-600 text-white border-rose-600 shadow-2xs'
                                         : 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100'
                                     }`}
-                                    title={isExcluded ? 'Click to remove Excluded tag' : `Mark ${item.label} as Excluded`}
+                                    title={isExcluded ? 'Select Excluded to clear' : 'Select Excluded'}
                                   >
-                                    {isExcluded && <span>✕</span>}
                                     Excluded
                                   </button>
                                 </div>
@@ -4303,24 +4340,12 @@ export default function App() {
                                   <span className="text-slate-400 text-xs font-bold mr-1.5 select-none">₹</span>
                                   <input 
                                     type="text" 
-                                    placeholder={isIncluded ? "0 or enter amount (Included in Total)" : isExcluded ? "0 or enter amount (Excluded)" : "Enter amount (e.g. 5000)"} 
+                                    placeholder="Enter amount (e.g. 5000)" 
                                     value={parsed.displayAmount}
                                     onChange={handleAmountChange}
-                                    className={`w-full outline-none text-sm font-semibold bg-transparent placeholder-slate-400 ${
-                                      isIncluded ? 'text-emerald-800 font-bold' : isExcluded ? 'text-rose-800 font-bold' : 'text-slate-800'
-                                    }`} 
+                                    className="w-full outline-none text-sm font-semibold bg-transparent placeholder-slate-400 text-slate-800"
                                   />
                                 </div>
-                                {isIncluded && (
-                                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 whitespace-nowrap">
-                                    {parsed.amount > 0 ? '+ Added to Total' : 'Free / Included'}
-                                  </span>
-                                )}
-                                {isExcluded && (
-                                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-rose-100 text-rose-800 whitespace-nowrap">
-                                    Not Added
-                                  </span>
-                                )}
                                 <div className="w-6 h-6 rounded-full bg-sky-50 flex items-center justify-center border border-sky-200 text-sky-500 group-hover:bg-sky-100 transition-colors flex-shrink-0">
                                   <Edit className="w-3 h-3" />
                                 </div>
@@ -4410,7 +4435,7 @@ export default function App() {
                                               ? 'bg-emerald-600 text-white border-emerald-600 shadow-2xs'
                                               : 'bg-white text-emerald-700 border-emerald-300 hover:bg-emerald-50'
                                           }`}
-                                          title={isCcIncluded ? 'Click to remove Included tag' : 'Mark as Included in Total'}
+                                          title={isCcIncluded ? 'Select Included to clear' : 'Select Included'}
                                         >
                                           {isCcIncluded && <span>✓</span>} Included
                                         </button>
@@ -4422,7 +4447,7 @@ export default function App() {
                                               ? 'bg-rose-600 text-white border-rose-600 shadow-2xs'
                                               : 'bg-white text-rose-700 border-rose-300 hover:bg-rose-50'
                                           }`}
-                                          title={isCcExcluded ? 'Click to remove Excluded tag' : 'Mark as Excluded'}
+                                          title={isCcExcluded ? 'Select Excluded to clear' : 'Select Excluded'}
                                         >
                                           {isCcExcluded && <span>✕</span>} Excluded
                                         </button>
@@ -4433,24 +4458,12 @@ export default function App() {
                                         <span className="text-slate-400 text-xs font-bold mr-1 select-none">₹</span>
                                         <input
                                           type="text"
-                                          placeholder={isCcIncluded ? "0 or enter amount (Included in Total)" : isCcExcluded ? "0 or enter amount (Excluded)" : "Enter amount"}
+                                          placeholder="Enter amount"
                                           value={parsed.displayAmount}
                                           onChange={handleCcAmountChange}
-                                          className={`w-full py-1 text-xs font-bold outline-none bg-transparent ${
-                                            isCcIncluded ? 'text-emerald-700 font-bold' : isCcExcluded ? 'text-rose-700 font-bold' : 'text-slate-800'
-                                          }`}
+                                          className="w-full py-1 text-xs font-bold outline-none bg-transparent text-slate-800"
                                         />
                                       </div>
-                                      {isCcIncluded && (
-                                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 whitespace-nowrap">
-                                          {parsed.amount > 0 ? '+ Added' : 'Free'}
-                                        </span>
-                                      )}
-                                      {isCcExcluded && (
-                                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-rose-100 text-rose-800 whitespace-nowrap">
-                                          Not Added
-                                        </span>
-                                      )}
                                     </div>
                                   </div>
                                   <div className="sm:col-span-1 flex justify-end sm:pt-4">
@@ -4478,25 +4491,15 @@ export default function App() {
                           <div className="mt-5 pt-4 border-t-2 border-cyan-300">
                             <div className="rounded-lg p-3 bg-cyan-50 focus-within:bg-cyan-100 group">
                               <label className="block text-xs font-bold text-slate-900 uppercase tracking-wider mb-1 flex items-center justify-between">
-                                <span className="flex items-center gap-1">
-                                  <span>SUB TOTAL</span>
-                                  <Edit className="w-3 h-3 text-slate-400 group-hover:text-cyan-500" />
-                                </span>
-                                <button
-                                  type="button"
-                                  onClick={() => setQuotationForm({ ...quotationForm, subTotal: formTotals.subTotal > 0 ? String(formTotals.subTotal) : '' })}
-                                  className="text-[10px] text-cyan-700 hover:underline font-semibold cursor-pointer"
-                                >
-                                  Auto-Fill (₹ {formTotals.subTotal.toLocaleString()})
-                                </button>
+                                <span>SUB TOTAL</span>
                               </label>
                               <div className="flex items-center justify-between">
                                 <input
                                   type="text"
                                   placeholder={String(formTotals.subTotal || '0')}
-                                  value={quotationForm.subTotal}
-                                  onChange={(e) => setQuotationForm({ ...quotationForm, subTotal: e.target.value })}
-                                  className="w-full outline-none text-slate-800 text-sm font-bold bg-transparent placeholder-slate-400"
+                                  value={String(formTotals.subTotal)}
+                                  readOnly
+                                  className="w-full outline-none text-slate-800 text-sm font-bold bg-transparent"
                                 />
                                 <span className="text-[11px] text-slate-400 font-medium ml-1 shrink-0">₹ INR</span>
                               </div>
@@ -4511,74 +4514,14 @@ export default function App() {
                       <span className="absolute -top-3.5 left-4 bg-slate-900 text-white px-4 py-1 rounded-md text-sm font-medium shadow-sm">GST/Insurance</span>
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* 1. Insurance % & Status */}
+                        {/* 1. Insurance rate */}
                         <div className="border border-slate-300 rounded-lg p-3 focus-within:border-emerald-600 transition-all bg-white relative shadow-2xs">
-                          <div className="flex items-center justify-between mb-1.5">
-                            <label className="block text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-                              <span className="w-2 h-2 rounded-full bg-emerald-600"></span>
-                              Insurance %
-                            </label>
-                            {/* Toggle Pills: Extra / Included / Exempted */}
-                            <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded">
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const tempTotals = calculateQuotationTotals({ ...quotationForm, insuranceStatus: 'Extra' });
-                                  setQuotationForm({ 
-                                    ...quotationForm, 
-                                    insuranceStatus: 'Extra', 
-                                    insuranceCharge: tempTotals.insuranceNum > 0 ? String(tempTotals.insuranceNum) : (quotationForm.insuranceCharge === 'Included' || quotationForm.insuranceCharge === 'Exempted' ? '' : quotationForm.insuranceCharge)
-                                  });
-                                }}
-                                className={`px-1.5 py-0.5 text-[10px] font-bold rounded cursor-pointer transition-colors ${
-                                  (quotationForm.insuranceStatus || 'Extra') === 'Extra'
-                                    ? 'bg-amber-600 text-white shadow-2xs'
-                                    : 'text-slate-600 hover:text-slate-900'
-                                }`}
-                              >
-                                Extra
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setQuotationForm({ ...quotationForm, insuranceStatus: 'Included', insuranceCharge: 'Included' });
-                                }}
-                                className={`px-1.5 py-0.5 text-[10px] font-bold rounded cursor-pointer transition-colors ${
-                                  quotationForm.insuranceStatus === 'Included'
-                                    ? 'bg-emerald-600 text-white shadow-2xs'
-                                    : 'text-slate-600 hover:text-slate-900'
-                                }`}
-                              >
-                                Included
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setQuotationForm({ ...quotationForm, insuranceStatus: 'Exempted', insuranceCharge: 'Exempted' });
-                                }}
-                                className={`px-1.5 py-0.5 text-[10px] font-bold rounded cursor-pointer transition-colors ${
-                                  quotationForm.insuranceStatus === 'Exempted'
-                                    ? 'bg-slate-700 text-white shadow-2xs'
-                                    : 'text-slate-600 hover:text-slate-900'
-                                }`}
-                              >
-                                Exempted
-                              </button>
-                            </div>
-                          </div>
+                          <label className="block text-xs font-bold text-slate-900 uppercase tracking-wider mb-1.5">
+                            Insurance %
+                          </label>
                           <select 
                             value={quotationForm.insurancePercent || '3%'}
-                            onChange={(e) => {
-                              const newPct = e.target.value;
-                              let newInsCharge = quotationForm.insuranceCharge;
-                              if (quotationForm.insuranceStatus !== 'Included' && quotationForm.insuranceStatus !== 'Exempted' && quotationForm.goodsValue) {
-                                const gv = parseFloat(String(quotationForm.goodsValue).replace(/[^0-9.]/g, '')) || 0;
-                                const pctNum = parseFloat(newPct.replace(/[^0-9.]/g, '')) || 0;
-                                const auto = Math.round((gv * pctNum) / 100);
-                                if (auto > 0) newInsCharge = String(auto);
-                              }
-                              setQuotationForm({ ...quotationForm, insurancePercent: newPct, insuranceCharge: newInsCharge });
-                            }}
+                            onChange={(e) => setQuotationForm({ ...quotationForm, insurancePercent: e.target.value, insuranceStatus: 'Extra' })}
                             className="w-full outline-none text-slate-800 text-sm font-semibold bg-transparent appearance-none cursor-pointer py-1"
                           >
                             <option value="3%">3% (Standard Relocation)</option>
@@ -4601,35 +4544,15 @@ export default function App() {
                               <span className="w-2 h-2 rounded-full bg-emerald-600"></span>
                               Insurance Charge
                             </span>
-                            <span className="text-[10px] text-slate-400 font-medium lowercase">
-                              {quotationForm.insuranceStatus === 'Included' ? 'charge included' : quotationForm.insuranceStatus === 'Exempted' ? 'exempted' : 'enter value / auto-calc'}
-                            </span>
                           </label>
                           <div className="flex items-center justify-between">
                             <input 
                               type="text" 
-                              placeholder={quotationForm.insuranceStatus === 'Included' ? 'Included' : quotationForm.insuranceStatus === 'Exempted' ? 'Exempted' : 'Enter amount or value'} 
-                              value={quotationForm.insuranceCharge || ''}
-                              onChange={(e) => setQuotationForm({ ...quotationForm, insuranceCharge: e.target.value })}
+                              placeholder="0"
+                              value={calculateQuotationTotals(quotationForm).insuranceNum > 0 ? String(calculateQuotationTotals(quotationForm).insuranceNum) : ''}
+                              readOnly
                               className="w-full outline-none text-slate-800 text-sm font-semibold bg-transparent placeholder-slate-400" 
                             />
-                            {quotationForm.goodsValue && quotationForm.insuranceStatus !== 'Included' && quotationForm.insuranceStatus !== 'Exempted' && (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const gv = parseFloat(String(quotationForm.goodsValue).replace(/[^0-9.]/g, '')) || 0;
-                                  const pct = parseFloat(String(quotationForm.insurancePercent || '3').replace(/[^0-9.]/g, '')) || 3;
-                                  const calc = Math.round((gv * pct) / 100);
-                                  if (calc > 0) {
-                                    setQuotationForm({ ...quotationForm, insuranceCharge: String(calc) });
-                                  }
-                                }}
-                                title="Auto-calculate Insurance from Goods Value"
-                                className="text-[11px] text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 px-2 py-0.5 rounded ml-1 cursor-pointer shrink-0 font-bold"
-                              >
-                                Calc ({quotationForm.insurancePercent || '3%'})
-                              </button>
-                            )}
                             <div className="w-6 h-6 rounded-full bg-emerald-50 flex items-center justify-center border border-emerald-200 text-emerald-600 group-hover:bg-emerald-100 transition-colors flex-shrink-0 ml-1">
                               <Edit className="w-3 h-3" />
                             </div>
@@ -4643,67 +4566,10 @@ export default function App() {
                               <span className="w-2 h-2 rounded-full bg-purple-600"></span>
                               GST Charge %
                             </label>
-                            {/* Toggle Pills: Extra / Included / Exempted */}
-                            <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded">
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const tempTotals = calculateQuotationTotals({ ...quotationForm, gstStatus: 'Extra' });
-                                  setQuotationForm({ 
-                                    ...quotationForm, 
-                                    gstStatus: 'Extra', 
-                                    gstCharge: tempTotals.gstNum > 0 ? String(tempTotals.gstNum) : (quotationForm.gstCharge === 'Included' || quotationForm.gstCharge === 'Exempted' ? '' : quotationForm.gstCharge)
-                                  });
-                                }}
-                                className={`px-1.5 py-0.5 text-[10px] font-bold rounded cursor-pointer transition-colors ${
-                                  (quotationForm.gstStatus || 'Extra') === 'Extra'
-                                    ? 'bg-amber-600 text-white shadow-2xs'
-                                    : 'text-slate-600 hover:text-slate-900'
-                                }`}
-                              >
-                                Extra
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setQuotationForm({ ...quotationForm, gstStatus: 'Included', gstCharge: 'Included' });
-                                }}
-                                className={`px-1.5 py-0.5 text-[10px] font-bold rounded cursor-pointer transition-colors ${
-                                  quotationForm.gstStatus === 'Included'
-                                    ? 'bg-emerald-600 text-white shadow-2xs'
-                                    : 'text-slate-600 hover:text-slate-900'
-                                }`}
-                              >
-                                Included
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setQuotationForm({ ...quotationForm, gstStatus: 'Exempted', gstCharge: 'Exempted' });
-                                }}
-                                className={`px-1.5 py-0.5 text-[10px] font-bold rounded cursor-pointer transition-colors ${
-                                  quotationForm.gstStatus === 'Exempted'
-                                    ? 'bg-slate-700 text-white shadow-2xs'
-                                    : 'text-slate-600 hover:text-slate-900'
-                                }`}
-                              >
-                                Exempted
-                              </button>
-                            </div>
                           </div>
                           <select 
                             value={quotationForm.gstPercent || '18%'}
-                            onChange={(e) => {
-                              const newPct = e.target.value;
-                              let newGstCharge = quotationForm.gstCharge;
-                              if (quotationForm.gstStatus !== 'Included' && quotationForm.gstStatus !== 'Exempted' && quotationForm.gstType !== 'Exempted') {
-                                const formTotals = calculateQuotationTotals({ ...quotationForm, gstPercent: newPct });
-                                if (formTotals.gstNum > 0) {
-                                  newGstCharge = String(formTotals.gstNum);
-                                }
-                              }
-                              setQuotationForm({ ...quotationForm, gstPercent: newPct, gstCharge: newGstCharge });
-                            }}
+                            onChange={(e) => setQuotationForm({ ...quotationForm, gstPercent: e.target.value, gstStatus: 'Extra' })}
                             className="w-full outline-none text-slate-800 text-sm font-semibold bg-transparent appearance-none cursor-pointer py-1"
                           >
                             <option value="18%">18% (Standard Logistics & Packers)</option>
@@ -4721,35 +4587,15 @@ export default function App() {
                               <span className="w-2 h-2 rounded-full bg-purple-600"></span>
                               GST Charge
                             </span>
-                            <span className="text-[10px] text-slate-400 font-medium lowercase">
-                              {quotationForm.gstStatus === 'Included' ? 'charge included' : quotationForm.gstStatus === 'Exempted' ? 'exempted' : 'enter value / auto-calc'}
-                            </span>
                           </label>
                           <div className="flex items-center justify-between">
                             <input 
                               type="text" 
-                              placeholder={quotationForm.gstStatus === 'Included' ? 'Included' : quotationForm.gstStatus === 'Exempted' ? 'Exempted' : 'Enter amount or value'} 
-                              value={quotationForm.gstCharge || ''}
-                              onChange={(e) => setQuotationForm({ ...quotationForm, gstCharge: e.target.value })}
+                              placeholder="0"
+                              value={calculateQuotationTotals(quotationForm).gstNum > 0 ? String(calculateQuotationTotals(quotationForm).gstNum) : ''}
+                              readOnly
                               className="w-full outline-none text-slate-800 text-sm font-semibold bg-transparent placeholder-slate-400" 
                             />
-                            {quotationForm.gstStatus !== 'Included' && quotationForm.gstStatus !== 'Exempted' && (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const formTotals = calculateQuotationTotals(quotationForm);
-                                  const pct = parseFloat(String(quotationForm.gstPercent || '18').replace(/[^0-9.]/g, '')) || 18;
-                                  const calc = Math.round((formTotals.subTotal * pct) / 100);
-                                  if (calc > 0) {
-                                    setQuotationForm({ ...quotationForm, gstCharge: String(calc) });
-                                  }
-                                }}
-                                title="Auto-calculate GST from Sub Total"
-                                className="text-[11px] text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-300 px-2 py-0.5 rounded ml-1 cursor-pointer shrink-0 font-bold"
-                              >
-                                Calc ({quotationForm.gstPercent || '18%'})
-                              </button>
-                            )}
                             <div className="w-6 h-6 rounded-full bg-purple-50 flex items-center justify-center border border-purple-200 text-purple-600 group-hover:bg-purple-100 transition-colors flex-shrink-0 ml-1">
                               <Edit className="w-3 h-3" />
                             </div>
@@ -4763,7 +4609,6 @@ export default function App() {
                               <span className="w-2 h-2 rounded-full bg-slate-600"></span>
                               Goods Total Value (Rs.)
                             </span>
-                            <span className="text-[10px] text-amber-700 bg-amber-50 font-bold px-1.5 py-0.5 rounded border border-amber-200">Added to Grand Total</span>
                           </label>
                           <div className="flex items-center justify-between">
                             <input 
@@ -4772,17 +4617,7 @@ export default function App() {
                               value={quotationForm.goodsValue || ''}
                               onChange={(e) => {
                                 const newGoodsVal = e.target.value;
-                                let newIns = quotationForm.insuranceCharge;
-                                if (quotationForm.insuranceStatus !== 'Included' && quotationForm.insuranceStatus !== 'Exempted') {
-                                  const gvNum = parseFloat(newGoodsVal.replace(/[^0-9.]/g, '')) || 0;
-                                  const pctNum = parseFloat(String(quotationForm.insurancePercent || '3').replace(/[^0-9.]/g, '')) || 3;
-                                  if (gvNum > 0) {
-                                    newIns = String(Math.round((gvNum * pctNum) / 100));
-                                  } else if (newGoodsVal.trim() === '') {
-                                    newIns = '';
-                                  }
-                                }
-                                setQuotationForm({ ...quotationForm, goodsValue: newGoodsVal, insuranceCharge: newIns });
+                                setQuotationForm({ ...quotationForm, goodsValue: newGoodsVal, insuranceStatus: 'Extra' });
                               }}
                               className="w-full outline-none text-slate-800 text-sm font-semibold bg-transparent placeholder-slate-400" 
                             />
@@ -4803,7 +4638,7 @@ export default function App() {
                           </label>
                           <select 
                             value={quotationForm.gstType || 'CGST/SGST'}
-                            onChange={(e) => setQuotationForm({ ...quotationForm, gstType: e.target.value })}
+                            onChange={(e) => setQuotationForm({ ...quotationForm, gstType: e.target.value, gstStatus: 'Extra' })}
                             className="w-full outline-none text-slate-800 text-sm font-semibold bg-transparent appearance-none cursor-pointer py-1"
                           >
                             <option value="CGST/SGST">CGST/SGST (In-State Moving)</option>
@@ -4827,27 +4662,17 @@ export default function App() {
                                 <span>Sub Total:</span>{' '}
                                 <strong className="font-mono">₹ {formTotals.subTotal.toLocaleString()}</strong>
                               </div>
-                              {formTotals.insuranceNum > 0 && formTotals.insStatus === 'Extra' && (
+                              {formTotals.insuranceNum > 0 && (
                                 <div className="text-emerald-700">
                                   <span>+ Ins ({formTotals.insPercent} Extra):</span>{' '}
                                   <strong className="font-mono">₹ {formTotals.insuranceNum.toLocaleString()}</strong>
                                 </div>
-                              )}
-                              {formTotals.insStatus === 'Included' && (
-                                <span className="text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded text-[11px] font-bold">
-                                  Ins. Included
-                                </span>
                               )}
                               {formTotals.gstNum > 0 && (
                                 <div className="text-purple-700">
                                   <span>+ GST ({formTotals.gstPercent}):</span>{' '}
                                   <strong className="font-mono">₹ {formTotals.gstNum.toLocaleString()}</strong>
                                 </div>
-                              )}
-                              {formTotals.gstStatus === 'Included' && (
-                                <span className="text-purple-700 bg-purple-50 border border-purple-200 px-1.5 py-0.5 rounded text-[11px] font-bold">
-                                  GST Included
-                                </span>
                               )}
                               {formTotals.gstStatus === 'Exempted' && (
                                 <span className="text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded text-[11px] font-bold">
@@ -4878,35 +4703,22 @@ export default function App() {
                         );
                       })()}
 
-                      {/* Explicit Editable Sub Total & Grand Total Override Inputs */}
+                      {/* Calculated Grand Total */}
                       {(() => {
                         const formTotals = calculateQuotationTotals(quotationForm);
                         return (
                           <div className="mt-4 pt-3 border-t border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="border border-slate-300 rounded-lg p-3 bg-white focus-within:border-blue-500 shadow-2xs group">
                               <label className="block text-xs font-bold text-slate-900 uppercase tracking-wider mb-1 flex items-center justify-between">
-                                <span className="flex items-center gap-1">
-                                  <span>Grand Total (Final Payable)</span>
-                                  <Edit className="w-3 h-3 text-slate-400 group-hover:text-blue-500" />
-                                </span>
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setQuotationForm({ ...quotationForm, grandTotal: formTotals.grandTotal > 0 ? String(formTotals.grandTotal) : '' });
-                                  }}
-                                  className="text-[10px] text-blue-600 hover:underline font-semibold cursor-pointer"
-                                  title="Reset to automatically computed Grand Total"
-                                >
-                                  Auto-Fill (₹ {formTotals.grandTotal.toLocaleString()})
-                                </button>
+                                <span>Grand Total (Final Payable)</span>
                               </label>
                               <div className="flex items-center justify-between">
                                 <input
                                   type="text"
                                   placeholder={String(formTotals.grandTotal || '0')}
-                                  value={quotationForm.grandTotal}
-                                  onChange={(e) => setQuotationForm({ ...quotationForm, grandTotal: e.target.value })}
-                                  className="w-full outline-none text-blue-950 text-sm font-black bg-transparent placeholder-slate-400"
+                                  value={String(formTotals.grandTotal)}
+                                  readOnly
+                                  className="w-full outline-none text-blue-950 text-sm font-black bg-transparent"
                                 />
                                 <span className="text-[11px] text-slate-400 font-medium ml-1 shrink-0">₹ INR</span>
                               </div>
@@ -5476,10 +5288,6 @@ export default function App() {
                       {/* Quick-Pick Existing Clients Carousel for Packing List */}
                       {customerProfiles.length > 0 && (
                         <div className="mt-4 pt-3 border-t border-slate-100">
-                          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-500 mb-2">
-                            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                            <span>Quick Pick Customer Profile (Auto-fills party, phone, route & items into Packing List):</span>
-                          </div>
                           <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto">
                             {customerProfiles.slice(0, 8).map((cp, idx) => (
                               <button
@@ -6279,8 +6087,7 @@ export default function App() {
                     companyName: companyProfile.companyName || 'UrbanPro Packer & Logistics',
                     brandName: companyProfile.groupName || 'UrbanPro Packer & Logistics',
                     tagline: 'Pack Smart & Move Safe',
-                    gstin: companyProfile.gstin || '22CCQPS8419D1ZC',
-                    panNo: companyProfile.panNo || 'AKMPV0774C',
+                    gstin: companyProfile.gstin || '',
                     regAddress: companyProfile.regAddress || companyProfile.addressLine1 || 'Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452',
                     branchAddress: companyProfile.addressLine2 || 'Plot No. 1491, Balianta Canal Road, Near Lenskart, Hanspal, Bhubaneswar, Odisha – 752101',
                     phone1: companyProfile.mobilePrimary || '8093017400',
@@ -6300,10 +6107,9 @@ export default function App() {
                       companyName: p.companyName,
                       groupName: p.brandName,
                       gstin: p.gstin,
-                      panNo: p.panNo,
                       regAddress: p.regAddress,
-                      addressLine1: `Regd. Office: UrbanPro Packer & Logistics, ${p.regAddress}`,
-                      addressLine2: `Main Operational Office: ${p.branchAddress}`,
+                      addressLine1: p.regAddress,
+                      addressLine2: p.branchAddress,
                       mobilePrimary: p.phone1,
                       mobileSecondary: p.phone2,
                       email: p.email,
@@ -6387,12 +6193,7 @@ export default function App() {
       {/* Top Bar */}
       <div className="bg-blue-900 text-white text-sm py-2 px-4">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
-          <div className="flex items-center gap-4">
-            <a href="mailto:urbanpro403@gmail.com" className="flex items-center gap-2 hover:text-red-300 transition-colors">
-              <Mail className="w-4 h-4 text-red-500" />
-              <span>urbanpro403@gmail.com</span>
-            </a>
-          </div>
+          <div />
           <div className="flex items-center gap-4 font-medium">
             <span className="flex items-center gap-2">
               <Phone className="w-4 h-4 text-yellow-400" />
@@ -6466,7 +6267,8 @@ export default function App() {
               </h1>
               <p className="text-base sm:text-lg text-blue-100 max-w-xl leading-relaxed">
                 <strong className="font-extrabold">
-                  UrbanPro Packer & Logistics
+                  <span className="text-blue-200">Urban</span><span className="text-red-300">Pro</span>{' '}
+                  <span className="text-blue-200">Packers & Logistics</span>
                 </strong>{' '}
                 provides professional and reliable Packer & Mover, Relocation, and Transportation services with Packing Material & Labour Supply for Households, Offices, Businesses, and Commercial Shifting requirements.
               </p>
@@ -6550,7 +6352,7 @@ export default function App() {
                         Your Free Quote Was Sent Successfully!
                       </h4>
                       <p className="text-emerald-50 text-xs sm:text-sm mt-1 leading-relaxed">
-                        Your quotation inquiry has been sent to WhatsApp (+91 8093017400). Our team at <strong className="text-white">UrbanPro Packers &amp; Logistics</strong> will review your details and respond shortly!
+                        Your quotation inquiry has been sent to WhatsApp (+91 8093017400). Our team at <strong className="text-white"><span className="text-blue-200">Urban</span><span className="text-red-300">Pro</span> <span className="text-blue-200">Packers &amp; Logistics</span></strong> will review your details and respond shortly!
                       </p>
 
                       {submittedQuoteDetails && (
@@ -6696,18 +6498,17 @@ export default function App() {
                   </motion.div>
                 )}
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Service List</label>
-                  <select
-                    name="serviceList"
-                    value={formData.serviceList}
-                    onChange={handleInputChange}
-                    className="w-full px-3.5 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-900 focus:border-blue-900 outline-none transition-all text-sm resize-none"
-                  >
-                    <option value="">Select Service</option>
-                    <option value="Bike">Bike</option>
-                    <option value="Car">Car</option>
-                    <option value="Other">Other</option>
-                  </select>
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Item List</label>
+                  <div className="space-y-2">
+                    {formData.itemRows.map((row, index) => (
+                      <div key={index} className="grid grid-cols-[1fr_1fr_auto] gap-2">
+                        <input type="text" value={row.name} onChange={e => updateItemRow(index, 'name', e.target.value)} className="w-full px-3.5 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-900 outline-none text-sm" placeholder="Item name" />
+                        <input type="number" min="0" value={row.value} onChange={e => updateItemRow(index, 'value', e.target.value)} className="w-full px-3.5 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-900 outline-none text-sm" placeholder="Value" />
+                        <button type="button" onClick={() => removeItemRow(index)} disabled={formData.itemRows.length === 1} className="px-2 text-red-600 disabled:text-slate-300 text-lg" aria-label="Remove item">×</button>
+                      </div>
+                    ))}
+                    <button type="button" onClick={addItemRow} className="text-xs font-bold text-blue-900 hover:text-blue-700">+ Add another item</button>
+                  </div>
                 </div>
                 <button 
                   type="submit" 
@@ -6742,9 +6543,6 @@ export default function App() {
           {/* Category 1: SHIFTING SERVICES */}
           <div className="mb-14">
             <div className="flex items-center gap-3 mb-6 pb-3 border-b border-slate-200">
-              <div className="w-9 h-9 bg-blue-900 text-yellow-400 rounded-xl flex items-center justify-center font-bold text-sm">
-                🏠
-              </div>
               <div>
                 <h3 className="text-xl sm:text-2xl font-bold text-blue-900">Shifting Services</h3>
                 <p className="text-xs sm:text-sm text-slate-500">Comprehensive household, office, corporate, and commercial relocation solutions</p>
@@ -6767,7 +6565,15 @@ export default function App() {
                   >
                     <div className="flex items-center justify-between mb-4">
                       <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center group-hover:bg-blue-900 transition-colors">
-                        <Icon className="w-7 h-7 text-blue-600 group-hover:text-yellow-400 transition-colors" />
+                        {service.title === 'Household Shifting' ? (
+                          <span className="text-3xl leading-none" role="img" aria-label="Household shifting">🏠📦</span>
+                        ) : service.title === 'Office & Corporate Relocation' ? (
+                          <span className="text-3xl leading-none" role="img" aria-label="Office relocation">🏢💼</span>
+                        ) : service.title === 'Commercial Shifting' ? (
+                          <span className="text-3xl leading-none" role="img" aria-label="Commercial shifting">🏬🚚</span>
+                        ) : (
+                          <Icon className="w-7 h-7 text-blue-600 group-hover:text-yellow-400 transition-colors" />
+                        )}
                       </div>
                     </div>
                     <h4 className="text-lg font-bold text-slate-900 mb-2">{service.title}</h4>
@@ -6838,7 +6644,11 @@ export default function App() {
                       <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center group-hover:bg-blue-900 transition-colors">
                         {service.title === 'Vehicle Shifting' ? (
                           <span className="text-2xl leading-none" role="img" aria-label="Car and bike">
-                            🚗 🏍️
+                            🚙 🛵
+                          </span>
+                        ) : service.title === 'Packing Material Supply' ? (
+                          <span className="text-2xl leading-none" role="img" aria-label="Packing materials">
+                            📦 🎁
                           </span>
                         ) : service.title === 'Skilled Labour Available' ? (
                           <img
@@ -6892,16 +6702,16 @@ export default function App() {
               </div>
               <div>
                 <span className="text-xs font-bold text-yellow-400 uppercase tracking-widest">Company Background & Legacy</span>
-                <h3 className="text-2xl font-bold text-white mt-1">UrbanPro Packer & Logistics</h3>
+                <h3 className="text-2xl font-bold mt-1"><span className="text-blue-200">Urban</span><span className="text-red-300">Pro</span> <span className="text-blue-200">Packers & Logistics</span></h3>
               </div>
             </div>
             
             <p className="text-blue-100 text-base sm:text-lg leading-relaxed mb-6 font-normal">
-              UrbanPro Packer & Logistics was established in <strong>2009</strong> and has substantial experience in the transportation and logistics sector, undertaking a wide range of transportation-related work over the years.
+              <span className="text-blue-200">Urban</span><span className="text-red-300">Pro</span> <span className="text-blue-200">Packers & Logistics</span> was established in <strong>2009</strong> and has substantial experience in the transportation and logistics sector, undertaking a wide range of transportation-related work over the years.
             </p>
 
             <p className="text-blue-100 text-base sm:text-lg leading-relaxed mb-6 font-normal">
-              <strong>UrbanPro Packer & Logistics</strong> provides professional Packer & Mover, relocation, transportation and logistics services across India.
+              <strong><span className="text-blue-200">Urban</span><span className="text-red-300">Pro</span> <span className="text-blue-200">Packers & Logistics</span></strong> provides professional Packer & Mover, relocation, transportation and logistics services across India.
             </p>
 
             {/* State Tags */}
@@ -7082,7 +6892,7 @@ export default function App() {
               <div className="mt-8 p-4 bg-slate-900/80 rounded-xl border border-slate-700/80">
                 <h4 className="text-xs font-bold text-yellow-400 uppercase tracking-wider mb-1">Supervisor & Handling Assistance</h4>
                 <p className="text-xs text-slate-300 leading-relaxed">
-                  Every labour team is coordinated by an experienced supervisor to ensure punctuality, zero breakage, and respectful handling of goods.
+                  Every labour team is coordinated by an experienced supervisor to ensure punctuality and respectful handling of goods.
                 </p>
               </div>
             </div>
@@ -7332,7 +7142,7 @@ export default function App() {
               <span className="text-xs font-bold text-blue-900 uppercase tracking-widest block mb-1">Long-Term Goal</span>
               <h3 className="text-2xl font-bold text-blue-900 mb-3">OUR VISION</h3>
               <p className="text-sm text-slate-700 leading-relaxed">
-                Our vision is to establish UrbanPro Packer & Logistics as a trusted and recognized name in India's Packer & Mover and Logistics industry by continuously improving our services and building lasting relationships with our customers.
+                Our vision is to establish <span className="text-blue-900">Urban</span><span className="text-red-600">Pro</span> <span className="text-blue-900">Packers & Logistics</span> as a trusted and recognized name in India's Packer & Mover and Logistics industry by continuously improving our services and building lasting relationships with our customers.
               </p>
             </div>
           </div>
@@ -7546,18 +7356,17 @@ export default function App() {
               )}
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Service List</label>
-                <select
-                  name="serviceList"
-                  value={formData.serviceList}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-900 focus:border-blue-900 outline-none transition-all text-sm bg-white resize-none"
-                >
-                  <option value="">Select Service</option>
-                  <option value="Bike">Bike</option>
-                  <option value="Car">Car</option>
-                  <option value="Other">Other</option>
-                </select>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Item List</label>
+                <div className="space-y-2">
+                  {formData.itemRows.map((row, index) => (
+                    <div key={index} className="grid grid-cols-[1fr_1fr_auto] gap-2">
+                      <input type="text" value={row.name} onChange={e => updateItemRow(index, 'name', e.target.value)} className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-900 outline-none text-sm bg-white" placeholder="Item name" />
+                      <input type="number" min="0" value={row.value} onChange={e => updateItemRow(index, 'value', e.target.value)} className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-900 outline-none text-sm bg-white" placeholder="Value" />
+                      <button type="button" onClick={() => removeItemRow(index)} disabled={formData.itemRows.length === 1} className="px-2 text-red-600 disabled:text-slate-300 text-lg" aria-label="Remove item">×</button>
+                    </div>
+                  ))}
+                  <button type="button" onClick={addItemRow} className="text-xs font-bold text-blue-900 hover:text-blue-700">+ Add another item</button>
+                </div>
               </div>
 
               <button 
@@ -7656,14 +7465,6 @@ export default function App() {
                         <Phone className="w-3.5 h-3.5 text-blue-300" /> Office: <a href="tel:8093017400" className="text-blue-100 hover:underline">8093017400</a>
                       </div>
                     </div>
-                    <a 
-                      href="https://maps.app.goo.gl/JGHEcpx2zpnkuA1b6" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-200 hover:text-blue-300 transition-colors pt-2 border-t border-blue-700/60"
-                    >
-                      View on Google Maps <ExternalLink className="w-3.5 h-3.5" />
-                    </a>
                   </div>
 
                   {/* REG. OFFICE */}
@@ -7681,47 +7482,26 @@ export default function App() {
                       <div className="text-xs font-semibold text-slate-300 mb-1 flex items-center gap-1.5">
                         <Phone className="w-3.5 h-3.5 text-blue-300" /> Mobile: <a href="tel:8093017400" className="text-blue-100 hover:underline">8093017400</a>
                       </div>
-                      <div className="text-xs font-semibold text-blue-200 mb-2">
-                        GST No.: <span className="font-mono text-white">22CCQPS8419D1ZC</span>
-                      </div>
                     </div>
-                    <span className="text-[11px] text-slate-400 pt-2 border-t border-slate-700/60">
-                      Corporate Head / Registered Office
-                    </span>
                   </div>
                 </div>
 
-                {/* EMAIL & DIGITAL CONTACTS */}
-                <div className="bg-blue-900/90 border border-blue-700/80 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="flex items-start gap-3.5">
-                    <div className="w-9 h-9 bg-blue-500/20 text-blue-300 rounded-xl flex items-center justify-center shrink-0 mt-0.5">
-                      <Mail className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-xs text-blue-200 uppercase tracking-wider mb-1">Email & Official Website</h4>
-                      <div className="text-xs sm:text-sm space-y-0.5 text-slate-200">
-                        <p>
-                          <a href="mailto:urbanpro403@gmail.com" className="text-blue-100 hover:text-blue-300 font-semibold transition-colors">
-                            urbanpro403@gmail.com
-                          </a>
-                        </p>
-                        <p className="text-slate-300 font-medium">www.urbanpropacker.com</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="sm:text-right border-t sm:border-t-0 sm:border-l border-slate-700/60 pt-3 sm:pt-0 sm:pl-5">
-                    <span className="text-xs text-blue-200 font-bold block uppercase tracking-wide">
-                      24x7 Digital Inquiry Support
-                    </span>
-                    <span className="text-xs text-slate-300">
-                      Toll-free helpline: <a href="tel:8093017400" className="text-blue-100 hover:underline font-bold">8093017400</a>
-                    </span>
+                <div className="bg-blue-900/90 border border-blue-700/80 rounded-2xl p-5">
+                  <h4 className="font-bold text-xs text-blue-200 uppercase tracking-wider mb-3">CONTACT DETAILS</h4>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-8 text-xs sm:text-sm font-semibold text-slate-200">
+                    <a href="tel:8093017400" className="flex items-center gap-2 text-blue-100 hover:underline">
+                      <Phone className="w-4 h-4 text-blue-300" /> Contact: 8093017400
+                    </a>
+                    <a href="mailto:urbanpro403@gmail.com" className="flex items-center gap-2 text-blue-100 hover:underline">
+                      <Mail className="w-4 h-4 text-blue-300" /> urbanpro403@gmail.com
+                    </a>
                   </div>
                 </div>
+
               </div>
               
               {/* Map Preview */}
-              <div className="lg:col-span-5 w-full min-h-[300px] bg-blue-950 rounded-2xl overflow-hidden border border-blue-800 relative group cursor-pointer" onClick={() => window.open('https://maps.app.goo.gl/JGHEcpx2zpnkuA1b6', '_blank')}>
+              <div className="lg:col-span-5 w-full min-h-[300px] bg-blue-950 rounded-2xl overflow-hidden border border-blue-800 relative">
                 <iframe 
                   src="https://maps.google.com/maps?q=20.3172609,85.8817964&t=&z=16&ie=UTF8&iwloc=&output=embed" 
                   width="100%" 
@@ -7733,11 +7513,6 @@ export default function App() {
                   title="UrbanPro Packer & Logistics Location"
                   className="absolute inset-0 grayscale group-hover:grayscale-0 transition-all duration-500"
                 ></iframe>
-                <div className="absolute inset-0 bg-blue-950/20 group-hover:bg-transparent transition-colors z-10 flex items-center justify-center">
-                   <div className="bg-white/95 backdrop-blur-sm px-4 py-2.5 rounded-xl text-blue-950 font-bold opacity-0 group-hover:opacity-100 transition-opacity transform translate-y-2 group-hover:translate-y-0 shadow-xl flex items-center gap-2 text-xs">
-                      View Bhubaneswar Office on Maps <ExternalLink className="w-3.5 h-3.5" />
-                   </div>
-                </div>
               </div>
             </div>
           </div>
@@ -7748,9 +7523,6 @@ export default function App() {
               <button onClick={() => setIsAdminView(true)} className="text-slate-400 hover:text-white transition-colors flex items-center gap-1 font-medium cursor-pointer">
                 <Lock className="w-3 h-3" /> Admin Login
               </button>
-            </div>
-            <div className="flex items-center bg-white p-1.5 rounded-lg shadow-sm">
-              <img src={activeAppLogo || '/urbanpro%20logo.jpeg'} alt="UrbanPro Logo" className="h-8 w-auto object-contain" />
             </div>
           </div>
         </div>

@@ -15,20 +15,22 @@ export async function renderElementToCanvas(element: HTMLElement): Promise<HTMLC
   wrapper.style.left = '-10000px';
   wrapper.style.top = '0';
   wrapper.style.width = `${A4_WIDTH_PX}px`;
+  wrapper.style.height = 'auto';
   wrapper.style.zIndex = '999999';
   wrapper.style.background = '#ffffff';
+  wrapper.style.visibility = 'visible';
+  wrapper.style.opacity = '1';
 
   const clone = element.cloneNode(true) as HTMLElement;
   clone.style.width = `${A4_WIDTH_PX}px`;
   clone.style.minWidth = `${A4_WIDTH_PX}px`;
   clone.style.maxWidth = `${A4_WIDTH_PX}px`;
-  clone.style.height = `${A4_HEIGHT_PX}px`;
+  clone.style.height = 'auto';
   clone.style.minHeight = `${A4_HEIGHT_PX}px`;
-  clone.style.maxHeight = `${A4_HEIGHT_PX}px`;
-  clone.style.overflow = 'hidden';
+  clone.style.maxHeight = 'none';
+  clone.style.overflow = 'visible';
   clone.style.transform = 'none';
   clone.style.margin = '0';
-  clone.style.padding = '12px';
   clone.style.boxShadow = 'none';
   clone.style.borderRadius = '0';
   clone.style.boxSizing = 'border-box';
@@ -36,20 +38,47 @@ export async function renderElementToCanvas(element: HTMLElement): Promise<HTMLC
   wrapper.appendChild(clone);
   document.body.appendChild(wrapper);
 
-  // Wait for all images in the clone to load completely
-  const images = Array.from(clone.querySelectorAll('img'));
-  await Promise.all(
-    images.map((img) => {
-      if (img.complete && img.naturalHeight !== 0) return Promise.resolve(true);
-      return new Promise((resolve) => {
-        img.onload = () => resolve(true);
-        img.onerror = () => resolve(true);
-        setTimeout(() => resolve(true), 2000);
-      });
-    })
-  );
-
   try {
+    // Wait for fonts and images so hosted deployments do not capture a partially
+    // rendered document.
+    if (document.fonts?.ready) {
+      await document.fonts.ready;
+    }
+
+    const images = Array.from(clone.querySelectorAll('img'));
+    await Promise.all(images.map(async (img) => {
+      img.loading = 'eager';
+      if (!img.complete) {
+        await new Promise<void>((resolve, reject) => {
+          const timeoutId = window.setTimeout(() => {
+            cleanup();
+            reject(new Error(`Timed out loading PDF image: ${img.currentSrc || img.src}`));
+          }, 15000);
+          const cleanup = () => {
+            window.clearTimeout(timeoutId);
+            img.removeEventListener('load', handleLoad);
+            img.removeEventListener('error', handleError);
+          };
+          const handleLoad = () => {
+            cleanup();
+            resolve();
+          };
+          const handleError = () => {
+            cleanup();
+            reject(new Error(`Failed to load PDF image: ${img.currentSrc || img.src}`));
+          };
+          img.addEventListener('load', handleLoad, { once: true });
+          img.addEventListener('error', handleError, { once: true });
+        });
+      }
+      if (img.naturalWidth === 0 || img.naturalHeight === 0) {
+        throw new Error(`PDF image is unavailable: ${img.currentSrc || img.src}`);
+      }
+      if (typeof img.decode === 'function') {
+        await img.decode();
+      }
+    }));
+
     const canvas = await html2canvas(clone, {
       scale: 2,
       useCORS: true,
@@ -97,6 +126,9 @@ export async function renderElementToCanvas(element: HTMLElement): Promise<HTMLC
       },
     });
 
+    if (canvas.width === 0 || canvas.height === 0) {
+      throw new Error('PDF rendering produced an empty page');
+    }
     return canvas;
   } finally {
     if (wrapper.parentNode) {
@@ -147,6 +179,48 @@ export function triggerPdfDownload(pdf: jsPDF, filename: string): { success: boo
   }
 }
 
+export function addCanvasToA4Pdf(pdf: jsPDF, canvas: HTMLCanvasElement, margin = 2): number {
+  if (canvas.width === 0 || canvas.height === 0) {
+    throw new Error('Cannot add an empty PDF page');
+  }
+
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
+  const printableWidth = pageWidth - margin * 2;
+  const printableHeight = pageHeight - margin * 2;
+  const pageHeightPx = Math.floor((printableHeight * canvas.width) / printableWidth);
+  const pageCount = Math.ceil(canvas.height / pageHeightPx);
+
+  for (let pageIndex = 0; pageIndex < pageCount; pageIndex++) {
+    if (pageIndex > 0) {
+      pdf.addPage();
+    }
+
+    const yOffsetPx = pageIndex * pageHeightPx;
+    const currentSliceHeightPx = Math.min(pageHeightPx, canvas.height - yOffsetPx);
+    const sliceCanvas = document.createElement('canvas');
+    sliceCanvas.width = canvas.width;
+    sliceCanvas.height = currentSliceHeightPx;
+    const context = sliceCanvas.getContext('2d');
+    if (!context) {
+      throw new Error('Unable to prepare a PDF page image');
+    }
+
+    context.fillStyle = '#ffffff';
+    context.fillRect(0, 0, sliceCanvas.width, sliceCanvas.height);
+    context.drawImage(
+      canvas,
+      0, yOffsetPx, canvas.width, currentSliceHeightPx,
+      0, 0, canvas.width, currentSliceHeightPx
+    );
+
+    const sliceMmHeight = (currentSliceHeightPx * printableWidth) / canvas.width;
+    pdf.addImage(sliceCanvas.toDataURL('image/png'), 'PNG', margin, margin, printableWidth, sliceMmHeight, undefined, 'NONE');
+  }
+
+  return pageCount;
+}
+
 /**
  * Downloads a DOM element as a high quality A4 PDF with multi-layer fallback
  */
@@ -164,64 +238,8 @@ export async function downloadPdfFromElement(
       compress: true,
     });
 
-    const pdfWidth = 210;
-    const pdfHeight = 297;
     const margin = 2; // 2mm margin for clean edge-to-edge A4 layout
-    const printableWidth = pdfWidth - margin * 2; // 206mm
-    const printableHeight = pdfHeight - margin * 2; // 293mm
-
-    const imgHeight = (canvas.height * printableWidth) / canvas.width;
-    const imgData = canvas.toDataURL('image/jpeg', 0.98);
-
-    // If within 125% of single page height, fit completely on 1st page in A4 paper format without distortion
-    if (imgHeight <= printableHeight * 1.25) {
-      let renderW = printableWidth;
-      let renderH = printableWidth * (canvas.height / canvas.width);
-
-      if (renderH > printableHeight) {
-        const ratio = printableHeight / renderH;
-        renderH = printableHeight;
-        renderW = printableWidth * ratio;
-      }
-
-      const xOffset = margin + (printableWidth - renderW) / 2;
-      const yOffset = margin;
-
-      pdf.addImage(imgData, 'JPEG', xOffset, yOffset, renderW, renderH, undefined, 'NONE');
-    } else {
-      // Clean multi-page canvas slicing to avoid squashing or overlapping
-      const pageHeightPx = Math.floor((printableHeight * canvas.width) / printableWidth);
-      let yOffsetPx = 0;
-      let pageNum = 0;
-
-      while (yOffsetPx < canvas.height) {
-        if (pageNum > 0) {
-          pdf.addPage();
-        }
-
-        const sliceCanvas = document.createElement('canvas');
-        sliceCanvas.width = canvas.width;
-        const currentSliceHeightPx = Math.min(pageHeightPx, canvas.height - yOffsetPx);
-        sliceCanvas.height = currentSliceHeightPx;
-
-        const sliceCtx = sliceCanvas.getContext('2d');
-        if (sliceCtx) {
-          sliceCtx.fillStyle = '#ffffff';
-          sliceCtx.fillRect(0, 0, sliceCanvas.width, sliceCanvas.height);
-          sliceCtx.drawImage(
-            canvas,
-            0, yOffsetPx, canvas.width, currentSliceHeightPx,
-            0, 0, canvas.width, currentSliceHeightPx
-          );
-          const sliceImgData = sliceCanvas.toDataURL('image/jpeg', 0.98);
-          const sliceMmHeight = (currentSliceHeightPx * printableWidth) / canvas.width;
-          pdf.addImage(sliceImgData, 'JPEG', margin, margin, printableWidth, sliceMmHeight, undefined, 'NONE');
-        }
-
-        yOffsetPx += pageHeightPx;
-        pageNum++;
-      }
-    }
+    addCanvasToA4Pdf(pdf, canvas, margin);
 
     const blob = new Blob([pdf.output('blob')], { type: 'application/pdf' });
     const blobUrl = URL.createObjectURL(blob);
@@ -264,7 +282,14 @@ export function openElementInPrintWindow(element: HTMLElement, title: string = '
   }
 
   const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
-    .map(el => el.outerHTML)
+    .map((el) => {
+      if (el instanceof HTMLLinkElement) {
+        const stylesheet = el.cloneNode(true) as HTMLLinkElement;
+        stylesheet.href = el.href;
+        return stylesheet.outerHTML;
+      }
+      return el.outerHTML;
+    })
     .join('\n');
 
   printWindow.document.write(`
@@ -274,6 +299,7 @@ export function openElementInPrintWindow(element: HTMLElement, title: string = '
         <title>${title}</title>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <base href="${document.baseURI}" />
         ${styles}
         <style>
           @page {

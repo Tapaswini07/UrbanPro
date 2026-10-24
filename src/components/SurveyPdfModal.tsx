@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Printer, X, Download, Upload, Check, AlertCircle, FileText, ExternalLink, Share2 } from 'lucide-react';
 import jsPDF from 'jspdf';
-import { renderElementToCanvas, triggerPdfDownload } from '../utils/pdfExport';
+import { addCanvasToA4Pdf, renderElementToCanvas, triggerPdfDownload } from '../utils/pdfExport';
 import { shareDocument } from '../utils/shareUtils';
 import { UPL_LOGO_BASE64 } from '../assets/logoBase64';
 import { PRAKASH_SIGNATURE_BASE64 } from '../assets/signatureBase64';
@@ -102,8 +102,6 @@ export const SurveyPdfModal: React.FC<SurveyPdfModalProps> = ({ survey, onClose,
     // Render the survey sheet to a high-resolution canvas
     const canvas = await renderElementToCanvas(element);
 
-    const imgData = canvas.toDataURL('image/jpeg', 0.98);
-
     // Create A4 PDF in portrait (210mm x 297mm)
     const pdf = new jsPDF({
       orientation: 'portrait',
@@ -111,29 +109,8 @@ export const SurveyPdfModal: React.FC<SurveyPdfModalProps> = ({ survey, onClose,
       format: 'a4',
     });
 
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = pdf.internal.pageSize.getHeight();
-
     const margin = 4; // 4mm margin
-    const printableWidth = pdfWidth - margin * 2;
-    const printableHeight = pdfHeight - margin * 2;
-    const imgHeight = (canvas.height * printableWidth) / canvas.width;
-
-    let renderW = printableWidth;
-    let renderH = imgHeight;
-
-    // Scale proportionally to fit completely on 1st page in A4 paper format
-    if (renderH > printableHeight) {
-      const scale = printableHeight / renderH;
-      renderH = printableHeight;
-      renderW = printableWidth * scale;
-    }
-
-    const xOffset = margin + (printableWidth - renderW) / 2;
-    const yOffset = margin + Math.max(0, (printableHeight - renderH) / 2);
-
-    // Add survey canvas image starting at top margin
-    pdf.addImage(imgData, 'JPEG', xOffset, yOffset, renderW, renderH, undefined, 'NONE');
+    addCanvasToA4Pdf(pdf, canvas, margin);
 
     const blob = pdf.output('blob');
     const url = URL.createObjectURL(blob);
@@ -347,11 +324,6 @@ export const SurveyPdfModal: React.FC<SurveyPdfModalProps> = ({ survey, onClose,
             id="printable-survey-pdf"
             className="bg-white w-[794px] max-w-[794px] min-h-[1123px] shadow-2xl border-2 border-[#1e3a8a] text-[12px] text-black font-sans box-border relative mx-auto my-auto flex flex-col justify-between print:border print:border-[#1e3a8a] print:shadow-none print:w-[794px] print:max-w-[794px] print:min-h-[1120px]"
           >
-            {/* Top PAN Number Bar - Navy Blue */}
-            <div className="bg-[#1e3a8a] text-center font-bold py-1 border-b border-[#1e3a8a] text-[11px] tracking-wide text-white uppercase">
-              PAN No.: {companyProfile?.panNo || 'AKMPV0774C'}
-            </div>
-
             {/* Company Logo & Address Box */}
             <div className="flex border-b border-[#1e3a8a] min-h-[96px]">
               {/* Logo Container */}
@@ -380,7 +352,7 @@ export const SurveyPdfModal: React.FC<SurveyPdfModalProps> = ({ survey, onClose,
                   <strong>Main Operational Office:</strong> Plot No 1491, Balintha Canal Road, Near Lenskart, Hanspal, Bhubaneswar, Odisha – 752101 | Mobile: 8093017400
                 </p>
                 <p className="text-[10px] sm:text-[10.5px] leading-tight text-black font-medium mt-0.5">
-                  <strong>GST No.:</strong> 22CCQPS8419D1ZC &nbsp;|&nbsp; <strong>Email:</strong> urbanpro403@gmail.com
+                  <strong>Email:</strong> urbanpro403@gmail.com
                 </p>
               </div>
             </div>

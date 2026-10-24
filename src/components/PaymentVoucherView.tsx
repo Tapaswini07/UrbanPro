@@ -609,11 +609,6 @@ export const PaymentVoucherView: React.FC<Props> = ({ vouchers, onSave, onDelete
             id="printable-payment-voucher-pdf"
             className="bg-white rounded-xl border-2 border-[#1e3a8a] shadow-xl p-8 sm:p-12 text-slate-900 space-y-5 print:border-2 print:border-[#1e3a8a] print:p-8"
           >
-            {/* Top PAN Strip (Navy Blue) */}
-            <div className="text-center bg-[#1e3a8a] py-1 text-[11px] font-bold text-white uppercase tracking-wider border-b border-[#1e3a8a]">
-              PAN No.: {companyProfile?.panNo || 'AKMPV0774C'}
-            </div>
-
             {/* Company Logo & Address Box (Matching Survey PDF Reference) */}
             <div className="flex border-b border-[#1e3a8a] min-h-[96px]">
               {/* Logo Container on Side */}
@@ -634,8 +629,6 @@ export const PaymentVoucherView: React.FC<Props> = ({ vouchers, onSave, onDelete
                   <h2 className="text-[13px] sm:text-[15px] font-extrabold tracking-wider uppercase mt-0.5" style={{ color: '#1e3a8a' }}>
                     Packers & Logistics
                   </h2>
-                  <h3 className="text-[10.5px] font-bold text-red-700 tracking-wide uppercase mt-0.5">
-                  </h3>
                 </div>
                 <p className="text-[9.5px] sm:text-[10px] leading-tight text-slate-900 font-semibold mt-0.5">
                   <strong>Regd. Office:</strong> Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452 | Tel: 8093017400
@@ -644,7 +637,7 @@ export const PaymentVoucherView: React.FC<Props> = ({ vouchers, onSave, onDelete
                   <strong>Main Operational Office:</strong> Plot No 1491, Balintha Canal Road, Near Lenskart, Hanspal, Bhubaneswar, Odisha – 752101 | Mobile: 8093017400
                 </p>
                 <p className="text-[9.5px] sm:text-[10px] leading-tight text-slate-800 font-medium mt-0.5">
-                  <strong>GST No.:</strong> {companyProfile?.gstin || '22CCQPS8419D1ZC'} &nbsp;|&nbsp; <strong>Email:</strong> {companyProfile?.email || 'urbanpro403@gmail.com'}
+                  <strong>Email:</strong> {companyProfile?.email || 'urbanpro403@gmail.com'}
                 </p>
               </div>
             </div>

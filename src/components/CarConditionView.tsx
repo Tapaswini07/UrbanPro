@@ -1176,11 +1176,6 @@ export const CarConditionView: React.FC<Props> = ({ carConditions, onSave, onDel
             className="bg-white border-2 border-[#1e3a8a] shadow-xl p-4 sm:p-6 text-slate-900 font-sans print:border-0 print:shadow-none print:p-0 print:m-0 print:w-full"
           >
             
-            {/* PAN No Top Banner - Navy Blue */}
-            <div className="bg-[#1e3a8a] text-center text-[11px] font-bold text-white py-1 border-b border-[#1e3a8a] uppercase tracking-wide">
-              PAN No.: {companyProfile?.panNo || 'AKMPV0774C'}
-            </div>
-
             {/* Company Header */}
             <div className="flex border-b border-[#1e3a8a] min-h-[96px]">
               {/* Left Logo Container */}
@@ -1201,8 +1196,6 @@ export const CarConditionView: React.FC<Props> = ({ carConditions, onSave, onDel
                   <h2 className="text-[13px] sm:text-[15px] font-extrabold tracking-wider uppercase mt-0.5" style={{ color: '#1e3a8a' }}>
                     Packers & Logistics
                   </h2>
-                  <h3 className="text-[10.5px] font-bold text-red-700 tracking-wide uppercase mt-0.5">
-                  </h3>
                 </div>
                 <p className="text-[9.5px] sm:text-[10px] leading-tight text-slate-900 font-semibold mt-0.5">
                   <strong>Regd. Office:</strong> Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452 | Tel: 8093017400
@@ -1211,7 +1204,7 @@ export const CarConditionView: React.FC<Props> = ({ carConditions, onSave, onDel
                   <strong>Main Operational Office:</strong> Plot No 1491, Balintha Canal Road, Near Lenskart, Hanspal, Bhubaneswar, Odisha – 752101 | Mobile: 8093017400
                 </p>
                 <p className="text-[9.5px] sm:text-[10px] leading-tight text-slate-800 font-medium mt-0.5">
-                  <strong>GST No.:</strong> {companyProfile?.gstin || '22CCQPS8419D1ZC'} &nbsp;|&nbsp; <strong>Email:</strong> {companyProfile?.email || 'urbanpro403@gmail.com'}
+                  <strong>Email:</strong> {companyProfile?.email || 'urbanpro403@gmail.com'}
                 </p>
               </div>
             </div>

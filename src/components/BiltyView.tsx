@@ -503,16 +503,6 @@ export const BiltyView: React.FC<Props> = ({
                 />
               </div>
 
-              <div className="border border-slate-300 rounded-xl p-2.5 bg-white">
-                <label className="block text-slate-500 font-medium text-[11px] mb-1">GSTIN</label>
-                <input
-                  type="text"
-                  value={form.consignorGstin}
-                  onChange={e => setForm({ ...form, consignorGstin: e.target.value })}
-                  className="w-full outline-none font-medium text-slate-800 uppercase"
-                />
-              </div>
-
               <div className="border border-slate-300 rounded-xl p-2.5 bg-slate-50">
                 <label className="block text-slate-500 font-medium text-[11px] mb-1">Country</label>
                 <input
@@ -621,16 +611,6 @@ export const BiltyView: React.FC<Props> = ({
                   value={form.consigneePhone}
                   onChange={e => setForm({ ...form, consigneePhone: e.target.value })}
                   className="w-full outline-none font-medium text-slate-800"
-                />
-              </div>
-
-              <div className="border border-slate-300 rounded-xl p-2.5 bg-white">
-                <label className="block text-slate-500 font-medium text-[11px] mb-1">GSTIN</label>
-                <input
-                  type="text"
-                  value={form.consigneeGstin}
-                  onChange={e => setForm({ ...form, consigneeGstin: e.target.value })}
-                  className="w-full outline-none font-medium text-slate-800 uppercase"
                 />
               </div>
 
@@ -1432,11 +1412,6 @@ export const BiltyView: React.FC<Props> = ({
             className="bg-white w-full max-w-[794px] border-2 border-[#1e3a8a] text-[11px] text-black font-sans box-border relative mx-auto my-auto print:border print:border-[#1e3a8a] print:shadow-none print:w-full print:max-w-none shadow-xl"
             style={{ fontFamily: 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}
           >
-            {/* Top PAN Number Bar - Navy Blue */}
-            <div className="bg-[#1e3a8a] text-center font-bold py-1 border-b border-[#1e3a8a] text-[11px] tracking-wide text-white uppercase">
-              PAN No.: {companyProfile?.panNo || 'AKMPV0774C'}
-            </div>
-
             {/* Company Logo & Address Box */}
             <div className="flex border-b border-[#1e3a8a] min-h-[96px]">
               {/* Logo Container */}
@@ -1457,8 +1432,6 @@ export const BiltyView: React.FC<Props> = ({
                   <h2 className="text-[13px] sm:text-[15px] font-extrabold tracking-wider uppercase mt-0.5" style={{ color: '#1e3a8a' }}>
                     Packers & Logistics
                   </h2>
-                  <h3 className="text-[10.5px] font-bold text-red-700 tracking-wide uppercase mt-0.5">
-                  </h3>
                 </div>
                 <p className="text-[10px] sm:text-[10.5px] leading-tight text-black font-semibold mt-0.5">
                   <strong>Regd. Office:</strong> Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452 | Tel: 8093017400
@@ -1467,7 +1440,7 @@ export const BiltyView: React.FC<Props> = ({
                   <strong>Main Operational Office:</strong> Plot No 1491, Balintha Canal Road, Near Lenskart, Hanspal, Bhubaneswar, Odisha – 752101 | Mobile: 8093017400
                 </p>
                 <p className="text-[10px] sm:text-[10.5px] leading-tight text-black font-medium mt-0.5">
-                  <strong>GST No.:</strong> 22CCQPS8419D1ZC &nbsp;|&nbsp; <strong>Email:</strong> urbanpro403@gmail.com
+                  <strong>Email:</strong> urbanpro403@gmail.com
                 </p>
               </div>
             </div>
@@ -1512,7 +1485,6 @@ export const BiltyView: React.FC<Props> = ({
                     <div className="p-2 space-y-0.5 text-[9.5px] leading-tight">
                       <p><strong>Name:</strong> {selectedRecord.consignorName || ''}</p>
                       <p><strong>Phone:</strong> {selectedRecord.consignorPhone || ''}</p>
-                      <p><strong>GST No:</strong> {selectedRecord.consignorGstin || ''}</p>
                       <p><strong>Address:</strong> {selectedRecord.consignorAddress || ''}</p>
                       <p><strong>Pin/City/Country:</strong> {[selectedRecord.consignorPincode, selectedRecord.consignorCity, selectedRecord.consignorCountry].filter(Boolean).join('/')}</p>
                     </div>
@@ -1526,7 +1498,6 @@ export const BiltyView: React.FC<Props> = ({
                     <div className="p-2 space-y-0.5 text-[9.5px] leading-tight">
                       <p><strong>Name:</strong> {selectedRecord.consigneeName || ''}</p>
                       <p><strong>Phone:</strong> {selectedRecord.consigneePhone || ''}</p>
-                      <p><strong>GST No:</strong> {selectedRecord.consigneeGstin || ''}</p>
                       <p><strong>Address:</strong> {selectedRecord.consigneeAddress || ''}</p>
                       <p><strong>Pin/City/Country:</strong> {[selectedRecord.consigneePincode, selectedRecord.consigneeCity, selectedRecord.consigneeCountry].filter(Boolean).join('/')}</p>
                     </div>

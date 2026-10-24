@@ -22,7 +22,7 @@ import {
   FileText
 } from 'lucide-react';
 import jsPDF from 'jspdf';
-import { renderElementToCanvas, triggerPdfDownload } from '../utils/pdfExport';
+import { addCanvasToA4Pdf, renderElementToCanvas, triggerPdfDownload } from '../utils/pdfExport';
 import { shareDocument } from '../utils/shareUtils';
 import { calculateQuotationTotals, parseChargeNumber, parseChargeDetails, formatChargeValue } from '../utils/quotationCalculations';
 import { UPL_LOGO_BASE64 } from '../assets/logoBase64';
@@ -228,11 +228,7 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
       compress: true,
     });
 
-    const pdfWidth = 210;
-    const pdfHeight = 297;
     const margin = 4; // 4mm margin for maximum printable area
-    const printableWidth = pdfWidth - margin * 2; // 202mm
-    const printableHeight = pdfHeight - margin * 2; // 289mm
     let pagesAdded = 0;
 
     const shouldRenderP1 = p1 && (activePage === 'both' || activePage === 'page1');
@@ -241,20 +237,7 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
     // Render Page 1 if requested
     if (shouldRenderP1 && p1) {
       const canvas1 = await renderElementToCanvas(p1);
-      const img1 = canvas1.toDataURL('image/jpeg', 0.98);
-      const aspect = canvas1.height / canvas1.width;
-      let renderW = printableWidth;
-      let renderH = printableWidth * aspect;
-
-      if (renderH > printableHeight) {
-        const ratio = printableHeight / renderH;
-        renderH = printableHeight;
-        renderW = printableWidth * ratio;
-      }
-      const xOffset = margin + (printableWidth - renderW) / 2;
-      const yOffset = margin;
-      pdf.addImage(img1, 'JPEG', xOffset, yOffset, renderW, renderH, undefined, 'NONE');
-      pagesAdded++;
+      pagesAdded += addCanvasToA4Pdf(pdf, canvas1, margin);
     }
 
     // Render Page 2 (Terms & Conditions) if requested
@@ -263,19 +246,7 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
         pdf.addPage();
       }
       const canvas2 = await renderElementToCanvas(p2);
-      const img2 = canvas2.toDataURL('image/jpeg', 0.98);
-      const aspect2 = canvas2.height / canvas2.width;
-      let renderW2 = printableWidth;
-      let renderH2 = printableWidth * aspect2;
-
-      if (renderH2 > printableHeight) {
-        const ratio2 = printableHeight / renderH2;
-        renderH2 = printableHeight;
-        renderW2 = printableWidth * ratio2;
-      }
-      const xOffset2 = margin + (printableWidth - renderW2) / 2;
-      const yOffset2 = margin + Math.max(0, (printableHeight - renderH2) / 2);
-      pdf.addImage(img2, 'JPEG', xOffset2, yOffset2, renderW2, renderH2, undefined, 'NONE');
+      addCanvasToA4Pdf(pdf, canvas2, margin);
     }
 
     const blob = pdf.output('blob');
@@ -755,9 +726,9 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
                                   ? 'bg-emerald-600 text-white border-emerald-600 shadow-2xs'
                                   : 'bg-white text-emerald-700 border-emerald-300 hover:bg-emerald-50'
                               }`}
-                              title={isInc ? 'Remove Included tag' : 'Mark as Included (Adds to Total)'}
+                              title={isInc ? 'Select Included to clear' : 'Select Included'}
                             >
-                              {isInc && <span>✓</span>} Incl
+                              Included
                             </button>
                             <button
                               type="button"
@@ -767,21 +738,19 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
                                   ? 'bg-rose-600 text-white border-rose-600 shadow-2xs'
                                   : 'bg-white text-rose-700 border-rose-300 hover:bg-rose-50'
                               }`}
-                              title={isExc ? 'Remove Excluded tag' : 'Mark as Excluded (0 added)'}
+                              title={isExc ? 'Select Excluded to clear' : 'Select Excluded'}
                             >
-                              {isExc && <span>✕</span>} Excl
+                              Excluded
                             </button>
                           </div>
                         </div>
                         <div className="relative flex items-center">
                           <input
                             type="text"
-                            placeholder={isInc ? "0 (Incl)" : isExc ? "0 (Excl)" : "0"}
+                            placeholder="0"
                             value={parsed.displayAmount}
                             onChange={handleAmtChange}
-                            className={`w-full bg-slate-50 border rounded px-2 py-1 font-bold outline-none focus:border-sky-500 text-xs ${
-                              isInc ? 'text-emerald-700 border-emerald-300 bg-emerald-50/40' : isExc ? 'text-rose-700 border-rose-300 bg-rose-50/40' : 'text-slate-800 border-slate-300'
-                            }`}
+                            className="w-full bg-slate-50 border border-slate-300 rounded px-2 py-1 font-bold outline-none focus:border-sky-500 text-xs text-slate-800"
                           />
                         </div>
                       </div>
@@ -835,7 +804,7 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
                   <div className="flex items-center justify-between mb-1">
                     <label className="block text-[10px] font-bold text-emerald-900 uppercase">Insurance</label>
                     <div className="flex items-center gap-1">
-                      {['Extra', 'Included', 'Exempted'].map((status) => (
+                      {['Extra', 'Exempted'].map((status) => (
                         <button
                           key={status}
                           type="button"
@@ -843,11 +812,11 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
                             setQuotation({ 
                               ...quotation, 
                               insuranceStatus: status, 
-                              insuranceCharge: status === 'Included' ? 'Included' : status === 'Exempted' ? 'Exempted' : (quotation.insuranceCharge === 'Included' || quotation.insuranceCharge === 'Exempted' ? '' : quotation.insuranceCharge)
+                              insuranceCharge: status === 'Exempted' ? 'Exempted' : '',
                             });
                           }}
                           className={`px-1.5 py-0.5 text-[9px] font-bold rounded cursor-pointer ${
-                            (quotation.insuranceStatus || 'Extra') === status ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600'
+                            totals.insStatus === status ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600'
                           }`}
                         >
                           {status}
@@ -866,8 +835,8 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
                           const gv = e.target.value;
                           const gvNum = parseFloat(gv.replace(/[^0-9.]/g, '')) || 0;
                           const pct = parseFloat(String(quotation.insurancePercent || '3').replace(/[^0-9.]/g, '')) || 3;
-                          const ins = gvNum > 0 ? String(Math.round((gvNum * pct) / 100)) : quotation.insuranceCharge;
-                          setQuotation({ ...quotation, goodsValue: gv, insuranceCharge: ins });
+                          const ins = gvNum > 0 ? String(Math.round((gvNum * pct) / 100)) : '';
+                          setQuotation({ ...quotation, goodsValue: gv, insuranceStatus: 'Extra', insuranceCharge: ins });
                         }}
                         className="w-full bg-slate-50 border border-slate-300 rounded px-2 py-1 text-slate-800 outline-none focus:border-sky-500 text-xs"
                       />
@@ -876,10 +845,10 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
                       <label className="block text-[10px] text-slate-500 font-medium mb-0.5">Ins Charge (₹)</label>
                       <input
                         type="text"
-                        placeholder="0 or Included"
-                        value={quotation.insuranceCharge ?? ''}
-                        onChange={(e) => setQuotation({ ...quotation, insuranceCharge: e.target.value })}
-                        className="w-full bg-slate-50 border border-slate-300 rounded px-2 py-1 text-slate-800 font-bold outline-none focus:border-sky-500 text-xs"
+                        placeholder="0"
+                        value={totals.insuranceNum > 0 ? String(totals.insuranceNum) : ''}
+                        readOnly
+                        className="w-full bg-slate-50 border border-slate-300 rounded px-2 py-1 text-slate-800 font-bold outline-none text-xs"
                       />
                     </div>
                   </div>
@@ -890,7 +859,7 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
                   <div className="flex items-center justify-between mb-1">
                     <label className="block text-[10px] font-bold text-purple-900 uppercase">GST Tax</label>
                     <div className="flex items-center gap-1">
-                      {['Extra', 'Included', 'Exempted'].map((status) => (
+                      {['Extra', 'Exempted'].map((status) => (
                         <button
                           key={status}
                           type="button"
@@ -898,11 +867,11 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
                             setQuotation({ 
                               ...quotation, 
                               gstStatus: status, 
-                              gstCharge: status === 'Included' ? 'Included' : status === 'Exempted' ? 'Exempted' : (quotation.gstCharge === 'Included' || quotation.gstCharge === 'Exempted' ? '' : quotation.gstCharge)
+                              gstCharge: status === 'Exempted' ? 'Exempted' : '',
                             });
                           }}
                           className={`px-1.5 py-0.5 text-[9px] font-bold rounded cursor-pointer ${
-                            (quotation.gstStatus || 'Extra') === status ? 'bg-purple-600 text-white' : 'bg-slate-100 text-slate-600'
+                            totals.gstStatus === status ? 'bg-purple-600 text-white' : 'bg-slate-100 text-slate-600'
                           }`}
                         >
                           {status}
@@ -919,7 +888,7 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
                           const newPct = e.target.value;
                           const pctNum = parseFloat(newPct.replace(/[^0-9.]/g, '')) || 0;
                           const gstVal = pctNum > 0 ? String(Math.round((totals.subTotal * pctNum) / 100)) : '';
-                          setQuotation({ ...quotation, gstPercent: newPct, gstCharge: gstVal });
+                          setQuotation({ ...quotation, gstPercent: newPct, gstStatus: 'Extra', gstCharge: gstVal });
                         }}
                         className="w-full bg-slate-50 border border-slate-300 rounded px-2 py-1 text-slate-800 outline-none focus:border-sky-500 text-xs font-semibold"
                       >
@@ -933,10 +902,10 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
                       <label className="block text-[10px] text-slate-500 font-medium mb-0.5">GST Amount (₹)</label>
                       <input
                         type="text"
-                        placeholder="0 or Included"
-                        value={quotation.gstCharge ?? ''}
-                        onChange={(e) => setQuotation({ ...quotation, gstCharge: e.target.value })}
-                        className="w-full bg-slate-50 border border-slate-300 rounded px-2 py-1 text-slate-800 font-bold outline-none focus:border-sky-500 text-xs"
+                        placeholder="0"
+                        value={totals.gstNum > 0 ? String(totals.gstNum) : ''}
+                        readOnly
+                        className="w-full bg-slate-50 border border-slate-300 rounded px-2 py-1 text-slate-800 font-bold outline-none text-xs"
                       />
                     </div>
                   </div>
@@ -1089,8 +1058,6 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
                       <h2 className="text-[12px] sm:text-[13px] font-extrabold tracking-wider uppercase mt-0.5" style={{ color: '#1e3a8a' }}>
                         Packers & Logistics
                       </h2>
-                      <h3 className="text-[10.5px] font-bold text-red-700 tracking-wide uppercase mt-0.5">
-                      </h3>
                     </div>
                     <p className="text-[9px] sm:text-[9.5px] leading-tight text-black font-semibold mt-0.5">
                       <strong>Regd. Office:</strong> Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452 | Tel: 8093017400
@@ -1224,20 +1191,20 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
                     const isIncluded = parsed.status === 'included';
                     const isExcluded = parsed.status === 'excluded';
 
-                    let displayStatus = 'Standard';
+                    let displayStatus = '—';
                     let displayAmt = '—';
 
                     if (isIncluded) {
-                      displayStatus = 'Included in Base';
-                      displayAmt = parsed.amount > 0 ? `₹ ${parsed.amount.toLocaleString()}` : 'Included';
+                      displayStatus = 'Included';
+                      displayAmt = parsed.amount > 0 ? `₹ ${parsed.amount.toLocaleString()}` : '—';
                     } else if (isExcluded) {
-                      displayStatus = 'Excluded / By Party';
-                      displayAmt = parsed.amount > 0 ? `₹ ${parsed.amount.toLocaleString()} (Excl)` : 'Excluded';
+                      displayStatus = 'Excluded';
+                      displayAmt = parsed.amount > 0 ? `₹ ${parsed.amount.toLocaleString()}` : '—';
                     } else if (parsed.amount > 0) {
-                      displayStatus = 'Applied';
+                      displayStatus = '—';
                       displayAmt = `₹ ${parsed.amount.toLocaleString()}`;
                     } else if (parsed.rawText) {
-                      displayStatus = 'As Actuals';
+                      displayStatus = '—';
                       displayAmt = parsed.rawText;
                     }
 
@@ -1273,8 +1240,8 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
                     <div className="flex-1 text-left px-2 font-medium text-black border-r border-blue-100">
                       Goods Total Value (Declared)
                     </div>
-                    <div className="w-36 text-center border-r border-blue-100 text-[10px] font-semibold text-amber-700">
-                      Added to Grand Total
+                    <div className="w-36 text-center border-r border-blue-100 text-[10px] font-semibold text-slate-600">
+                      —
                     </div>
                     <div className="w-36 text-right pr-2 font-semibold text-amber-800">
                       {totals.goodsVal > 0 ? `₹ ${totals.goodsVal.toLocaleString()}` : 'Nil'}
@@ -1291,24 +1258,10 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
                       )}
                     </div>
                     <div className="w-36 text-center border-r border-blue-100 text-[10px] font-semibold text-slate-600">
-                      {totals.insStatus === 'Included' ? 'Included' : totals.insStatus === 'Exempted' ? 'Exempted' : `@ ${totals.insPercent} on Goods`}
+                      {totals.insStatus === 'Exempted' ? 'Excluded' : `@ ${totals.insPercent} on Goods`}
                     </div>
                     <div className="w-36 text-right pr-2 font-semibold text-black">
-                      {totals.insuranceNum > 0 ? `₹ ${totals.insuranceNum.toLocaleString()}` : totals.insStatus === 'Included' ? 'Included' : 'Nil'}
-                    </div>
-                  </div>
-
-                  {/* GST Row */}
-                  <div className="flex border-b border-[#1e3a8a] py-1 text-[10.5px] items-center bg-white">
-                    <div className="w-12 text-center text-slate-500 border-r border-blue-100">+</div>
-                    <div className="flex-1 text-left px-2 font-medium text-black border-r border-blue-100">
-                      GST / Tax Charges ({quotation.gstType || 'CGST/SGST'} @ {totals.gstPercent})
-                    </div>
-                    <div className="w-36 text-center border-r border-blue-100 text-[10px] font-semibold text-slate-600">
-                      {totals.gstStatus === 'Exempted' ? 'Exempted' : `@ ${totals.gstPercent} on Sub Total`}
-                    </div>
-                    <div className="w-36 text-right pr-2 font-semibold text-black">
-                      {totals.gstNum > 0 ? `₹ ${totals.gstNum.toLocaleString()}` : 'Nil'}
+                      {totals.insuranceNum > 0 ? `₹ ${totals.insuranceNum.toLocaleString()}` : '—'}
                     </div>
                   </div>
 
