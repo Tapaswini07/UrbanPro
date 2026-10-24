@@ -315,8 +315,7 @@ export const BillView: React.FC<Props> = ({
     const sub = calcSubTotal(f);
     const ins = calcInsuranceAmt(f);
     const gst = calcGstAmt(f);
-    const goodsVal = Number(f.goodsValue) || 0;
-    return sub + ins + gst + goodsVal;
+    return sub + ins + gst;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -1342,7 +1341,7 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                     />
                   </div>
                   <p className="text-[11px] text-emerald-800 mt-1 font-medium">
-                    Calculated as Sub Total (₹{calcSubTotal(form).toLocaleString()}) + GST on Sub Total (₹{calcGstAmt(form).toLocaleString()}) + Goods Total Value (₹{(form.goodsValue || 0).toLocaleString()}) + Insurance on Goods Value (₹{calcInsuranceAmt(form).toLocaleString()})
+                    Calculated as Sub Total (₹{calcSubTotal(form).toLocaleString()}) + GST on Sub Total (₹{calcGstAmt(form).toLocaleString()}) + Insurance on declared Goods Value (₹{calcInsuranceAmt(form).toLocaleString()})
                   </p>
                 </div>
                 <div className="w-9 h-9 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
@@ -1830,7 +1829,7 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                     {/* Goods Total Value row if > 0 */}
                     {Number(selectedRecord.goodsValue) > 0 && (
                       <tr className="bg-amber-50/50">
-                        <td className="p-1 border-r border-[#1e3a8a] font-semibold text-slate-900">Goods Total Value</td>
+                        <td className="p-1 border-r border-[#1e3a8a] font-semibold text-slate-900">Goods Total Value (Declared)</td>
                         <td className="p-1 text-right font-mono font-bold text-slate-950">₹ {Number(selectedRecord.goodsValue).toLocaleString()}</td>
                       </tr>
                     )}

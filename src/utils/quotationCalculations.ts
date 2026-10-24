@@ -192,8 +192,8 @@ export function calculateQuotationTotals(data: any): QuotationCalculationResult 
     }
   }
 
-  // 6. Grand Total includes GST on subtotal and insurance on declared goods value.
-  let grandTotal = subTotal + gstNum + goodsVal + insuranceNum;
+  // 6. Goods value is declared for insurance only; only the insurance premium is charged.
+  const grandTotal = subTotal + gstNum + insuranceNum;
   // 7. Advance Paid & Balance Due
   const advanceNum = parseChargeNumber(data.advancePaid);
   const balanceDue = Math.max(0, grandTotal - advanceNum);
