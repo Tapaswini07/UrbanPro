@@ -8,13 +8,19 @@ import jsPDF from 'jspdf';
 export async function renderElementToCanvas(element: HTMLElement): Promise<HTMLCanvasElement> {
   const A4_WIDTH_PX = 794;
   const A4_HEIGHT_PX = 1123;
+  const sourceWidth = element.offsetWidth;
+  if (sourceWidth <= 0) {
+    throw new Error('Cannot render a PDF element with no visible width');
+  }
+  const renderWidth = Math.ceil(sourceWidth);
+  const renderHeight = Math.ceil((renderWidth * A4_HEIGHT_PX) / A4_WIDTH_PX);
 
   // Create an off-screen container to isolate the element from modal transforms, zoom, or parent flex/grid styling
   const wrapper = document.createElement('div');
   wrapper.style.position = 'fixed';
   wrapper.style.left = '-10000px';
   wrapper.style.top = '0';
-  wrapper.style.width = `${A4_WIDTH_PX}px`;
+  wrapper.style.width = `${renderWidth}px`;
   wrapper.style.height = 'auto';
   wrapper.style.zIndex = '999999';
   wrapper.style.background = '#ffffff';
@@ -42,11 +48,11 @@ export async function renderElementToCanvas(element: HTMLElement): Promise<HTMLC
       }
     });
 
-    clone.style.width = `${A4_WIDTH_PX}px`;
-    clone.style.minWidth = `${A4_WIDTH_PX}px`;
-    clone.style.maxWidth = `${A4_WIDTH_PX}px`;
+    clone.style.width = `${renderWidth}px`;
+    clone.style.minWidth = `${renderWidth}px`;
+    clone.style.maxWidth = `${renderWidth}px`;
     clone.style.height = 'auto';
-    clone.style.minHeight = `${A4_HEIGHT_PX}px`;
+    clone.style.minHeight = `${renderHeight}px`;
     clone.style.maxHeight = 'none';
     clone.style.overflow = 'visible';
     clone.style.transform = 'none';
@@ -102,8 +108,8 @@ export async function renderElementToCanvas(element: HTMLElement): Promise<HTMLC
       backgroundColor: '#ffffff',
       logging: false,
       imageTimeout: 15000,
-      windowWidth: A4_WIDTH_PX,
-      windowHeight: A4_HEIGHT_PX,
+      windowWidth: renderWidth,
+      windowHeight: renderHeight,
       onclone: (clonedDoc) => {
         const dummyCanvas = clonedDoc.createElement('canvas');
         const ctx = dummyCanvas.getContext('2d');
