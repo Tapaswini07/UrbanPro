@@ -436,10 +436,8 @@ export default function App() {
     const match = surveys.find(
       s => String(s.surveyNo || '').trim().toLowerCase() === query ||
            (Number.isInteger(numericQuery) &&
-             Number.parseInt(String(s.surveyNo || '').trim(), 10) === numericQuery) ||
-           String(s.id) === query ||
-           String(s.partyName || '').trim().toLowerCase().includes(query)
-    ) || (Number.isInteger(numericQuery) && numericQuery > 0 ? surveys[numericQuery - 1] : undefined);
+             Number.parseInt(String(s.surveyNo || '').trim(), 10) === numericQuery)
+    );
 
     if (!match) {
       setShareToast(`No survey found matching "${surveyNoOrId}"`);
@@ -458,6 +456,8 @@ export default function App() {
 
     setQuotationForm(prev => ({
       ...prev,
+      quotationNo: String(match.surveyNo || prev.quotationNo),
+      surveyNo: String(match.surveyNo || ''),
       partyName: match.partyName || prev.partyName,
       mobileNo: match.mobileNo || prev.mobileNo,
       email: match.email || prev.email,
@@ -542,6 +542,27 @@ export default function App() {
   };
 
   const handleCreateQuotationFromSurvey = (survey: any) => {
+    const linkedQuotation = quotations.find(
+      quotation => String(quotation.surveyNo || '').trim() === String(survey.surveyNo || '').trim()
+    );
+    if (linkedQuotation) {
+      const totals = calculateQuotationTotals(linkedQuotation);
+      setQuotationForm({
+        ...initialQuotationForm,
+        ...linkedQuotation,
+        serviceChargePercent: linkedQuotation.serviceChargePercent || (totals.serviceChargePercent !== '0%' ? totals.serviceChargePercent : '0%'),
+        insuranceStatus: totals.insStatus,
+        insurancePercent: totals.insPercent,
+        gstStatus: totals.gstStatus,
+        gstPercent: totals.gstPercent,
+        gstType: linkedQuotation.gstType || 'CGST/SGST',
+      });
+      setEditingQuotationId(linkedQuotation.id);
+      setSelectedSurveyForQuotationAutoFill(String(survey.surveyNo));
+      setAdminTab('add-quotation');
+      return;
+    }
+
     setEditingQuotationId(null);
     const surveyItems = (survey.items || []).filter((item: any) => item.name?.trim());
     const surveyItemsSummary = surveyItems.length > 0
@@ -553,7 +574,8 @@ export default function App() {
     }, 0);
     setQuotationForm({
       ...initialQuotationForm,
-      quotationNo: getNextQuotationNumber(),
+      quotationNo: String(survey.surveyNo || getNextQuotationNumber()),
+      surveyNo: String(survey.surveyNo || ''),
       quotationDate: new Date().toISOString().split('T')[0],
       partyName: survey.partyName || '',
       mobileNo: survey.mobileNo || '',
@@ -632,6 +654,7 @@ export default function App() {
   // Quotation Management State
   const initialQuotationForm = {
     quotationNo: '1',
+    surveyNo: '',
     quotationDate: new Date().toISOString().split('T')[0],
     partyName: '',
     mobileNo: '',
@@ -706,8 +729,8 @@ export default function App() {
     return [];
   });
 
-  const getNextQuotationNumber = () => {
-    const highestQuotationNumber = quotations.reduce((highest, quotation) => {
+  const getNextQuotationNumber = (records = quotations) => {
+    const highestQuotationNumber = records.reduce((highest, quotation) => {
       const quotationNumber = Number.parseInt(String(quotation.quotationNo || ''), 10);
       return Number.isFinite(quotationNumber) ? Math.max(highest, quotationNumber) : highest;
     }, 0);
@@ -733,13 +756,23 @@ export default function App() {
     if (
       adminTab === 'add-quotation' &&
       !editingQuotationId &&
-      !quotationForm.partyName.trim() &&
-      quotationForm.quotationNo === '1' &&
-      quotations.some(quotation => Number.parseInt(String(quotation.quotationNo || ''), 10) === 1)
+      !quotationForm.partyName.trim()
     ) {
-      setQuotationForm(prev => ({ ...prev, quotationNo: getNextQuotationNumber() }));
+      const numberIsUsed = quotations.some(
+        quotation => String(quotation.quotationNo || '').trim() === quotationForm.quotationNo
+      );
+      const nextQuotationNo = numberIsUsed ? getNextQuotationNumber() : quotationForm.quotationNo;
+      if (nextQuotationNo !== quotationForm.quotationNo) {
+        setQuotationForm(prev => ({ ...prev, quotationNo: nextQuotationNo }));
+        return;
+      }
+
+      const matchingSurvey = surveys.find(
+        survey => String(survey.surveyNo || '').trim() === nextQuotationNo
+      );
+      if (matchingSurvey) applySurveyToQuotation(String(matchingSurvey.surveyNo));
     }
-  }, [adminTab, editingQuotationId, quotations]);
+  }, [adminTab, editingQuotationId, quotations, quotationForm.quotationNo, quotationForm.partyName, surveys]);
 
   const handleSaveQuotation = () => {
     if (!quotationForm.partyName.trim()) {
@@ -767,16 +800,17 @@ export default function App() {
       setShareToast('Quotation updated successfully!');
     } else {
       const newQuot = { ...updated, id: Date.now().toString() };
-      setQuotations([newQuot, ...quotations]);
+      const updatedQuotations = [newQuot, ...quotations];
+      setQuotations(updatedQuotations);
       setShareToast('Quotation created successfully!');
+      setQuotationForm({ ...initialQuotationForm, quotationNo: getNextQuotationNumber(updatedQuotations) });
+      setEditingQuotationId(null);
+      setAdminTab('list-quotation');
+      setTimeout(() => setShareToast(null), 3000);
+      return;
     }
     setTimeout(() => setShareToast(null), 3000);
-    setQuotationForm({ ...initialQuotationForm, quotationNo: String(
-      quotations.reduce((highest, quotation) => {
-        const quotationNumber = Number.parseInt(String(quotation.quotationNo || ''), 10);
-        return Number.isFinite(quotationNumber) ? Math.max(highest, quotationNumber) : highest;
-      }, 0) + (editingQuotationId ? 1 : 2)
-    ) });
+    setQuotationForm({ ...initialQuotationForm, quotationNo: getNextQuotationNumber() });
     setEditingQuotationId(null);
     setAdminTab('list-quotation');
   };
@@ -3947,9 +3981,9 @@ export default function App() {
                             }}
                           >
                             <option value="">-- Select Survey to Load Client & Route --</option>
-                            {surveys.map((s, index) => (
-                              <option key={s.id} value={String(index + 1)}>
-                                Survey #{index + 1} — {s.partyName} ({s.fromCity || 'From'} → {s.toCity || 'To'})
+                            {surveys.map((s) => (
+                              <option key={s.id} value={String(s.surveyNo)}>
+                                Survey #{s.surveyNo} — {s.partyName} ({s.fromCity || 'From'} → {s.toCity || 'To'})
                               </option>
                             ))}
                           </select>
