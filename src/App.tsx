@@ -933,6 +933,18 @@ export default function App() {
   const [packingListSearchQuery, setPackingListSearchQuery] = useState('');
   const [showQuotationPickerForPacking, setShowQuotationPickerForPacking] = useState(false);
 
+  useEffect(() => {
+    if (adminTab === 'add-packing') {
+      setCurrentPackingItem({
+        name: '',
+        qty: '1',
+        boxNo: '1',
+        value: '',
+        remark: '',
+      });
+    }
+  }, [adminTab, editingPackingListId]);
+
   // Sync Packing Lists to localStorage
   useEffect(() => {
     try {
@@ -1040,14 +1052,36 @@ export default function App() {
       return;
     }
 
+    const hasPendingItemDetails = Boolean(
+      String(currentPackingItem.value).trim() ||
+      currentPackingItem.remark.trim() ||
+      (String(currentPackingItem.qty).trim() && String(currentPackingItem.qty).trim() !== '1') ||
+      (String(currentPackingItem.boxNo).trim() && String(currentPackingItem.boxNo).trim() !== '1')
+    );
+    if (!currentPackingItem.name.trim() && hasPendingItemDetails) {
+      alert('Please enter an item name for the details you entered, then save the packing list.');
+      return;
+    }
+    const itemsToSave = currentPackingItem.name.trim()
+      ? [
+          ...packingListForm.items,
+          {
+            ...currentPackingItem,
+            id: Date.now().toString(),
+            qty: currentPackingItem.qty || '1',
+            boxNo: currentPackingItem.boxNo || '1',
+          },
+        ]
+      : packingListForm.items;
     const nextListNo = String(packingLists.length + 2);
     const updated: PackingListData = {
       ...packingListForm,
       id: editingPackingListId ? editingPackingListId : Date.now().toString(),
       packingListNo: packingListForm.packingListNo || nextListNo,
-      totalItems: packingListForm.items.reduce((s, it) => s + (parseInt(String(it.qty)) || 1), 0),
-      totalBoxes: new Set(packingListForm.items.map(it => String(it.boxNo || '').trim()).filter(Boolean)).size || 1,
-      totalValue: packingListForm.items.reduce((s, it) => s + (parseFloat(String(it.value)) || 0), 0),
+      items: itemsToSave,
+      totalItems: itemsToSave.reduce((s, it) => s + (parseInt(String(it.qty)) || 1), 0),
+      totalBoxes: new Set(itemsToSave.map(it => String(it.boxNo || '').trim()).filter(Boolean)).size || 1,
+      totalValue: itemsToSave.reduce((s, it) => s + (parseFloat(String(it.value)) || 0), 0),
     };
 
     if (editingPackingListId) {
@@ -1069,6 +1103,13 @@ export default function App() {
   };
 
   const handleEditPackingList = (pl: PackingListData) => {
+    setCurrentPackingItem({
+      name: '',
+      qty: '1',
+      boxNo: '1',
+      value: '',
+      remark: '',
+    });
     setPackingListForm(pl);
     setEditingPackingListId(pl.id);
     setAdminTab('add-packing');
@@ -5614,6 +5655,9 @@ export default function App() {
 
                         {/* + Add Button matching Screenshot 2 */}
                         <div className="flex justify-end">
+                          <p className="mr-auto self-center text-[11px] text-slate-500">
+                            A named item you are entering is included when you save the packing list.
+                          </p>
                           <button
                             type="button"
                             onClick={handleAddItemToPackingList}
