@@ -519,7 +519,7 @@ export default function App() {
     setEditingQuotationId(null);
     setQuotationForm({
       ...initialQuotationForm,
-      quotationNo: String(quotations.length + 1),
+      quotationNo: getNextQuotationNumber(),
       quotationDate: new Date().toISOString().split('T')[0],
       partyName: survey.partyName || '',
       mobileNo: survey.mobileNo || '',
@@ -671,6 +671,14 @@ export default function App() {
     return [];
   });
 
+  const getNextQuotationNumber = () => {
+    const highestQuotationNumber = quotations.reduce((highest, quotation) => {
+      const quotationNumber = Number.parseInt(String(quotation.quotationNo || ''), 10);
+      return Number.isFinite(quotationNumber) ? Math.max(highest, quotationNumber) : highest;
+    }, 0);
+    return String(highestQuotationNumber + 1);
+  };
+
   useEffect(() => {
     try {
       localStorage.setItem('upl_quotations', JSON.stringify(quotations));
@@ -724,7 +732,12 @@ export default function App() {
       setShareToast('Quotation created successfully!');
     }
     setTimeout(() => setShareToast(null), 3000);
-    setQuotationForm({ ...initialQuotationForm, quotationNo: String(quotations.length + 2) });
+    setQuotationForm({ ...initialQuotationForm, quotationNo: String(
+      quotations.reduce((highest, quotation) => {
+        const quotationNumber = Number.parseInt(String(quotation.quotationNo || ''), 10);
+        return Number.isFinite(quotationNumber) ? Math.max(highest, quotationNumber) : highest;
+      }, 0) + (editingQuotationId ? 1 : 2)
+    ) });
     setEditingQuotationId(null);
     setAdminTab('list-quotation');
   };
@@ -2805,7 +2818,7 @@ export default function App() {
                           <span>New Survey</span>
                         </button>
                         <button 
-                          onClick={() => { setAdminTab('add-quotation'); setEditingQuotationId(null); setQuotationForm(initialQuotationForm); }}
+                          onClick={() => { setAdminTab('add-quotation'); setEditingQuotationId(null); setQuotationForm({ ...initialQuotationForm, quotationNo: getNextQuotationNumber() }); }}
                           className="flex-1 sm:flex-initial bg-[#0f172a] hover:bg-slate-800 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
                         >
                           <PlusCircle className="w-4 h-4 text-amber-400" />
@@ -2855,7 +2868,7 @@ export default function App() {
                       <p className="text-xs text-slate-500 mt-1 mb-4">Official estimates & client proposals</p>
                       <div className="flex gap-2 pt-3 border-t border-slate-100">
                         <button 
-                          onClick={() => { setAdminTab('add-quotation'); setEditingQuotationId(null); setQuotationForm(initialQuotationForm); }}
+                          onClick={() => { setAdminTab('add-quotation'); setEditingQuotationId(null); setQuotationForm({ ...initialQuotationForm, quotationNo: getNextQuotationNumber() }); }}
                           className="flex-1 text-xs font-semibold bg-amber-50 hover:bg-amber-100 text-amber-700 py-1.5 rounded-lg transition-colors cursor-pointer text-center"
                         >
                           + Add Quote
@@ -2970,7 +2983,7 @@ export default function App() {
                           No quotations recorded yet. Click below to add one.
                           <div className="mt-3">
                             <button 
-                              onClick={() => { setAdminTab('add-quotation'); setEditingQuotationId(null); setQuotationForm(initialQuotationForm); }}
+                              onClick={() => { setAdminTab('add-quotation'); setEditingQuotationId(null); setQuotationForm({ ...initialQuotationForm, quotationNo: getNextQuotationNumber() }); }}
                               className="text-xs font-semibold text-amber-600 hover:underline cursor-pointer"
                             >
                               + Create first quotation
@@ -3814,7 +3827,7 @@ export default function App() {
                         type="button"
                         onClick={() => {
                           setEditingQuotationId(null);
-                          setQuotationForm({ ...initialQuotationForm, quotationNo: String(quotations.length + 1) });
+                          setQuotationForm({ ...initialQuotationForm, quotationNo: getNextQuotationNumber() });
                         }}
                         className="bg-white border border-amber-300 hover:bg-amber-100 text-amber-900 font-bold px-4 py-1.5 rounded-xl text-xs shadow-2xs transition-colors cursor-pointer self-start sm:self-auto"
                       >
@@ -3903,7 +3916,7 @@ export default function App() {
                           <input 
                             type="text" 
                             value={quotationForm.quotationNo}
-                            onChange={(e) => setQuotationForm({ ...quotationForm, quotationNo: e.target.value })}
+                            readOnly
                             className="w-full outline-none text-slate-800 text-sm bg-transparent" 
                           />
                         </div>
@@ -4210,7 +4223,7 @@ export default function App() {
 
                     {/* Charges Details */}
                     <div className="border-2 border-cyan-400 rounded-xl p-6 pt-8 relative bg-white shadow-sm">
-                      <span className="absolute -top-3.5 left-4 bg-cyan-400 text-white px-4 py-1 rounded-md text-sm font-medium shadow-sm">Charges Details</span>
+                      <span className="absolute -top-3.5 left-4 bg-cyan-400 text-white px-4 py-1 rounded-md text-sm font-medium shadow-sm">Charge Details</span>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {[
                           { key: 'transportCharges', label: 'Transportation Charges' },
@@ -4459,6 +4472,38 @@ export default function App() {
                           </div>
                         )}
                       </div>
+                      {(() => {
+                        const formTotals = calculateQuotationTotals(quotationForm);
+                        return (
+                          <div className="mt-5 pt-4 border-t-2 border-cyan-300">
+                            <div className="rounded-lg p-3 bg-cyan-50 focus-within:bg-cyan-100 group">
+                              <label className="block text-xs font-bold text-slate-900 uppercase tracking-wider mb-1 flex items-center justify-between">
+                                <span className="flex items-center gap-1">
+                                  <span>SUB TOTAL</span>
+                                  <Edit className="w-3 h-3 text-slate-400 group-hover:text-cyan-500" />
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => setQuotationForm({ ...quotationForm, subTotal: formTotals.subTotal > 0 ? String(formTotals.subTotal) : '' })}
+                                  className="text-[10px] text-cyan-700 hover:underline font-semibold cursor-pointer"
+                                >
+                                  Auto-Fill (₹ {formTotals.subTotal.toLocaleString()})
+                                </button>
+                              </label>
+                              <div className="flex items-center justify-between">
+                                <input
+                                  type="text"
+                                  placeholder={String(formTotals.subTotal || '0')}
+                                  value={quotationForm.subTotal}
+                                  onChange={(e) => setQuotationForm({ ...quotationForm, subTotal: e.target.value })}
+                                  className="w-full outline-none text-slate-800 text-sm font-bold bg-transparent placeholder-slate-400"
+                                />
+                                <span className="text-[11px] text-slate-400 font-medium ml-1 shrink-0">₹ INR</span>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })()}
                     </div>
 
                     {/* GST/Insurance */}
@@ -4841,35 +4886,6 @@ export default function App() {
                             <div className="border border-slate-300 rounded-lg p-3 bg-white focus-within:border-blue-500 shadow-2xs group">
                               <label className="block text-xs font-bold text-slate-900 uppercase tracking-wider mb-1 flex items-center justify-between">
                                 <span className="flex items-center gap-1">
-                                  <span>Sub Total (Included Charges)</span>
-                                  <Edit className="w-3 h-3 text-slate-400 group-hover:text-blue-500" />
-                                </span>
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setQuotationForm({ ...quotationForm, subTotal: formTotals.subTotal > 0 ? String(formTotals.subTotal) : '' });
-                                  }}
-                                  className="text-[10px] text-blue-600 hover:underline font-semibold cursor-pointer"
-                                  title="Reset to automatically computed Sub Total"
-                                >
-                                  Auto-Fill (₹ {formTotals.subTotal.toLocaleString()})
-                                </button>
-                              </label>
-                              <div className="flex items-center justify-between">
-                                <input
-                                  type="text"
-                                  placeholder={String(formTotals.subTotal || '0')}
-                                  value={quotationForm.subTotal}
-                                  onChange={(e) => setQuotationForm({ ...quotationForm, subTotal: e.target.value })}
-                                  className="w-full outline-none text-slate-800 text-sm font-bold bg-transparent placeholder-slate-400"
-                                />
-                                <span className="text-[11px] text-slate-400 font-medium ml-1 shrink-0">₹ INR</span>
-                              </div>
-                            </div>
-
-                            <div className="border border-slate-300 rounded-lg p-3 bg-white focus-within:border-blue-500 shadow-2xs group">
-                              <label className="block text-xs font-bold text-slate-900 uppercase tracking-wider mb-1 flex items-center justify-between">
-                                <span className="flex items-center gap-1">
                                   <span>Grand Total (Final Payable)</span>
                                   <Edit className="w-3 h-3 text-slate-400 group-hover:text-blue-500" />
                                 </span>
@@ -4905,9 +4921,10 @@ export default function App() {
                       <span className="absolute -top-3.5 left-4 bg-green-400 text-white px-4 py-1 rounded-md text-sm font-medium shadow-sm">Other Details</span>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="border border-slate-300 rounded-lg p-3 focus-within:border-green-500 transition-all bg-white">
+                          <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Advance Payment (₹)</label>
                           <input 
                             type="text" 
-                            placeholder="Advance Pay" 
+                            placeholder="Enter advance amount"
                             value={quotationForm.advancePaid}
                             onChange={(e) => setQuotationForm({ ...quotationForm, advancePaid: e.target.value })}
                             className="w-full outline-none text-slate-700 text-sm bg-transparent placeholder-slate-500" 
@@ -4922,6 +4939,27 @@ export default function App() {
                             className="w-full outline-none text-slate-700 text-sm bg-transparent placeholder-slate-500" 
                           />
                         </div>
+                        {(() => {
+                          const formTotals = calculateQuotationTotals(quotationForm);
+                          return (
+                            <div className="border border-emerald-300 rounded-lg p-3 bg-emerald-50 md:col-span-2">
+                              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm">
+                                <div className="text-slate-700">
+                                  <span className="font-semibold">Grand Total:</span>{' '}
+                                  <span className="font-black text-blue-950">₹ {formTotals.grandTotal.toLocaleString()}</span>
+                                </div>
+                                <div className="text-slate-700">
+                                  <span className="font-semibold">Advance Paid:</span>{' '}
+                                  <span className="font-black text-emerald-700">₹ {formTotals.advanceNum.toLocaleString()}</span>
+                                </div>
+                                <div className="text-slate-700">
+                                  <span className="font-semibold">Balance Due:</span>{' '}
+                                  <span className="font-black text-rose-700">₹ {formTotals.balanceDue.toLocaleString()}</span>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })()}
                         <div className="border border-slate-300 rounded-lg p-3 focus-within:border-green-500 transition-all bg-white md:col-span-2">
                           <input 
                             type="text" 
@@ -4958,7 +4996,7 @@ export default function App() {
                         type="button"
                         onClick={() => {
                           setEditingQuotationId(null);
-                          setQuotationForm({ ...initialQuotationForm, quotationNo: String(quotations.length + 1) });
+                          setQuotationForm({ ...initialQuotationForm, quotationNo: getNextQuotationNumber() });
                           setAdminTab('list-quotation');
                         }}
                         className="bg-slate-200 hover:bg-slate-300 text-slate-700 px-6 py-2.5 rounded text-sm font-semibold transition-colors cursor-pointer"
@@ -4987,7 +5025,7 @@ export default function App() {
                         onClick={() => {
                           setAdminTab('add-quotation');
                           setEditingQuotationId(null);
-                          setQuotationForm({ ...initialQuotationForm, quotationNo: String(quotations.length + 1) });
+                          setQuotationForm({ ...initialQuotationForm, quotationNo: getNextQuotationNumber() });
                         }}
                         className="bg-[#0f172a] hover:bg-slate-800 text-white px-7 py-2 rounded-full font-bold text-sm shadow-xs transition-all cursor-pointer active:scale-95"
                       >
@@ -5050,7 +5088,7 @@ export default function App() {
                               onClick={() => {
                                 setAdminTab('add-quotation');
                                 setEditingQuotationId(null);
-                                setQuotationForm({ ...initialQuotationForm, quotationNo: String(quotations.length + 1) });
+                                setQuotationForm({ ...initialQuotationForm, quotationNo: getNextQuotationNumber() });
                               }}
                               className="bg-[#0284c7] hover:bg-sky-700 text-white px-6 py-2.5 rounded-full font-bold text-sm shadow-xs transition-colors cursor-pointer inline-flex items-center gap-2"
                             >
@@ -6367,47 +6405,34 @@ export default function App() {
 
       {/* Navigation */}
       <nav className="bg-white sticky top-0 z-50 border-b border-slate-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <img src={activeAppLogo || '/urbanpro%20logo.jpeg'} alt="UrbanPro Packer & Logistics" className="h-14 sm:h-16 w-auto object-contain" />
-            <div className="ml-4 leading-tight hidden sm:block" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
-              <div className="text-3xl font-black tracking-tight">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex min-h-[88px] items-center justify-between gap-5">
+          <div className="flex min-w-0 shrink-0 items-center gap-2">
+            <img src={activeAppLogo || '/urbanpro%20logo.jpeg'} alt="UrbanPro Packer & Logistics" className="h-11 sm:h-12 w-auto max-w-[112px] object-contain" />
+            <div className="leading-tight hidden sm:block" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
+              <div className="text-xl sm:text-[23px] font-black tracking-tight whitespace-nowrap">
                 <span style={{ color: '#1e3a8a', fontWeight: 900 }}>Urban</span><span style={{ color: '#dc2626', fontWeight: 900 }}>Pro</span>
               </div>
-              <div className="text-2xl font-black tracking-wider uppercase" style={{ color: '#1e3a8a' }}>
+              <div className="text-base sm:text-[18px] font-black tracking-[0.1em] uppercase whitespace-nowrap" style={{ color: '#1e3a8a' }}>
                 Packers & Logistics
               </div>
             </div>
           </div>
-          <div className="hidden lg:flex items-center gap-6 font-medium text-slate-600 text-sm">
-            <a href="#services" className="hover:text-blue-900 transition-colors">Services</a>
-            <a href="#about" className="hover:text-blue-900 transition-colors">About Us</a>
-            <a href="#packing-labour" className="hover:text-blue-900 transition-colors">Materials & Labour</a>
-            <a href="#why-choose-us" className="hover:text-blue-900 transition-colors">Why Choose Us</a>
-            <a href="#network" className="hover:text-blue-900 transition-colors">Network</a>
-            <a href="#contact" className="hover:text-blue-900 transition-colors">Contact</a>
+          <div className="hidden lg:flex min-w-0 flex-1 items-center justify-center gap-4 xl:gap-5 font-semibold text-slate-600 text-[13px] xl:text-sm">
+            <a href="#services" className="whitespace-nowrap hover:text-blue-900 transition-colors">Services</a>
+            <a href="#about" className="whitespace-nowrap hover:text-blue-900 transition-colors">About Us</a>
+            <a href="#packing-labour" className="whitespace-nowrap hover:text-blue-900 transition-colors">Materials & Labour</a>
+            <a href="#why-choose-us" className="whitespace-nowrap hover:text-blue-900 transition-colors">Why Choose Us</a>
+            <a href="#network" className="whitespace-nowrap hover:text-blue-900 transition-colors">Network</a>
+            <a href="#contact" className="whitespace-nowrap hover:text-blue-900 transition-colors">Contact</a>
           </div>
-          <div className="flex items-center gap-3">
-            <a 
-              href="https://wa.me/918093017400?text=Hi%20UrbanPro%20Packers%20%26%20Logistics%2C%20I%20would%20like%20to%20get%20a%20free%20quote%20for%20my%20relocation." 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              onClick={() => {
-                setShareToast('Opening WhatsApp for your Free Quote...');
-                setTimeout(() => setShareToast(null), 4000);
-              }}
-              className="bg-[#25D366] hover:bg-[#20ba5a] text-white px-4 py-2.5 rounded-lg font-bold transition-all shadow-md text-xs sm:text-sm flex items-center gap-2 cursor-pointer hover:scale-105"
-            >
-              <WhatsAppIcon className="w-4 h-4 fill-white text-white" />
-              <span>Get Free Quote</span>
-            </a>
+          <div className="flex shrink-0 items-center gap-2">
             <button
               type="button"
               onClick={() => setIsAdminView(true)}
-              className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 rounded font-semibold text-xs sm:text-sm transition-colors shadow-sm flex items-center gap-1.5 cursor-pointer"
+              className="bg-slate-900 hover:bg-slate-800 text-white px-2.5 py-2 rounded font-semibold text-[11px] transition-colors shadow-sm flex items-center gap-1 cursor-pointer whitespace-nowrap"
               title="Open Admin & Inventory Management"
             >
-              <Lock className="w-3.5 h-3.5 text-yellow-400" />
+              <Lock className="w-3 h-3 text-yellow-400" />
               <span>Admin Portal</span>
             </button>
           </div>
@@ -6784,23 +6809,22 @@ export default function App() {
             </div>
           </div>
 
-          {/* Category 2: TRANSPORTATION SERVICES */}
+          {/* Transportation & Other Services */}
           <div className="mb-14">
             <div className="flex items-center gap-3 mb-6 pb-3 border-b border-slate-200">
               <div className="w-9 h-9 bg-blue-900 text-yellow-400 rounded-xl flex items-center justify-center font-bold text-sm">
-                🚛
+                ??
               </div>
               <div>
-                <h3 className="text-xl sm:text-2xl font-bold text-blue-900">Transportation Services</h3>
-                <p className="text-xs sm:text-sm text-slate-500">Vehicle relocation and commercial transportation fleet (Truck, Trailer, 22 Feet)</p>
+                <h3 className="text-xl sm:text-2xl font-bold text-blue-900">Transportation & Other Services</h3>
+                <p className="text-xs sm:text-sm text-slate-500">Vehicle shifting, packing material supply, and skilled labour support</p>
               </div>
             </div>
 
-            <div className="grid sm:grid-cols-2 gap-6">
-              {services.filter(s => s.category === 'Transportation Services').map((service, index) => {
-                const globalIndex = services.findIndex(s => s.title === service.title);
+            <div className="grid sm:grid-cols-3 gap-6">
+              {services.filter(service => ['Vehicle Shifting', 'Packing Material Supply', 'Skilled Labour Available'].includes(service.title)).map((service, index) => {
                 const Icon = service.icon;
-                const isExpanded = expandedService === globalIndex;
+
                 return (
                   <motion.div 
                     key={index}
@@ -6816,82 +6840,10 @@ export default function App() {
                           <span className="text-2xl leading-none" role="img" aria-label="Car and bike">
                             🚗 🏍️
                           </span>
-                        ) : (
-                          <Icon className="w-7 h-7 text-blue-600 group-hover:text-yellow-400 transition-colors" />
-                        )}
-                      </div>
-                    </div>
-                    <h4 className="text-lg font-bold text-slate-900 mb-2">{service.title}</h4>
-                    <p className="text-slate-600 leading-relaxed mb-5 flex-grow text-xs sm:text-sm">
-                      {service.desc}
-                    </p>
-                    
-                    <div className="mt-auto">
-                      <button 
-                        type="button"
-                        onClick={() => toggleService(globalIndex)}
-                        className="flex items-center justify-between w-full text-blue-700 hover:text-blue-900 font-semibold py-2 border-t border-slate-100 group-hover:border-blue-100 transition-colors text-xs sm:text-sm cursor-pointer"
-                      >
-                        <span>{isExpanded ? 'Hide Details' : 'View Details & Inclusions'}</span>
-                        {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                      </button>
-                      
-                      <motion.div 
-                        initial={false}
-                        animate={{ height: isExpanded ? 'auto' : 0, opacity: isExpanded ? 1 : 0 }}
-                        className="overflow-hidden"
-                      >
-                        <div className="pt-3 space-y-2.5">
-                          {service.details.map((detail, idx) => (
-                            <div key={idx} className="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                              <h5 className="font-bold text-slate-800 text-xs mb-1 flex items-center gap-1.5 text-blue-950">
-                                <span className="w-1.5 h-1.5 rounded-full bg-yellow-500 inline-block"></span>
-                                {detail.title}
-                              </h5>
-                              <p className="text-[11px] sm:text-xs text-slate-600 leading-relaxed pl-3">{detail.text}</p>
-                            </div>
-                          ))}
-                        </div>
-                      </motion.div>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Category 3: PACKING MATERIAL & LABOUR SUPPLY */}
-          <div>
-            <div className="flex items-center gap-3 mb-6 pb-3 border-b border-slate-200">
-              <div className="w-9 h-9 bg-blue-900 text-yellow-400 rounded-xl flex items-center justify-center font-bold text-sm">
-                📦
-              </div>
-              <div>
-                <h3 className="text-xl sm:text-2xl font-bold text-blue-900">Packing Material & Labour Supply</h3>
-                <p className="text-xs sm:text-sm text-slate-500">Doorstep premium packaging material supply and verified trained manpower support</p>
-              </div>
-            </div>
-
-            <div className="grid sm:grid-cols-2 gap-6">
-              {services.filter(s => s.category === 'Packing Material & Labour Supply').map((service, index) => {
-                const globalIndex = services.findIndex(s => s.title === service.title);
-                const Icon = service.icon;
-                const isExpanded = expandedService === globalIndex;
-                return (
-                  <motion.div 
-                    key={index}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.4, delay: index * 0.1 }}
-                    className="bg-white p-7 rounded-2xl shadow-sm border border-slate-200 hover:shadow-xl hover:border-blue-300 transition-all group flex flex-col h-full"
-                  >
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center group-hover:bg-blue-900 transition-colors">
-                        {service.title === 'Skilled Labour Available' ? (
+                        ) : service.title === 'Skilled Labour Available' ? (
                           <img
                             src="/labour-supply.png"
-                            alt="Packing material and labour supply team"
+                            alt="Skilled labour support"
                             className="h-12 w-12 object-contain"
                           />
                         ) : (
@@ -6900,44 +6852,14 @@ export default function App() {
                       </div>
                     </div>
                     <h4 className="text-lg font-bold text-slate-900 mb-2">{service.title}</h4>
-                    <p className="text-slate-600 leading-relaxed mb-5 flex-grow text-xs sm:text-sm">
+                    <p className="text-slate-600 leading-relaxed flex-grow text-xs sm:text-sm">
                       {service.desc}
                     </p>
-                    
-                    <div className="mt-auto">
-                      <button 
-                        type="button"
-                        onClick={() => toggleService(globalIndex)}
-                        className="flex items-center justify-between w-full text-blue-700 hover:text-blue-900 font-semibold py-2 border-t border-slate-100 group-hover:border-blue-100 transition-colors text-xs sm:text-sm cursor-pointer"
-                      >
-                        <span>{isExpanded ? 'Hide Details' : 'View Details & Inclusions'}</span>
-                        {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                      </button>
-                      
-                      <motion.div 
-                        initial={false}
-                        animate={{ height: isExpanded ? 'auto' : 0, opacity: isExpanded ? 1 : 0 }}
-                        className="overflow-hidden"
-                      >
-                        <div className="pt-3 space-y-2.5">
-                          {service.details.map((detail, idx) => (
-                            <div key={idx} className="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                              <h5 className="font-bold text-slate-800 text-xs mb-1 flex items-center gap-1.5 text-blue-950">
-                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span>
-                                {detail.title}
-                              </h5>
-                              <p className="text-[11px] sm:text-xs text-slate-600 leading-relaxed pl-3">{detail.text}</p>
-                            </div>
-                          ))}
-                        </div>
-                      </motion.div>
-                    </div>
                   </motion.div>
                 );
               })}
             </div>
           </div>
-
           <div className="mt-12 text-center">
             <a 
               href="#free-quote"
@@ -6959,9 +6881,6 @@ export default function App() {
             <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mt-3 mb-4">
               <span className="text-[#1e3a8a]">Urban</span><span className="text-[#dc2626]">Pro</span> <span className="text-[#1e3a8a]">Packers & Logistics</span>
             </h2>
-            <p className="text-lg text-slate-700 leading-relaxed font-semibold">
-              UrbanPro Packer & Logistics is professionally managed by <strong className="text-blue-900">M/s Prakash &amp; Company India Group</strong>.
-            </p>
           </div>
 
           {/* Company Background & Legacy */}
@@ -7757,7 +7676,7 @@ export default function App() {
                         <h4 className="font-bold text-xs text-blue-200 uppercase tracking-wider">REG. OFFICE:-</h4>
                       </div>
                       <p className="text-slate-200 text-xs sm:text-sm leading-relaxed mb-2 font-medium">
-                        UrbanPro Packer & Logistics, Dipka, Korba, Chhattisgarh – 495452
+                        Dipka, Korba, Chhattisgarh – 495452
                       </p>
                       <div className="text-xs font-semibold text-slate-300 mb-1 flex items-center gap-1.5">
                         <Phone className="w-3.5 h-3.5 text-blue-300" /> Mobile: <a href="tel:8093017400" className="text-blue-100 hover:underline">8093017400</a>

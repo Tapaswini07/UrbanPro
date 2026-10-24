@@ -1072,39 +1072,34 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
                 id="quotation-page-1"
                 className="bg-white w-[794px] max-w-[794px] min-h-[1123px] shadow-2xl border-2 border-[#1e3a8a] text-[11px] text-black font-sans box-border relative mx-auto flex flex-col justify-between print:border print:border-[#1e3a8a] print:shadow-none print:w-[794px] print:max-w-[794px] print:break-after-page print:min-h-[1120px]"
               >
-                {/* Top PAN Number Bar - Navy Blue */}
-                <div className="bg-[#1e3a8a] text-center font-bold py-1 border-b border-[#1e3a8a] text-[11px] tracking-wide text-white uppercase">
-                  PAN No.: {companyProfile?.panNo || 'AKMPV0774C'}
-                </div>
-
                 {/* Company Header */}
-                <div className="flex border-b border-[#1e3a8a] min-h-[96px]">
+                <div className="flex border-b border-[#1e3a8a] min-h-[86px]">
                   <div className="w-[28%] border-r border-[#1e3a8a] flex items-center justify-center p-2 bg-white">
                     <img 
                       src={companyLogo || companyProfile?.logo || UPL_LOGO_BASE64} 
                       alt="UrbanPro Packers & Logistics Logo" 
-                      className="max-h-20 w-auto object-contain" 
+                      className="max-h-16 w-auto object-contain" 
                     />
                   </div>
                   <div className="w-[72%] p-2 text-center flex flex-col justify-center items-center bg-white">
                     <div className="mb-0.5" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
-                      <h1 className="text-[24px] sm:text-[28px] font-black tracking-tight leading-none">
+                      <h1 className="text-[22px] sm:text-[24px] font-black tracking-tight leading-none">
                         <span style={{ color: '#1e3a8a' }}>Urban</span><span style={{ color: '#dc2626' }}>Pro</span>
                       </h1>
-                      <h2 className="text-[13px] sm:text-[15px] font-extrabold tracking-wider uppercase mt-0.5" style={{ color: '#1e3a8a' }}>
+                      <h2 className="text-[12px] sm:text-[13px] font-extrabold tracking-wider uppercase mt-0.5" style={{ color: '#1e3a8a' }}>
                         Packers & Logistics
                       </h2>
                       <h3 className="text-[10.5px] font-bold text-red-700 tracking-wide uppercase mt-0.5">
                       </h3>
                     </div>
-                    <p className="text-[10px] sm:text-[10.5px] leading-tight text-black font-semibold mt-0.5">
+                    <p className="text-[9px] sm:text-[9.5px] leading-tight text-black font-semibold mt-0.5">
                       <strong>Regd. Office:</strong> Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452 | Tel: 8093017400
                     </p>
-                    <p className="text-[10px] sm:text-[10.5px] leading-tight text-black font-semibold mt-0.5">
+                    <p className="text-[9px] sm:text-[9.5px] leading-tight text-black font-semibold mt-0.5">
                       <strong>Main Operational Office:</strong> Plot No 1491, Balintha Canal Road, Near Lenskart, Hanspal, Bhubaneswar, Odisha – 752101 | Mobile: 8093017400
                     </p>
-                    <p className="text-[10px] sm:text-[10.5px] leading-tight text-black font-medium mt-0.5">
-                      <strong>GST No.:</strong> 22CCQPS8419D1ZC &nbsp;|&nbsp; <strong>Email:</strong> urbanpro403@gmail.com
+                    <p className="text-[9px] sm:text-[9.5px] leading-tight text-black font-medium mt-0.5">
+                      <strong>Helpline:</strong> 8093017400 &nbsp;|&nbsp; <strong>Email:</strong> urbanpro403@gmail.com
                     </p>
                   </div>
                 </div>
@@ -1196,6 +1191,9 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
 
                 {/* Main Full Width Moving Charges Table */}
                 <div className="w-full border-b border-[#1e3a8a]">
+                  <div className="bg-cyan-50 text-cyan-950 font-black uppercase tracking-wide text-[11px] px-2 py-1 border-b border-cyan-200">
+                    Charge Details
+                  </div>
                   {/* Table Header */}
                   <div className="flex bg-[#1e3a8a] text-center font-bold text-[11px] border-b border-[#1e3a8a] text-white">
                     <div className="w-12 border-r border-white/30 py-1">Sr.</div>
@@ -1264,8 +1262,8 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
                   {/* Sub Total */}
                   <div className="flex border-b border-[#1e3a8a] bg-[#1e3a8a]/10 font-bold py-1 text-[11px] items-center">
                     <div className="w-12 text-center border-r border-blue-200">•</div>
-                    <div className="flex-1 text-left px-2 uppercase tracking-wide text-slate-900 font-black border-r border-blue-200">Sub Total</div>
-                    <div className="w-36 text-center text-slate-600 text-[10px] border-r border-blue-200">Base Charges</div>
+                    <div className="flex-1 text-left px-2 uppercase tracking-wide text-slate-900 font-black border-r border-blue-200">Sub Total (Charge Details)</div>
+                    <div className="w-36 text-center text-slate-600 text-[10px] border-r border-blue-200">Charge Details</div>
                     <div className="w-36 text-right pr-2 font-black text-slate-900">₹ {totals.subTotal.toLocaleString()}</div>
                   </div>
 
@@ -1293,7 +1291,7 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
                       )}
                     </div>
                     <div className="w-36 text-center border-r border-blue-100 text-[10px] font-semibold text-slate-600">
-                      {totals.insStatus === 'Included' ? 'Included' : totals.insStatus === 'Exempted' ? 'Exempted' : `@ ${totals.insPercent} Extra`}
+                      {totals.insStatus === 'Included' ? 'Included' : totals.insStatus === 'Exempted' ? 'Exempted' : `@ ${totals.insPercent} on Goods`}
                     </div>
                     <div className="w-36 text-right pr-2 font-semibold text-black">
                       {totals.insuranceNum > 0 ? `₹ ${totals.insuranceNum.toLocaleString()}` : totals.insStatus === 'Included' ? 'Included' : 'Nil'}
@@ -1307,7 +1305,7 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
                       GST / Tax Charges ({quotation.gstType || 'CGST/SGST'} @ {totals.gstPercent})
                     </div>
                     <div className="w-36 text-center border-r border-blue-100 text-[10px] font-semibold text-slate-600">
-                      {totals.gstStatus === 'Exempted' ? 'Exempted' : `@ ${totals.gstPercent} Applied`}
+                      {totals.gstStatus === 'Exempted' ? 'Exempted' : `@ ${totals.gstPercent} on Sub Total`}
                     </div>
                     <div className="w-36 text-right pr-2 font-semibold text-black">
                       {totals.gstNum > 0 ? `₹ ${totals.gstNum.toLocaleString()}` : 'Nil'}
@@ -1332,10 +1330,8 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
                   <div className="w-[40%] border-l border-slate-300 pl-3">
                     <span className="font-semibold text-slate-600 block text-[9.5px] uppercase tracking-wider">Advance & Balance:</span>
                     <div className="text-black font-bold">
-                      <span>Advance Paid: {totals.advanceNum > 0 ? `₹ ${totals.advanceNum.toLocaleString()}` : (quotation.advancePaid || 'Nil')}</span>
-                      {totals.advanceNum > 0 && (
-                        <span className="text-emerald-800 ml-2">| Balance Due: ₹ {totals.balanceDue.toLocaleString()}</span>
-                      )}
+                      <span>Advance Paid: ₹ {totals.advanceNum.toLocaleString()}</span>
+                      <span className="text-rose-800 ml-2">| Balance Due: ₹ {totals.balanceDue.toLocaleString()}</span>
                     </div>
                   </div>
                 </div>

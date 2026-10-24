@@ -153,12 +153,10 @@ export function calculateQuotationTotals(data: any): QuotationCalculationResult 
   const serviceChargeNum = 0;
   const serviceChargePercent = '0%';
 
-  // 3. Sub Total = Base Moving Charges + Service Charge
+  // 3. Sub Total is manually entered when provided; otherwise use charge details.
   const manualSub = parseChargeNumber(data.subTotal);
-  let subTotal = baseTotal + serviceChargeNum;
-  if (subTotal === 0 && manualSub > 0) {
-    subTotal = manualSub;
-  }
+  const chargeSubTotal = baseTotal + serviceChargeNum;
+  const subTotal = manualSub > 0 ? manualSub : chargeSubTotal;
 
   // 4. Insurance Charge
   const insRawStatus = String(data.insuranceStatus || '').toLowerCase();
@@ -215,15 +213,8 @@ export function calculateQuotationTotals(data: any): QuotationCalculationResult 
     }
   }
 
-  // 6. Grand Total
-  // All entered/calculated monetary components contribute to the payable total.
-  // Exempted amounts have already been reduced to zero above.
-  const effectiveInsAddition = insuranceNum;
-  // GST is calculated separately from the subtotal, so it is included for
-  // both Extra and Included modes.
-  const effectiveGstAddition = gstNum;
-  // Goods Total Value is added in Grand Total (goodsVal declared above)
-  let grandTotal = subTotal + effectiveInsAddition + effectiveGstAddition + goodsVal;
+  // 6. Grand Total includes GST on subtotal and insurance on declared goods value.
+  let grandTotal = subTotal + gstNum + goodsVal + insuranceNum;
   const manualGrand = parseChargeNumber(data.grandTotal);
   if (grandTotal === 0 && manualGrand > 0) {
     grandTotal = manualGrand;
