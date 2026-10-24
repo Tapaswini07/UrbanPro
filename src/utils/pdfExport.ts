@@ -22,34 +22,38 @@ export async function renderElementToCanvas(element: HTMLElement): Promise<HTMLC
   wrapper.style.opacity = '1';
 
   const clone = element.cloneNode(true) as HTMLElement;
-  clone.style.width = `${A4_WIDTH_PX}px`;
-  clone.style.minWidth = `${A4_WIDTH_PX}px`;
-  clone.style.maxWidth = `${A4_WIDTH_PX}px`;
-  clone.style.height = 'auto';
-  clone.style.minHeight = `${A4_HEIGHT_PX}px`;
-  clone.style.maxHeight = 'none';
-  clone.style.overflow = 'visible';
-  clone.style.transform = 'none';
-  clone.style.margin = '0';
-  clone.style.boxShadow = 'none';
-  clone.style.borderRadius = '0';
-  clone.style.boxSizing = 'border-box';
 
   wrapper.appendChild(clone);
   document.body.appendChild(wrapper);
 
   try {
-    const sourceImages = Array.from(element.querySelectorAll('img'));
-    const clonedImages = Array.from(clone.querySelectorAll('img'));
-    sourceImages.forEach((sourceImage, index) => {
-      const clonedImage = clonedImages[index];
-      if (!clonedImage) return;
-
-      const computedStyle = window.getComputedStyle(sourceImage);
-      for (const property of ['width', 'height', 'max-width', 'max-height', 'object-fit', 'object-position']) {
-        clonedImage.style.setProperty(property, computedStyle.getPropertyValue(property));
+    const sourceElements = [element, ...Array.from(element.querySelectorAll<HTMLElement>('*'))];
+    const clonedElements = [clone, ...Array.from(clone.querySelectorAll<HTMLElement>('*'))];
+    sourceElements.forEach((sourceElement, index) => {
+      const clonedElement = clonedElements[index];
+      if (!clonedElement) return;
+      const computedStyle = window.getComputedStyle(sourceElement);
+      for (const property of Array.from(computedStyle)) {
+        clonedElement.style.setProperty(
+          property,
+          computedStyle.getPropertyValue(property),
+          computedStyle.getPropertyPriority(property)
+        );
       }
     });
+
+    clone.style.width = `${A4_WIDTH_PX}px`;
+    clone.style.minWidth = `${A4_WIDTH_PX}px`;
+    clone.style.maxWidth = `${A4_WIDTH_PX}px`;
+    clone.style.height = 'auto';
+    clone.style.minHeight = `${A4_HEIGHT_PX}px`;
+    clone.style.maxHeight = 'none';
+    clone.style.overflow = 'visible';
+    clone.style.transform = 'none';
+    clone.style.margin = '0';
+    clone.style.boxShadow = 'none';
+    clone.style.borderRadius = '0';
+    clone.style.boxSizing = 'border-box';
 
     // Wait for fonts and images so hosted deployments do not capture a partially
     // rendered document.
@@ -57,7 +61,8 @@ export async function renderElementToCanvas(element: HTMLElement): Promise<HTMLC
       await document.fonts.ready;
     }
 
-    await Promise.all(clonedImages.map(async (img) => {
+    const images = Array.from(clone.querySelectorAll('img'));
+    await Promise.all(images.map(async (img) => {
       img.loading = 'eager';
       if (!img.complete) {
         await new Promise<void>((resolve, reject) => {
