@@ -6,21 +6,26 @@ import jsPDF from 'jspdf';
  * viewport zoom/scale, parent transforms, or Tailwind v4 color issues.
  */
 export async function renderElementToCanvas(element: HTMLElement): Promise<HTMLCanvasElement> {
+  const A4_WIDTH_PX = 794;
+  const A4_HEIGHT_PX = 1123;
+
   // Create an off-screen container to isolate the element from modal transforms, zoom, or parent flex/grid styling
   const wrapper = document.createElement('div');
   wrapper.style.position = 'fixed';
   wrapper.style.left = '-10000px';
   wrapper.style.top = '0';
-  wrapper.style.width = '794px';
+  wrapper.style.width = `${A4_WIDTH_PX}px`;
   wrapper.style.zIndex = '999999';
   wrapper.style.background = '#ffffff';
 
   const clone = element.cloneNode(true) as HTMLElement;
-  clone.style.width = '794px';
-  clone.style.minWidth = '794px';
-  clone.style.maxWidth = '794px';
-  clone.style.height = 'auto';
-  clone.style.minHeight = '1123px';
+  clone.style.width = `${A4_WIDTH_PX}px`;
+  clone.style.minWidth = `${A4_WIDTH_PX}px`;
+  clone.style.maxWidth = `${A4_WIDTH_PX}px`;
+  clone.style.height = `${A4_HEIGHT_PX}px`;
+  clone.style.minHeight = `${A4_HEIGHT_PX}px`;
+  clone.style.maxHeight = `${A4_HEIGHT_PX}px`;
+  clone.style.overflow = 'hidden';
   clone.style.transform = 'none';
   clone.style.margin = '0';
   clone.style.padding = '12px';
@@ -52,8 +57,8 @@ export async function renderElementToCanvas(element: HTMLElement): Promise<HTMLC
       backgroundColor: '#ffffff',
       logging: false,
       imageTimeout: 15000,
-      windowWidth: 794,
-      windowHeight: 1123,
+      windowWidth: A4_WIDTH_PX,
+      windowHeight: A4_HEIGHT_PX,
       onclone: (clonedDoc) => {
         const dummyCanvas = clonedDoc.createElement('canvas');
         const ctx = dummyCanvas.getContext('2d');
@@ -271,15 +276,58 @@ export function openElementInPrintWindow(element: HTMLElement, title: string = '
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         ${styles}
         <style>
-          body { margin: 0; padding: 20px; background: #f8fafc; display: flex; justify-content: center; }
+          @page {
+            size: A4 portrait;
+            margin: 8mm;
+          }
+
+          html, body {
+            margin: 0;
+            padding: 0;
+            background: #f8fafc;
+            font-family: Arial, sans-serif;
+          }
+
+          body {
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+          }
+
+          #print-root {
+            width: 210mm;
+            min-height: 297mm;
+            background: #fff;
+            box-sizing: border-box;
+            padding: 0;
+          }
+
           @media print {
-            body { padding: 0; background: white; }
-            .no-print { display: none !important; }
+            html, body {
+              background: white;
+              padding: 0;
+            }
+
+            body {
+              display: block;
+              padding: 0;
+            }
+
+            #print-root {
+              width: 100%;
+              min-height: auto;
+              box-shadow: none;
+            }
+
+            .no-print {
+              display: none !important;
+            }
           }
         </style>
       </head>
       <body>
-        <div style="width: 100%; max-width: 794px;">
+        <div id="print-root">
           <div class="no-print" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding: 12px; background: #0f172a; color: white; border-radius: 8px;">
             <strong>${title}</strong>
             <button onclick="window.print()" style="background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer;">
@@ -294,4 +342,3 @@ export function openElementInPrintWindow(element: HTMLElement, title: string = '
   printWindow.document.close();
   printWindow.focus();
 }
-
