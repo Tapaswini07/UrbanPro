@@ -698,7 +698,8 @@ export default function App() {
 
     const updated = {
       ...quotationForm,
-      serviceCharge: totals.serviceChargeNum > 0 ? String(totals.serviceChargeNum) : (quotationForm.serviceCharge || ''),
+      serviceCharge: '',
+      serviceChargePercent: '0%',
       insuranceCharge: totals.insStatus === 'Included' 
         ? (totals.insuranceNum > 0 ? String(totals.insuranceNum) : 'Included')
         : totals.insStatus === 'Exempted'
@@ -4460,80 +4461,12 @@ export default function App() {
                       </div>
                     </div>
 
-                    {/* Service/GST/Insurance */}
+                    {/* GST/Insurance */}
                     <div className="border-2 border-slate-900 rounded-xl p-6 pt-8 relative bg-white shadow-sm">
-                      <span className="absolute -top-3.5 left-4 bg-slate-900 text-white px-4 py-1 rounded-md text-sm font-medium shadow-sm">Service/GST/Insurance</span>
+                      <span className="absolute -top-3.5 left-4 bg-slate-900 text-white px-4 py-1 rounded-md text-sm font-medium shadow-sm">GST/Insurance</span>
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* 1. Service Charge % */}
-                        <div className="border border-slate-300 rounded-lg p-3 focus-within:border-slate-800 transition-all bg-white relative shadow-2xs">
-                          <label className="block text-xs font-bold text-slate-900 uppercase tracking-wider mb-1 flex items-center justify-between">
-                            <span className="flex items-center gap-1.5">
-                              <span className="w-2 h-2 rounded-full bg-blue-600"></span>
-                              Service Charge %
-                            </span>
-                            <span className="text-[10px] text-slate-400 font-medium lowercase">dropdown (0% - 20%)</span>
-                          </label>
-                          <select 
-                            value={quotationForm.serviceChargePercent || '0%'}
-                            onChange={(e) => {
-                              const newPct = e.target.value;
-                              const pctNum = parseFloat(newPct.replace(/[^0-9.]/g, '')) || 0;
-                              const tempTotals = calculateQuotationTotals({ ...quotationForm, serviceChargePercent: newPct });
-                              let newServCharge = quotationForm.serviceCharge;
-                              if (pctNum > 0 && tempTotals.baseTotal > 0) {
-                                newServCharge = String(Math.round((tempTotals.baseTotal * pctNum) / 100));
-                              } else if (pctNum === 0) {
-                                newServCharge = '';
-                              }
-                              setQuotationForm({ ...quotationForm, serviceChargePercent: newPct, serviceCharge: newServCharge });
-                            }}
-                            className="w-full outline-none text-slate-800 text-sm font-semibold bg-transparent appearance-none cursor-pointer py-1"
-                          >
-                            {SERVICE_CHARGE_PERCENT_OPTIONS.map((pct) => (
-                              <option key={pct} value={pct}>{pct}</option>
-                            ))}
-                          </select>
-                        </div>
-
-                        {/* 2. Service Charge Amount Value Input */}
-                        <div className="border border-slate-300 rounded-lg p-3 focus-within:border-slate-800 transition-all bg-white group shadow-2xs">
-                          <label className="block text-xs font-bold text-slate-900 uppercase tracking-wider mb-1 flex items-center justify-between">
-                            <span className="flex items-center gap-1.5">
-                              <span className="w-2 h-2 rounded-full bg-blue-600"></span>
-                              Service Charge
-                            </span>
-                            <span className="text-[10px] text-slate-400 font-medium lowercase">enter value / auto-calc</span>
-                          </label>
-                          <div className="flex items-center justify-between">
-                            <input 
-                              type="text" 
-                              placeholder="Enter service charge value" 
-                              value={quotationForm.serviceCharge}
-                              onChange={(e) => setQuotationForm({ ...quotationForm, serviceCharge: e.target.value })}
-                              className="w-full outline-none text-slate-800 text-sm font-semibold bg-transparent placeholder-slate-400" 
-                            />
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const tempTotals = calculateQuotationTotals(quotationForm);
-                                const pctNum = parseFloat(String(quotationForm.serviceChargePercent || '0').replace(/[^0-9.]/g, '')) || 0;
-                                if (pctNum > 0 && tempTotals.baseTotal > 0) {
-                                  setQuotationForm({ ...quotationForm, serviceCharge: String(Math.round((tempTotals.baseTotal * pctNum) / 100)) });
-                                }
-                              }}
-                              title="Calculate Service Charge from Base Charges"
-                              className="text-[11px] text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-300 px-2 py-0.5 rounded ml-1 cursor-pointer shrink-0 font-bold"
-                            >
-                              Calc ({quotationForm.serviceChargePercent || '0%'})
-                            </button>
-                            <div className="w-6 h-6 rounded-full bg-sky-50 flex items-center justify-center border border-sky-200 text-sky-500 group-hover:bg-sky-100 transition-colors flex-shrink-0 ml-1">
-                              <Edit className="w-3 h-3" />
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* 3. Insurance % & Status */}
+                        {/* 1. Insurance % & Status */}
                         <div className="border border-slate-300 rounded-lg p-3 focus-within:border-emerald-600 transition-all bg-white relative shadow-2xs">
                           <div className="flex items-center justify-between mb-1.5">
                             <label className="block text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
@@ -4845,12 +4778,6 @@ export default function App() {
                                 <span className="text-slate-500">Base Charges:</span>{' '}
                                 <strong className="text-slate-900 font-mono">₹ {formTotals.baseTotal.toLocaleString()}</strong>
                               </div>
-                              {formTotals.serviceChargeNum > 0 && (
-                                <div className="text-blue-800">
-                                  <span>+ Service ({formTotals.serviceChargePercent}):</span>{' '}
-                                  <strong className="font-mono">₹ {formTotals.serviceChargeNum.toLocaleString()}</strong>
-                                </div>
-                              )}
                               <div className="bg-blue-100/70 text-blue-950 px-2 py-0.5 rounded font-bold">
                                 <span>Sub Total:</span>{' '}
                                 <strong className="font-mono">₹ {formTotals.subTotal.toLocaleString()}</strong>
@@ -4914,7 +4841,7 @@ export default function App() {
                             <div className="border border-slate-300 rounded-lg p-3 bg-white focus-within:border-blue-500 shadow-2xs group">
                               <label className="block text-xs font-bold text-slate-900 uppercase tracking-wider mb-1 flex items-center justify-between">
                                 <span className="flex items-center gap-1">
-                                  <span>Sub Total (Base + Service)</span>
+                                  <span>Sub Total (Included Charges)</span>
                                   <Edit className="w-3 h-3 text-slate-400 group-hover:text-blue-500" />
                                 </span>
                                 <button
@@ -7116,7 +7043,7 @@ export default function App() {
               >
                 <div className="bg-blue-950/60 p-4 rounded-xl border border-blue-700/60">
                   <h5 className="font-bold text-white text-sm mb-1 text-yellow-300">Responsible Handling</h5>
-                  <p className="leading-relaxed">Every item, from delicate household chinaware to corporate IT servers, is treated with maximum caution, packing precision, and dedicated transport insurance cover.</p>
+                  <p className="leading-relaxed">We are committed to delivering every shipment with reliability, professionalism, and responsibility.</p>
                 </div>
               </motion.div>
             )}

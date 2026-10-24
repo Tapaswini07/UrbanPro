@@ -1216,17 +1216,8 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
                     { sr: '8', name: 'Bike Transportation Charges', val: quotation.bikeCharges },
                     { sr: '9', name: 'Statistical & Documentation Charges', val: quotation.statCharges },
                     { sr: '10', name: 'Octroi / Entry Tax / Toll Charges', val: quotation.octroiCharges },
-                    { 
-                      sr: '11', 
-                      name: totals.serviceChargePercent && totals.serviceChargePercent !== '0%'
-                        ? `Service Charges (${totals.serviceChargePercent})` 
-                        : 'Service Charges', 
-                      val: totals.serviceChargeNum > 0 
-                        ? String(totals.serviceChargeNum) 
-                        : (quotation.serviceCharge || '') 
-                    },
                     ...(quotation.customCharges || []).filter(c => c && c.name?.trim()).map((c, idx) => ({
-                    sr: String(12 + idx),
+                    sr: String(11 + idx),
                       name: c.name,
                       val: c.val,
                     })),

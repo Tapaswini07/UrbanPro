@@ -2,7 +2,6 @@
  * Comprehensive quotation calculation utilities for UrbanPro Packers & Logistics.
  * Accurately cross-verifies:
  * - Base Moving Charges (Transportation, Packing, Unpacking, Loading, Unloading, Dismantling, Octroi, Car, Bike, Statistical, Custom)
- * - Service Charge % and Amount
  * - Sub Total
  * - Insurance (% on Goods Declared Value, Extra / Included / Exempted)
  * - GST (% on Sub Total, Extra / Included / Exempted, CGST/SGST vs IGST)
@@ -150,18 +149,9 @@ export function calculateQuotationTotals(data: any): QuotationCalculationResult 
     }
   }
 
-  // 2. Service Charge
-  const servManual = parseChargeNumber(data.serviceCharge);
-  const servPctClean = String(data.serviceChargePercent || '0%').replace(/[^0-9.]/g, '');
-  const servPct = parseFloat(servPctClean) || 0;
-  const serviceChargePercent = data.serviceChargePercent || (servPct > 0 ? `${servPct}%` : '0%');
-
-  let serviceChargeNum = 0;
-  if (servManual > 0) {
-    serviceChargeNum = servManual;
-  } else if (servPct > 0 && baseTotal > 0) {
-    serviceChargeNum = Math.round((baseTotal * servPct) / 100);
-  }
+  // Service charges are not part of quotations.
+  const serviceChargeNum = 0;
+  const serviceChargePercent = '0%';
 
   // 3. Sub Total = Base Moving Charges + Service Charge
   const manualSub = parseChargeNumber(data.subTotal);
