@@ -92,6 +92,34 @@ export const FLOOR_OPTIONS = [
   "Above 4th Floor"
 ];
 
+type SubmittedQuoteDetails = {
+  name: string;
+  phone: string;
+  movingFrom: string;
+  movingTo: string;
+  item: string;
+  whatsappUrl: string;
+};
+
+const readSubmittedQuoteDetails = (): SubmittedQuoteDetails | null => {
+  try {
+    const saved = window.sessionStorage.getItem('upl_pending_quote_confirmation');
+    if (!saved) return null;
+    const details = JSON.parse(saved);
+    if (
+      typeof details.name !== 'string' ||
+      typeof details.phone !== 'string' ||
+      typeof details.whatsappUrl !== 'string'
+    ) {
+      return null;
+    }
+    return details as SubmittedQuoteDetails;
+  } catch (error) {
+    console.error('Failed to restore enquiry confirmation', error);
+    return null;
+  }
+};
+
 export default function App() {
   const [formData, setFormData] = useState({
     name: '',
@@ -109,22 +137,8 @@ export default function App() {
   const [isAboutExpanded, setIsAboutExpanded] = useState(false);
   const [showAllServicesModal, setShowAllServicesModal] = useState(false);
   const [quoteSubmitted, setQuoteSubmitted] = useState(false);
-  const [showQuoteSubmitToast, setShowQuoteSubmitToast] = useState(false);
-  const [submittedQuoteDetails, setSubmittedQuoteDetails] = useState<{
-    name: string;
-    phone: string;
-    movingFrom: string;
-    movingTo: string;
-    item: string;
-    whatsappUrl: string;
-  } | null>(null);
-
-  useEffect(() => {
-    if (!showQuoteSubmitToast) return;
-
-    const timeoutId = window.setTimeout(() => setShowQuoteSubmitToast(false), 6000);
-    return () => window.clearTimeout(timeoutId);
-  }, [showQuoteSubmitToast]);
+  const [submittedQuoteDetails, setSubmittedQuoteDetails] = useState<SubmittedQuoteDetails | null>(readSubmittedQuoteDetails);
+  const [showQuoteSubmitToast, setShowQuoteSubmitToast] = useState(() => Boolean(readSubmittedQuoteDetails()));
 
   const [isAdminView, setIsAdminView] = useState(() => {
     try {
@@ -2082,14 +2096,20 @@ export default function App() {
 
     window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
     
-    setSubmittedQuoteDetails({
+    const submittedDetails: SubmittedQuoteDetails = {
       name: formData.name,
       phone: formData.phone,
       movingFrom: formData.movingFrom,
       movingTo: formData.movingTo,
       item: finalItem,
       whatsappUrl,
-    });
+    };
+    setSubmittedQuoteDetails(submittedDetails);
+    try {
+      window.sessionStorage.setItem('upl_pending_quote_confirmation', JSON.stringify(submittedDetails));
+    } catch (error) {
+      console.error('Failed to save enquiry confirmation for return to the page', error);
+    }
     setShowQuoteSubmitToast(true);
 
     // Clear the form
@@ -6344,7 +6364,9 @@ export default function App() {
         >
           <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" />
           <span className="flex-1">
-            Your enquiry is ready for WhatsApp. Tap Send in WhatsApp to deliver it to UrbanPro.
+            {submittedQuoteDetails?.name
+              ? `Thank you, ${submittedQuoteDetails.name}! Your enquiry is prepared. This confirmation will remain here when you return from WhatsApp. Tap Send there to deliver it to UrbanPro.`
+              : 'Your enquiry is prepared for WhatsApp. This confirmation will remain here when you return. Tap Send there to deliver it to UrbanPro.'}
           </span>
           {submittedQuoteDetails?.whatsappUrl && (
             <a
@@ -6358,7 +6380,14 @@ export default function App() {
           )}
           <button
             type="button"
-            onClick={() => setShowQuoteSubmitToast(false)}
+            onClick={() => {
+              setShowQuoteSubmitToast(false);
+              try {
+                window.sessionStorage.removeItem('upl_pending_quote_confirmation');
+              } catch (error) {
+                console.error('Failed to clear enquiry confirmation', error);
+              }
+            }}
             aria-label="Dismiss enquiry confirmation"
             className="rounded p-0.5 text-white/80 hover:bg-white/10 hover:text-white"
           >
