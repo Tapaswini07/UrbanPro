@@ -22,7 +22,7 @@ import {
   FileText
 } from 'lucide-react';
 import jsPDF from 'jspdf';
-import { addCanvasToA4Pdf, renderElementToCanvas, triggerPdfDownload } from '../utils/pdfExport';
+import { addCanvasToA4Pdf, renderElementToCanvas } from '../utils/pdfExport';
 import { shareDocument } from '../utils/shareUtils';
 import { calculateQuotationTotals, parseChargeNumber, parseChargeDetails, formatChargeValue } from '../utils/quotationCalculations';
 import { UPL_LOGO_BASE64 } from '../assets/logoBase64';
@@ -156,7 +156,16 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
   const [isDownloading, setIsDownloading] = useState(false);
   const [isOpeningInTab, setIsOpeningInTab] = useState(false);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
   const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (pdfBlobUrl) {
+        window.setTimeout(() => URL.revokeObjectURL(pdfBlobUrl), 60000);
+      }
+    };
+  }, [pdfBlobUrl]);
 
   // Zoom / Responsive Fit State
   const [zoomScale, setZoomScale] = useState<number | 'auto'>('auto');
@@ -249,30 +258,34 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
       addCanvasToA4Pdf(pdf, canvas2, margin);
     }
 
-    const blob = pdf.output('blob');
-    const url = URL.createObjectURL(blob);
-    return { pdf, blob, url, filename };
+    const url = URL.createObjectURL(pdf.output('blob'));
+    return { url, filename };
   };
 
   const handleDownloadPdf = async () => {
     try {
       setIsDownloading(true);
       setDownloadSuccess(false);
+      setDownloadError(null);
 
       const result = await createPdfDocument();
       if (!result) return;
 
-      const { pdf, url, filename } = result;
+      const { url, filename } = result;
       setPdfBlobUrl(url);
 
-      const res = triggerPdfDownload(pdf, filename);
-      if (res.success) {
-        setDownloadSuccess(true);
-        setTimeout(() => setDownloadSuccess(false), 8000);
-      }
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      setDownloadSuccess(true);
+      setTimeout(() => setDownloadSuccess(false), 8000);
     } catch (err) {
-      console.error('PDF generation error, fallback to print:', err);
-      window.print();
+      console.error('PDF generation error:', err);
+      setDownloadError(err instanceof Error ? err.message : 'Unable to generate the quotation PDF.');
     } finally {
       setIsDownloading(false);
     }
@@ -561,6 +574,12 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
             </button>
           </div>
         </div>
+
+        {downloadError && (
+          <div role="alert" className="bg-red-50 border-b border-red-200 px-4 py-2.5 text-xs text-red-800">
+            <strong>Quotation PDF could not be generated.</strong> {downloadError}
+          </div>
+        )}
 
         {/* Quick Edit Interactive Drawer (Collapsible) */}
         {showQuickEdit && (

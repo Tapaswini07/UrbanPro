@@ -39,14 +39,25 @@ export async function renderElementToCanvas(element: HTMLElement): Promise<HTMLC
   document.body.appendChild(wrapper);
 
   try {
+    const sourceImages = Array.from(element.querySelectorAll('img'));
+    const clonedImages = Array.from(clone.querySelectorAll('img'));
+    sourceImages.forEach((sourceImage, index) => {
+      const clonedImage = clonedImages[index];
+      if (!clonedImage) return;
+
+      const computedStyle = window.getComputedStyle(sourceImage);
+      for (const property of ['width', 'height', 'max-width', 'max-height', 'object-fit', 'object-position']) {
+        clonedImage.style.setProperty(property, computedStyle.getPropertyValue(property));
+      }
+    });
+
     // Wait for fonts and images so hosted deployments do not capture a partially
     // rendered document.
     if (document.fonts?.ready) {
       await document.fonts.ready;
     }
 
-    const images = Array.from(clone.querySelectorAll('img'));
-    await Promise.all(images.map(async (img) => {
+    await Promise.all(clonedImages.map(async (img) => {
       img.loading = 'eager';
       if (!img.complete) {
         await new Promise<void>((resolve, reject) => {
@@ -215,7 +226,7 @@ export function addCanvasToA4Pdf(pdf: jsPDF, canvas: HTMLCanvasElement, margin =
     );
 
     const sliceMmHeight = (currentSliceHeightPx * printableWidth) / canvas.width;
-    pdf.addImage(sliceCanvas.toDataURL('image/png'), 'PNG', margin, margin, printableWidth, sliceMmHeight, undefined, 'NONE');
+    pdf.addImage(sliceCanvas.toDataURL('image/jpeg', 0.92), 'JPEG', margin, margin, printableWidth, sliceMmHeight, undefined, 'FAST');
   }
 
   return pageCount;
