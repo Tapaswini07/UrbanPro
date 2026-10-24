@@ -33,6 +33,49 @@ export async function renderElementToCanvas(element: HTMLElement): Promise<HTMLC
   document.body.appendChild(wrapper);
 
   try {
+    const sourceControls = element.querySelectorAll('input, textarea, select');
+    const clonedControls = clone.querySelectorAll('input, textarea, select');
+    sourceControls.forEach((sourceControl, index) => {
+      const clonedControl = clonedControls[index];
+      if (!clonedControl) return;
+
+      if (sourceControl instanceof HTMLInputElement && clonedControl instanceof HTMLInputElement) {
+        clonedControl.value = sourceControl.value;
+        clonedControl.checked = sourceControl.checked;
+        clonedControl.setAttribute('value', sourceControl.value);
+        if (sourceControl.checked) {
+          clonedControl.setAttribute('checked', '');
+        } else {
+          clonedControl.removeAttribute('checked');
+        }
+      } else if (sourceControl instanceof HTMLTextAreaElement && clonedControl instanceof HTMLTextAreaElement) {
+        clonedControl.value = sourceControl.value;
+        clonedControl.textContent = sourceControl.value;
+      } else if (sourceControl instanceof HTMLSelectElement && clonedControl instanceof HTMLSelectElement) {
+        clonedControl.selectedIndex = sourceControl.selectedIndex;
+        Array.from(sourceControl.options).forEach((sourceOption, optionIndex) => {
+          const clonedOption = clonedControl.options[optionIndex];
+          if (!clonedOption) return;
+          clonedOption.selected = sourceOption.selected;
+          if (sourceOption.selected) {
+            clonedOption.setAttribute('selected', '');
+          } else {
+            clonedOption.removeAttribute('selected');
+          }
+        });
+      }
+    });
+
+    const sourceCanvases = element.querySelectorAll('canvas');
+    const clonedCanvases = clone.querySelectorAll('canvas');
+    sourceCanvases.forEach((sourceCanvas, index) => {
+      const clonedCanvas = clonedCanvases[index];
+      if (!clonedCanvas) return;
+      clonedCanvas.width = sourceCanvas.width;
+      clonedCanvas.height = sourceCanvas.height;
+      clonedCanvas.getContext('2d')?.drawImage(sourceCanvas, 0, 0);
+    });
+
     const sourceElements = [element, ...Array.from(element.querySelectorAll<HTMLElement>('*'))];
     const clonedElements = [clone, ...Array.from(clone.querySelectorAll<HTMLElement>('*'))];
     sourceElements.forEach((sourceElement, index) => {

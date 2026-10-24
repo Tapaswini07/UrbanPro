@@ -108,6 +108,7 @@ export default function App() {
   const [isAboutExpanded, setIsAboutExpanded] = useState(false);
   const [showAllServicesModal, setShowAllServicesModal] = useState(false);
   const [quoteSubmitted, setQuoteSubmitted] = useState(false);
+  const [showQuoteSubmitToast, setShowQuoteSubmitToast] = useState(false);
   const [submittedQuoteDetails, setSubmittedQuoteDetails] = useState<{
     name: string;
     phone: string;
@@ -116,6 +117,13 @@ export default function App() {
     item: string;
     whatsappUrl: string;
   } | null>(null);
+
+  useEffect(() => {
+    if (!showQuoteSubmitToast) return;
+
+    const timeoutId = window.setTimeout(() => setShowQuoteSubmitToast(false), 6000);
+    return () => window.clearTimeout(timeoutId);
+  }, [showQuoteSubmitToast]);
 
   const [isAdminView, setIsAdminView] = useState(() => {
     try {
@@ -1946,8 +1954,7 @@ export default function App() {
       item: finalItem,
       whatsappUrl,
     });
-    // WhatsApp requires the user to confirm the message inside WhatsApp.
-    window.location.href = whatsappUrl;
+    setShowQuoteSubmitToast(true);
 
     // Clear the form
     setFormData({ name: '', phone: '', email: '', date: '', item: '', otherItem: '', movingFrom: '', movingTo: '', itemRows: [{ name: '', value: '' }] });
@@ -6190,6 +6197,27 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-red-100 selection:text-red-900">
+      {showQuoteSubmitToast && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed top-4 left-1/2 z-[100] flex w-[calc(100%-2rem)] max-w-xl -translate-x-1/2 items-start gap-3 rounded-xl border border-emerald-300 bg-emerald-700 px-4 py-3 text-sm font-semibold text-white shadow-xl"
+        >
+          <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" />
+          <span className="flex-1">
+            Enquiry submitted successfully. Thank you for contacting UrbanPro!
+          </span>
+          <button
+            type="button"
+            onClick={() => setShowQuoteSubmitToast(false)}
+            aria-label="Dismiss enquiry confirmation"
+            className="rounded p-0.5 text-white/80 hover:bg-white/10 hover:text-white"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
+
       {/* Top Bar */}
       <div className="bg-blue-900 text-white text-sm py-2 px-4">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
