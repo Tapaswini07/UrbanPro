@@ -33,6 +33,7 @@ import { downloadPdfFromElement, openElementInPrintWindow } from '../utils/pdfEx
 import { shareDocument } from '../utils/shareUtils';
 import { INDIAN_STATES, getStateCodeByName } from '../utils/indianStates';
 import { calculateQuotationTotals, parseChargeNumber } from '../utils/quotationCalculations';
+import { findCustomerProfileByMobile } from '../utils/customerLookup';
 import { RecordLookup } from './RecordLookup';
 
 export interface BillData {
@@ -674,6 +675,8 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                   value={form.mobileNo}
                   onChange={e => {
                     const val = e.target.value;
+                    const match = findCustomerProfileByMobile(customerProfiles, val);
+                    if (match) applyCustomerAutoFill(match);
                     setForm(prev => ({
                       ...prev,
                       mobileNo: val,
@@ -861,7 +864,22 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                   <input
                     type="text"
                     value={form.consignorPhone}
-                    onChange={e => setForm({ ...form, consignorPhone: e.target.value })}
+                    onChange={e => {
+                      const consignorPhone = e.target.value;
+                      const match = findCustomerProfileByMobile(customerProfiles, consignorPhone);
+                      setForm(prev => ({
+                        ...prev,
+                        consignorPhone,
+                        ...(match ? {
+                          consignorName: match.partyName || prev.consignorName,
+                          consignorAddress: match.fromAddress || prev.consignorAddress,
+                          fromCity: match.fromCity || prev.fromCity,
+                          fromState: match.fromState || prev.fromState,
+                          fromArea: match.fromArea || prev.fromArea,
+                          fromPincode: match.fromPinCode || match.fromPincode || prev.fromPincode,
+                        } : {}),
+                      }));
+                    }}
                     className="w-full outline-none font-medium text-slate-800 text-sm"
                   />
                 </div>
@@ -1829,7 +1847,7 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                     {/* Goods Total Value row if > 0 */}
                     {Number(selectedRecord.goodsValue) > 0 && (
                       <tr className="bg-amber-50/50">
-                        <td className="p-1 border-r border-[#1e3a8a] font-semibold text-slate-900">Goods Total Value (Declared)</td>
+                        <td className="p-1 border-r border-[#1e3a8a] font-semibold text-slate-900">Declared Goods Value (Insurance Basis Only - Not Charged)</td>
                         <td className="p-1 text-right font-mono font-bold text-slate-950">₹ {Number(selectedRecord.goodsValue).toLocaleString()}</td>
                       </tr>
                     )}

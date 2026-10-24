@@ -5,6 +5,7 @@ import { PRAKASH_SIGNATURE_BASE64 } from '../assets/signatureBase64';
 import { downloadPdfFromElement, openElementInPrintWindow } from '../utils/pdfExport';
 import { shareDocument } from '../utils/shareUtils';
 import { INDIAN_STATES } from '../utils/indianStates';
+import { findCustomerProfileByMobile } from '../utils/customerLookup';
 import { RecordLookup } from './RecordLookup';
 
 export interface CarConditionData {
@@ -418,7 +419,12 @@ export const CarConditionView: React.FC<Props> = ({ carConditions, onSave, onDel
                   type="tel"
                   placeholder="Mobile No."
                   value={form.mobileNo}
-                  onChange={e => setForm({ ...form, mobileNo: e.target.value })}
+                  onChange={e => {
+                    const mobileNo = e.target.value;
+                    const match = findCustomerProfileByMobile(customerProfiles, mobileNo);
+                    if (match) handleAutoFillCustomer(match);
+                    setForm(prev => ({ ...prev, mobileNo }));
+                  }}
                   className="w-full outline-none font-medium text-slate-800"
                 />
               </div>

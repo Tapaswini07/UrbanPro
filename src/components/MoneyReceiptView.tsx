@@ -4,6 +4,7 @@ import { UPL_LOGO_BASE64 } from '../assets/logoBase64';
 import { PRAKASH_SIGNATURE_BASE64 } from '../assets/signatureBase64';
 import { downloadPdfFromElement, openElementInPrintWindow } from '../utils/pdfExport';
 import { shareDocument } from '../utils/shareUtils';
+import { findCustomerProfileByMobile } from '../utils/customerLookup';
 import { RecordLookup } from './RecordLookup';
 
 export interface MoneyReceiptData {
@@ -369,8 +370,20 @@ export const MoneyReceiptView: React.FC<Props> = ({
                   type="tel" 
                   placeholder="Mobile / Contact No."
                   value={form.mobileNo} 
-                  onChange={e => setForm({ ...form, mobileNo: e.target.value })} 
-                  className="w-full outline-none text-slate-800 text-sm font-medium bg-transparent" 
+                  onChange={e => {
+                    const mobileNo = e.target.value;
+                    const match = findCustomerProfileByMobile(customerProfiles, mobileNo);
+                    setForm(prev => ({
+                      ...prev,
+                      mobileNo,
+                      ...(match ? {
+                        partyName: match.partyName || prev.partyName,
+                        relocateFrom: match.fromCity || prev.relocateFrom,
+                        relocateTo: match.toCity || prev.relocateTo,
+                      } : {}),
+                    }));
+                  }}
+                  className="w-full outline-none text-slate-800 text-sm font-medium bg-transparent"
                 />
               </div>
 

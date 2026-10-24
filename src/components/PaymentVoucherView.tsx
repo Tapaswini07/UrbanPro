@@ -4,6 +4,7 @@ import { UPL_LOGO_BASE64 } from '../assets/logoBase64';
 import { PRAKASH_SIGNATURE_BASE64 } from '../assets/signatureBase64';
 import { downloadPdfFromElement, openElementInPrintWindow } from '../utils/pdfExport';
 import { shareDocument } from '../utils/shareUtils';
+import { findCustomerProfileByMobile } from '../utils/customerLookup';
 import { RecordLookup } from './RecordLookup';
 
 export interface PaymentVoucherData {
@@ -262,7 +263,15 @@ export const PaymentVoucherView: React.FC<Props> = ({ vouchers, onSave, onDelete
                 <input
                   type="text"
                   value={form.receiverMobile}
-                  onChange={e => setForm({ ...form, receiverMobile: e.target.value })}
+                  onChange={e => {
+                    const receiverMobile = e.target.value;
+                    const match = findCustomerProfileByMobile(customerProfiles, receiverMobile);
+                    setForm(prev => ({
+                      ...prev,
+                      receiverMobile,
+                      ...(match ? { receiverName: match.partyName || prev.receiverName } : {}),
+                    }));
+                  }}
                   className="w-full outline-none text-slate-800 text-sm font-medium bg-transparent"
                   placeholder="Mobile Number"
                 />

@@ -1255,12 +1255,12 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
 
                   {/* Declared Goods Value Row */}
                   <div className="flex border-b border-blue-100 py-1 text-[10.5px] items-center bg-amber-50/40">
-                    <div className="w-12 text-center text-slate-500 border-r border-blue-100">+</div>
+                    <div className="w-12 text-center text-slate-500 border-r border-blue-100">i</div>
                     <div className="flex-1 text-left px-2 font-medium text-black border-r border-blue-100">
-                      Goods Total Value (Declared)
+                      Goods Value Declared (Insurance Basis Only)
                     </div>
                     <div className="w-36 text-center border-r border-blue-100 text-[10px] font-semibold text-slate-600">
-                      —
+                      Not charged
                     </div>
                     <div className="w-36 text-right pr-2 font-semibold text-amber-800">
                       {totals.goodsVal > 0 ? `₹ ${totals.goodsVal.toLocaleString()}` : 'Nil'}

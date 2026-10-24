@@ -6,6 +6,7 @@ import { numberToIndianWords } from './QuotationPdfModal';
 import { downloadPdfFromElement, openElementInPrintWindow } from '../utils/pdfExport';
 import { shareDocument } from '../utils/shareUtils';
 import { INDIAN_STATES, getStateCodeByName } from '../utils/indianStates';
+import { findCustomerProfileByMobile } from '../utils/customerLookup';
 import { RecordLookup } from './RecordLookup';
 
 export interface BiltyData {
@@ -498,7 +499,27 @@ export const BiltyView: React.FC<Props> = ({
                 <input
                   type="tel"
                   value={form.consignorPhone}
-                  onChange={e => setForm({ ...form, consignorPhone: e.target.value })}
+                  onChange={e => {
+                    const consignorPhone = e.target.value;
+                    const match = findCustomerProfileByMobile(customerProfiles, consignorPhone);
+                    setForm(prev => ({
+                      ...prev,
+                      consignorPhone,
+                      ...(match ? {
+                        consignorName: match.partyName || prev.consignorName,
+                        consignorCity: match.fromCity || prev.consignorCity,
+                        consignorState: match.fromState || prev.consignorState,
+                        consignorArea: match.fromArea || prev.consignorArea,
+                        consignorPincode: match.fromPinCode || match.fromPincode || prev.consignorPincode,
+                        consignorAddress: match.fromAddress || prev.consignorAddress,
+                        consigneeCity: match.toCity || prev.consigneeCity,
+                        consigneeState: match.toState || prev.consigneeState,
+                        consigneeArea: match.toArea || prev.consigneeArea,
+                        consigneePincode: match.toPinCode || match.toPincode || prev.consigneePincode,
+                        consigneeAddress: match.toAddress || prev.consigneeAddress,
+                      } : {}),
+                    }));
+                  }}
                   className="w-full outline-none font-medium text-slate-800"
                 />
               </div>

@@ -79,6 +79,7 @@ import { SetupView } from './components/SetupView';
 import { UPL_LOGO_BASE64 } from './assets/logoBase64';
 import { PRAKASH_SIGNATURE_BASE64 } from './assets/signatureBase64';
 import { INDIAN_STATES, getStateCodeByName } from './utils/indianStates';
+import { findCustomerProfileByMobile } from './utils/customerLookup';
 export { INDIAN_STATES, getStateCodeByName };
 
 export const FLOOR_OPTIONS = [
@@ -1437,7 +1438,7 @@ export default function App() {
 
     const addProfile = (p: any) => {
       const name = (p.partyName || '').trim();
-      const phone = (p.mobileNo || '').trim();
+      const phone = String(p.mobileNo || '').trim();
       if (!name && !phone && !p.uniqueId) return;
 
       const key = (name || phone).toLowerCase();
@@ -1696,8 +1697,8 @@ export default function App() {
       // 2. Exact or clean Party Name match
       if (c.partyName && c.partyName.trim().toLowerCase() === cleanStr) return true;
 
-      // 3. Mobile Number match
-      if (cleanDigits.length >= 6 && c.mobileNo && c.mobileNo.replace(/\D/g, '').includes(cleanDigits)) return true;
+      // 3. Exact mobile number match, including numbers stored with a country code.
+      if (cleanDigits.length >= 10 && findCustomerProfileByMobile([c], query)) return true;
 
       // 4. Starts-with match on party name
       if (c.partyName && cleanStr.length >= 3 && c.partyName.trim().toLowerCase().startsWith(cleanStr)) return true;
@@ -1769,12 +1770,20 @@ export default function App() {
             mobileNo: val,
             partyName: match.partyName || prev.partyName,
             email: match.email || prev.email,
+            fromCountry: match.fromCountry || prev.fromCountry,
+            fromState: match.fromState || prev.fromState,
             fromCity: match.fromCity || prev.fromCity,
             fromArea: match.fromArea || prev.fromArea,
             fromPinCode: match.fromPinCode || prev.fromPinCode,
+            fromFloor: match.fromFloor || prev.fromFloor,
+            fromLift: match.fromLift || prev.fromLift,
+            toCountry: match.toCountry || prev.toCountry,
+            toState: match.toState || prev.toState,
             toCity: match.toCity || prev.toCity,
             toArea: match.toArea || prev.toArea,
             toPinCode: match.toPinCode || prev.toPinCode,
+            toFloor: match.toFloor || prev.toFloor,
+            toLift: match.toLift || prev.toLift,
             moveType: match.moveType || prev.moveType,
           };
         }
@@ -1834,12 +1843,20 @@ export default function App() {
             packingDate: match.packingDate || prev.packingDate,
             deliveryDate: match.deliveryDate || prev.deliveryDate,
             moveType: match.moveType || prev.moveType,
+            fromCountry: match.fromCountry || prev.fromCountry,
+            fromState: match.fromState || prev.fromState,
             fromCity: match.fromCity || prev.fromCity,
             fromArea: match.fromArea || prev.fromArea,
             fromPincode: match.fromPinCode || match.fromPincode || prev.fromPincode,
+            fromFloor: match.fromFloor || prev.fromFloor,
+            fromLift: match.fromLift || prev.fromLift,
+            toCountry: match.toCountry || prev.toCountry,
+            toState: match.toState || prev.toState,
             toCity: match.toCity || prev.toCity,
             toArea: match.toArea || prev.toArea,
             toPincode: match.toPinCode || match.toPincode || prev.toPincode,
+            toFloor: match.toFloor || prev.toFloor,
+            toLift: match.toLift || prev.toLift,
           };
         }
       }
@@ -1894,18 +1911,35 @@ export default function App() {
       if (cleanDigits.length >= 10) {
         const match = findCustomerProfile(val);
         if (match) {
+          const itemsToSet = (!prev.items || prev.items.length === 0) && match.items?.length
+            ? match.items.map((item: any, index: number) => ({
+                id: `pli-${Date.now()}-${index}`,
+                name: item.name || 'Item',
+                qty: item.qty || '1',
+                boxNo: String(index + 1),
+                value: item.value || '0',
+                remark: item.remark || 'Standard Packing',
+              }))
+            : prev.items;
           setShareToast(`✓ Auto-filled name & route for ${match.partyName}`);
           setTimeout(() => setShareToast(null), 3000);
           return {
             ...prev,
             mobileNo: val,
             partyName: match.partyName || prev.partyName,
+            fromCountry: match.fromCountry || prev.fromCountry,
+            fromState: match.fromState || prev.fromState,
             fromCity: match.fromCity || prev.fromCity,
             fromArea: match.fromArea || prev.fromArea,
             fromPincode: match.fromPinCode || match.fromPincode || prev.fromPincode,
+            fromFloor: match.fromFloor || prev.fromFloor,
+            toCountry: match.toCountry || prev.toCountry,
+            toState: match.toState || prev.toState,
             toCity: match.toCity || prev.toCity,
             toArea: match.toArea || prev.toArea,
             toPincode: match.toPinCode || match.toPincode || prev.toPincode,
+            toFloor: match.toFloor || prev.toFloor,
+            items: itemsToSet,
           };
         }
       }
