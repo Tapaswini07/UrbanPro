@@ -956,7 +956,15 @@ export default function App() {
 
   const handleAddItemToPackingList = () => {
     if (!currentPackingItem.name.trim()) {
-      alert('Please enter Item Name (सामान का नाम)');
+      alert('Please enter Item Name (सामान का नाम) before adding this row.');
+      return;
+    }
+    if (!String(currentPackingItem.value).trim()) {
+      alert('Please enter the item value before adding this row.');
+      return;
+    }
+    if (!String(currentPackingItem.qty).trim() || !String(currentPackingItem.boxNo).trim()) {
+      alert('Please enter both quantity and box number before adding this row.');
       return;
     }
     const newItem: PackingListItem = {
@@ -1053,13 +1061,25 @@ export default function App() {
     }
 
     const hasPendingItemDetails = Boolean(
+      currentPackingItem.name.trim() ||
       String(currentPackingItem.value).trim() ||
       currentPackingItem.remark.trim() ||
       (String(currentPackingItem.qty).trim() && String(currentPackingItem.qty).trim() !== '1') ||
       (String(currentPackingItem.boxNo).trim() && String(currentPackingItem.boxNo).trim() !== '1')
     );
-    if (!currentPackingItem.name.trim() && hasPendingItemDetails) {
+    if (hasPendingItemDetails && !currentPackingItem.name.trim()) {
       alert('Please enter an item name for the details you entered, then save the packing list.');
+      return;
+    }
+    if (currentPackingItem.name.trim() && !String(currentPackingItem.value).trim()) {
+      alert('Please enter the value for the item you are entering, then save the packing list.');
+      return;
+    }
+    if (
+      currentPackingItem.name.trim() &&
+      (!String(currentPackingItem.qty).trim() || !String(currentPackingItem.boxNo).trim())
+    ) {
+      alert('Please enter both quantity and box number for the item you are entering.');
       return;
     }
     const itemsToSave = currentPackingItem.name.trim()
@@ -5591,7 +5611,7 @@ export default function App() {
                       <div className="space-y-4">
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-3">
                           <div className="md:col-span-4 border border-slate-300 rounded-xl p-2 px-3 focus-within:border-sky-500 transition-all bg-white">
-                            <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Item Name (सामान का नाम)</label>
+                            <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Item Name (सामान का नाम) *</label>
                             <input 
                               type="text" 
                               placeholder="e.g. Sofa 3 Seater / Refrigerator" 
@@ -5608,7 +5628,7 @@ export default function App() {
                           </div>
 
                           <div className="md:col-span-2 border border-slate-300 rounded-xl p-2 px-3 focus-within:border-sky-500 transition-all bg-white">
-                            <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Quantity (संख्या)</label>
+                            <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Quantity (संख्या) *</label>
                             <input 
                               type="number" 
                               min="1"
@@ -5620,7 +5640,7 @@ export default function App() {
                           </div>
 
                           <div className="md:col-span-2 border border-slate-300 rounded-xl p-2 px-3 focus-within:border-sky-500 transition-all bg-white">
-                            <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Box No.</label>
+                            <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Box No. *</label>
                             <input 
                               type="text" 
                               placeholder="1" 
@@ -5631,7 +5651,7 @@ export default function App() {
                           </div>
 
                           <div className="md:col-span-2 border border-slate-300 rounded-xl p-2 px-3 focus-within:border-sky-500 transition-all bg-white">
-                            <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Value (कीमत)</label>
+                            <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Value (कीमत) *</label>
                             <input 
                               type="text" 
                               placeholder="₹" 
@@ -5656,7 +5676,7 @@ export default function App() {
                         {/* + Add Button matching Screenshot 2 */}
                         <div className="flex justify-end">
                           <p className="mr-auto self-center text-[11px] text-slate-500">
-                            A named item you are entering is included when you save the packing list.
+                            Item name, quantity, box number and value are required. Save also includes the current named item.
                           </p>
                           <button
                             type="button"

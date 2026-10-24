@@ -320,22 +320,22 @@ export const PackingListPdfModal: React.FC<PackingListPdfModalProps> = ({
                     className="flex text-[11.5px] text-center border-b border-blue-100 py-1 font-medium text-black min-h-[26px]"
                   >
                     <div className="w-12 border-r border-[#1e3a8a] flex items-center justify-center shrink-0">
-                      {item.name ? idx + 1 : ''}
+                      {item.name?.trim() ? idx + 1 : ''}
                     </div>
                     <div className="flex-1 border-r border-[#1e3a8a] text-left px-3 flex items-center">
-                      {item.name || ''}
+                      {item.name ?? ''}
                     </div>
                     <div className="w-20 sm:w-24 border-r border-[#1e3a8a] flex items-center justify-center shrink-0">
-                      {item.qty || (item.name ? 1 : '')}
+                      {item.qty ?? (item.name ? 1 : '')}
                     </div>
                     <div className="w-20 sm:w-24 border-r border-[#1e3a8a] flex items-center justify-center shrink-0">
-                      {item.boxNo || ''}
+                      {item.boxNo ?? ''}
                     </div>
                     <div className="w-24 sm:w-28 border-r border-[#1e3a8a] flex items-center justify-center shrink-0">
-                      {item.value || ''}
+                      {item.value ?? ''}
                     </div>
                     <div className="w-32 sm:w-36 px-2 text-left flex items-center text-[10.5px] shrink-0">
-                      {item.remark || ''}
+                      {item.remark ?? ''}
                     </div>
                   </div>
                 ))}
