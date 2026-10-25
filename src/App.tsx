@@ -203,10 +203,7 @@ export default function App() {
     toPinCode: '',
     toFloor: 'Ground',
     toLift: 'Not Required',
-    items: [
-      { name: 'ws', qty: '1', value: '0', remark: '' },
-      { name: 'tv', qty: '1', value: '0', remark: '' }
-    ] as {name: string, qty: string, value: string, remark: string}[],
+    items: [] as {name: string, qty: string, value: string, remark: string}[],
     advancePay: '',
     easyAccess: '',
     balconyItems: '',
@@ -222,7 +219,7 @@ export default function App() {
       const saved = localStorage.getItem('upl_surveys');
       if (saved !== null) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
+        if (Array.isArray(parsed)) {
           const hasSurveyOne = parsed.some(s => String(s.surveyNo || '').trim() === '1');
           const hasLegacyNumbering = parsed.every(s => {
             const number = Number.parseInt(String(s.surveyNo || '').replace(/\D/g, ''), 10);
@@ -332,13 +329,13 @@ export default function App() {
 
   const addItemToSurvey = () => {
     if (currentItem.name.trim()) {
-      setSurveyForm({ ...surveyForm, items: [currentItem, ...surveyForm.items] });
+      setSurveyForm(prev => ({ ...prev, items: [currentItem, ...prev.items] }));
       setCurrentItem({name: '', qty: '1', value: '', remark: ''});
     }
   };
 
   const removeItemFromSurvey = (index: number) => {
-    setSurveyForm({ ...surveyForm, items: surveyForm.items.filter((_, i) => i !== index) });
+    setSurveyForm(prev => ({ ...prev, items: prev.items.filter((_, i) => i !== index) }));
   };
   
   const handleSaveSurvey = () => {

@@ -646,7 +646,7 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                 <input
                   type="date"
                   required
-                  value={form.billDate || form.date}
+                  value={form.billDate ?? form.date}
                   onChange={e => setForm({ ...form, billDate: e.target.value, date: e.target.value })}
                   className="w-full outline-none font-medium text-slate-800 text-sm"
                 />
@@ -748,7 +748,7 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                 </label>
                 <input
                   type="text"
-                  value={form.country || 'India'}
+                  value={form.country ?? 'India'}
                   onChange={e => setForm({ ...form, country: e.target.value })}
                   className="w-full outline-none font-medium text-slate-800 text-sm bg-transparent"
                 />
@@ -759,7 +759,7 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                   State
                 </label>
                 <select
-                  value={form.state || 'N/A'}
+                  value={form.state ?? 'N/A'}
                   onChange={e => {
                     const st = e.target.value;
                     const autoCode = getStateCodeByName(st);
@@ -847,7 +847,7 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                   Mode of Moving
                 </label>
                 <select
-                  value={form.modeOfMoving || 'By Surface'}
+                  value={form.modeOfMoving ?? 'By Surface'}
                   onChange={e => setForm({ ...form, modeOfMoving: e.target.value })}
                   className="w-full outline-none font-medium text-slate-800 text-sm bg-transparent"
                 >
@@ -864,7 +864,7 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                 </label>
                 <input
                   type="text"
-                  value={form.typeOfShipment || 'Personal Goods'}
+                  value={form.typeOfShipment ?? 'Personal Goods'}
                   onChange={e => setForm({ ...form, typeOfShipment: e.target.value })}
                   className="w-full outline-none font-medium text-slate-800 text-sm"
                 />
@@ -1037,7 +1037,7 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                   <label className="block text-xs font-semibold text-slate-700 mb-1">Country</label>
                   <input
                     type="text"
-                    value={form.fromCountry || 'India'}
+                    value={form.fromCountry ?? 'India'}
                     onChange={e => setForm({ ...form, fromCountry: e.target.value })}
                     className="w-full outline-none font-medium text-slate-800 text-sm bg-transparent"
                   />
@@ -1046,7 +1046,7 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                 <div className="border border-slate-300 rounded-xl p-3 bg-white">
                   <label className="block text-xs font-semibold text-slate-700 mb-1">State</label>
                   <select
-                    value={form.fromState || 'N/A'}
+                    value={form.fromState ?? 'N/A'}
                     onChange={e => setForm({ ...form, fromState: e.target.value })}
                     className="w-full outline-none font-medium text-slate-800 text-sm bg-transparent"
                   >
@@ -1090,7 +1090,7 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                   <label className="block text-xs font-semibold text-slate-700 mb-1">From Floor</label>
                   <input
                     type="text"
-                    value={form.fromFloor || 'N/A'}
+                    value={form.fromFloor ?? 'N/A'}
                     onChange={e => setForm({ ...form, fromFloor: e.target.value })}
                     className="w-full outline-none font-medium text-slate-800 text-sm"
                   />
@@ -1112,7 +1112,7 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                 </label>
                 <input
                   type="text"
-                  value={form.toCountry || 'India'}
+                  value={form.toCountry ?? 'India'}
                   onChange={e => setForm({ ...form, toCountry: e.target.value })}
                   className="w-full outline-none font-medium text-slate-800 text-sm bg-transparent"
                 />
@@ -1123,7 +1123,7 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                   State
                 </label>
                 <select
-                  value={form.toState || 'N/A'}
+                  value={form.toState ?? 'N/A'}
                   onChange={e => setForm({ ...form, toState: e.target.value })}
                   className="w-full outline-none font-medium text-slate-800 text-sm bg-transparent"
                 >
@@ -1177,7 +1177,7 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                   From Floor
                 </label>
                 <select
-                  value={form.toFloor || 'N/A'}
+                  value={form.toFloor ?? 'N/A'}
                   onChange={e => setForm({ ...form, toFloor: e.target.value })}
                   className="w-full outline-none font-medium text-slate-800 text-sm bg-transparent"
                 >
@@ -1206,7 +1206,7 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                 </label>
                 <input
                   type="text"
-                  value={form.packageType || 'As Per List Attached'}
+                  value={form.packageType ?? 'As Per List Attached'}
                   onChange={e => setForm({ ...form, packageType: e.target.value })}
                   className="w-full outline-none font-medium text-slate-800 text-sm"
                 />
@@ -1218,7 +1218,7 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                 </label>
                 <input
                   type="text"
-                  value={form.packageDescription || 'Old & Used Household Goods'}
+                  value={form.packageDescription ?? 'Old & Used Household Goods'}
                   onChange={e => setForm({ ...form, packageDescription: e.target.value })}
                   className="w-full outline-none font-medium text-slate-800 text-sm"
                 />
@@ -1229,7 +1229,7 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                   Weight Type
                 </label>
                 <select
-                  value={form.weightType || 'MT'}
+                  value={form.weightType ?? 'MT'}
                   onChange={e => setForm({ ...form, weightType: e.target.value })}
                   className="w-full outline-none font-medium text-slate-800 text-sm bg-transparent"
                 >
@@ -1259,7 +1259,7 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                 </label>
                 <input
                   type="text"
-                  value={form.remark || 'Not For Sale'}
+                  value={form.remark ?? 'Not For Sale'}
                   onChange={e => setForm({ ...form, remark: e.target.value })}
                   className="w-full outline-none font-medium text-slate-800 text-sm"
                 />
@@ -1438,10 +1438,10 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
             </div>
           </div>
 
-          {/* Section 9: Service/Insurance/GST (Slate Pill Badge) */}
+          {/* Section 9: Insurance and GST */}
           <div className="border-2 border-slate-400 rounded-2xl p-6 pt-8 relative bg-white shadow-xs">
             <span className="absolute -top-3.5 left-4 bg-slate-600 text-white px-4 py-1 rounded-md text-xs font-bold shadow-xs">
-              Service/Insurance/GST
+              Insurance & GST
             </span>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1504,7 +1504,7 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                   GST Type
                 </label>
                 <select
-                  value={form.gstType || 'CGST/SGST'}
+                  value={form.gstType ?? 'CGST/SGST'}
                   onChange={e => setForm({ ...form, gstType: e.target.value })}
                   className="w-full outline-none font-medium text-slate-800 text-sm bg-transparent"
                 >
@@ -1529,6 +1529,18 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                   <option value={3}>3%</option>
                   <option value={0}>0%</option>
                 </select>
+              </div>
+
+              <div className="border border-slate-300 rounded-xl p-3 bg-white md:col-span-2">
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  GST Charge (₹)
+                </label>
+                <input
+                  type="number"
+                  value={calcGstAmt(form)}
+                  readOnly
+                  className="w-full outline-none font-bold text-slate-900 text-sm"
+                />
               </div>
 
               <div className="border-2 border-emerald-400 bg-emerald-50 rounded-xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 md:col-span-2 shadow-2xs">
@@ -1897,9 +1909,9 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                 {/* Meta Fields: Bill No, Dates, Shipment */}
                 <div className="grid grid-cols-2 p-2 gap-x-2 gap-y-1 text-[11px]">
                   <div><span className="font-bold">Bill No.</span> {selectedRecord.billNo || '1'}</div>
-                  <div><span className="font-bold">Mode Of Moving:</span> {selectedRecord.modeOfMoving || 'By Surface'}</div>
+                  <div><span className="font-bold">Mode Of Moving:</span> {selectedRecord.modeOfMoving ?? 'By Surface'}</div>
                   <div><span className="font-bold">Billing Date:</span> {selectedRecord.billDate || selectedRecord.date}</div>
-                  <div><span className="font-bold">Type Of Shipment:</span> {selectedRecord.typeOfShipment || 'Personal Goods'}</div>
+                  <div><span className="font-bold">Type Of Shipment:</span> {selectedRecord.typeOfShipment ?? 'Personal Goods'}</div>
                   <div><span className="font-bold">Lr No.</span> {selectedRecord.lrBiltyNo || ''}</div>
                   <div><span className="font-bold">From:</span> {selectedRecord.fromCity || ''} <span className="font-bold">To:</span> {selectedRecord.toCity || ''}</div>
                   <div><span className="font-bold">Delivery Date:</span> {selectedRecord.goodsDeliveryDate || ''}</div>
@@ -1915,10 +1927,10 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                 <div className="p-2 space-y-0.5 text-[11px]">
                   <div><span className="font-bold">Name:</span> {selectedRecord.partyName}</div>
                   <div><span className="font-bold">Phone:</span> {selectedRecord.mobileNo}</div>
-                  <div><span className="font-bold">State:</span> {selectedRecord.state || 'N/A'}</div>
+                  <div><span className="font-bold">State:</span> {selectedRecord.state ?? 'N/A'}</div>
                   <div><span className="font-bold">Address:</span> {selectedRecord.address}</div>
                   <div>
-                    <span className="font-bold">Pin/City/Country:</span> {selectedRecord.pincode || ''}/{selectedRecord.city || ''}/{selectedRecord.country || 'India'}
+                    <span className="font-bold">Pin/City/Country:</span> {selectedRecord.pincode || ''}/{selectedRecord.city || ''}/{selectedRecord.country ?? 'India'}
                   </div>
                 </div>
 
@@ -1934,14 +1946,14 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                     <div><span className="font-bold">Name:</span> {selectedRecord.consignorName || selectedRecord.partyName}</div>
                     <div><span className="font-bold">Phone:</span> {selectedRecord.consignorPhone || selectedRecord.mobileNo}</div>
                     <div><span className="font-bold">Address:</span> {selectedRecord.consignorAddress || selectedRecord.address}</div>
-                    <div><span className="font-bold">Pin/City/Country:</span> {selectedRecord.fromPincode || ''}/{selectedRecord.fromCity || ''}/{selectedRecord.fromCountry || 'India'}</div>
+                    <div><span className="font-bold">Pin/City/Country:</span> {selectedRecord.fromPincode || ''}/{selectedRecord.fromCity || ''}/{selectedRecord.fromCountry ?? 'India'}</div>
                   </div>
 
                   <div className="p-2 space-y-0.5">
                     <div><span className="font-bold">Name:</span> {selectedRecord.consigneeName || ''}</div>
                     <div><span className="font-bold">Phone:</span> {selectedRecord.consigneePhone || ''}</div>
                     <div><span className="font-bold">Address:</span> {selectedRecord.consigneeAddress || ''}</div>
-                    <div><span className="font-bold">Pin/City/Country:</span> {selectedRecord.toPincode || ''}/{selectedRecord.toCity || ''}/{selectedRecord.toCountry || 'India'}</div>
+                    <div><span className="font-bold">Pin/City/Country:</span> {selectedRecord.toPincode || ''}/{selectedRecord.toCity || ''}/{selectedRecord.toCountry ?? 'India'}</div>
                   </div>
                 </div>
 
@@ -1949,11 +1961,11 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                 <div className="grid grid-cols-2 border-t border-[#1e3a8a] p-2 text-[11px] gap-2">
                   <div>
                     <div className="font-bold underline">Package:</div>
-                    <div>{selectedRecord.packageType || 'As Per List Attached'}</div>
+                    <div>{selectedRecord.packageType ?? 'As Per List Attached'}</div>
                   </div>
                   <div>
                     <div className="font-bold underline">Packages and Goods Description:</div>
-                    <div>{selectedRecord.packageDescription || 'Old & Used Household Goods'}</div>
+                    <div>{selectedRecord.packageDescription ?? 'Old & Used Household Goods'}</div>
                   </div>
                 </div>
 
@@ -1961,11 +1973,11 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                 <div className="grid grid-cols-2 border-t border-[#1e3a8a] p-2 text-[11px] gap-2">
                   <div>
                     <div className="font-bold underline">Total Weight:</div>
-                    <div>{selectedRecord.totalWeight || 'MT'}</div>
+                    <div>{selectedRecord.totalWeight ?? 'MT'}</div>
                   </div>
                   <div>
                     <div className="font-bold underline">Remark:</div>
-                    <div>{selectedRecord.remark || 'Not For Sale'}</div>
+                    <div>{selectedRecord.remark ?? 'Not For Sale'}</div>
                   </div>
                 </div>
 

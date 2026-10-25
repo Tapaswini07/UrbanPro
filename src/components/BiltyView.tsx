@@ -1596,7 +1596,7 @@ export const BiltyView: React.FC<Props> = ({
                     </div>
                     <div className="p-2 text-[9px] leading-tight text-black">
                       <p className="font-bold">Demurrage charge after {selectedRecord.demurrageApplicableAfter || 'Not Applicable'}</p>
-                      <p className="mt-1">{selectedRecord.demurrageCharge ? `@ ₹${selectedRecord.demurrageCharge} ${selectedRecord.demurrageType || 'Per Day'}` : '@ Rupees Per Day'} + handling charges & local transportation charges.</p>
+                      <p className="mt-1">{selectedRecord.demurrageCharge ? `@ ₹${selectedRecord.demurrageCharge} ${selectedRecord.demurrageType || 'Per Day'}` : '@ Rupees Per Day'}</p>
                     </div>
                   </div>
                 </div>
