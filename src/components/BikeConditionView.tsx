@@ -1211,8 +1211,8 @@ export const BikeConditionView: React.FC<Props> = ({
               </div>
             </div>
 
-            {/* Title Bar - ONLY THIS LINE IS BRINJAL PURPLE */}
-            <div className="bg-[#6b21a8] text-white border-b-2 border-[#581c87] text-center py-1.5 text-xs font-black tracking-widest uppercase shadow-xs">
+            {/* Bike condition report title */}
+            <div className="bg-[#1e3a8a] text-white border-b border-[#1e3a8a] text-center py-1.5 text-xs font-black tracking-widest uppercase">
               Bike Condition Inspection Report
             </div>
 

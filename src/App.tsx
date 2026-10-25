@@ -2875,28 +2875,58 @@ export default function App() {
                 {/* Billing & Receipts */}
                 <div>
                   <div className="px-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">BILLING & RECEIPTS</div>
-                  <div className="space-y-1">
-                    <button 
-                      onClick={() => setAdminTab('bill')}
-                      className={`w-full flex items-center gap-2.5 px-3.5 py-2 rounded-lg text-sm transition-colors cursor-pointer ${adminTab === 'bill' ? 'bg-blue-600 text-white font-semibold' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
-                    >
-                      <FileText className="w-4 h-4 text-amber-400" />
-                      <span>Bill / Tax Invoice</span>
-                    </button>
-                    <button 
-                      onClick={() => setAdminTab('money-receipt')}
-                      className={`w-full flex items-center gap-2.5 px-3.5 py-2 rounded-lg text-sm transition-colors cursor-pointer ${adminTab === 'money-receipt' ? 'bg-blue-600 text-white font-semibold' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
-                    >
-                      <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                      <span>Money Receipt</span>
-                    </button>
-                    <button 
-                      onClick={() => setAdminTab('payment-voucher')}
-                      className={`w-full flex items-center gap-2.5 px-3.5 py-2 rounded-lg text-sm transition-colors cursor-pointer ${adminTab === 'payment-voucher' ? 'bg-blue-600 text-white font-semibold' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
-                    >
-                      <Clock className="w-4 h-4 text-purple-400" />
-                      <span>Payment Voucher</span>
-                    </button>
+                  <div className="space-y-3">
+                    <div className="space-y-1">
+                      <div className="px-3 text-xs font-semibold text-slate-300">Bill / Tax Invoice</div>
+                      <button
+                        onClick={() => setAdminTab('add-bill')}
+                        className={`w-full flex items-center gap-2.5 px-3.5 py-2 rounded-lg text-sm transition-colors cursor-pointer ${adminTab === 'add-bill' ? 'bg-blue-600 text-white font-semibold' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
+                      >
+                        <PlusCircle className="w-4 h-4 text-amber-400" />
+                        <span>Add Bill</span>
+                      </button>
+                      <button
+                        onClick={() => setAdminTab('list-bill')}
+                        className={`w-full flex items-center gap-2.5 px-3.5 py-2 rounded-lg text-sm transition-colors cursor-pointer ${adminTab === 'list-bill' ? 'bg-blue-600 text-white font-semibold' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
+                      >
+                        <FileText className="w-4 h-4 text-amber-400" />
+                        <span>All Bills</span>
+                      </button>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="px-3 text-xs font-semibold text-slate-300">Money Receipt</div>
+                      <button
+                        onClick={() => setAdminTab('add-money-receipt')}
+                        className={`w-full flex items-center gap-2.5 px-3.5 py-2 rounded-lg text-sm transition-colors cursor-pointer ${adminTab === 'add-money-receipt' ? 'bg-blue-600 text-white font-semibold' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
+                      >
+                        <PlusCircle className="w-4 h-4 text-emerald-400" />
+                        <span>Add Money Receipt</span>
+                      </button>
+                      <button
+                        onClick={() => setAdminTab('list-money-receipt')}
+                        className={`w-full flex items-center gap-2.5 px-3.5 py-2 rounded-lg text-sm transition-colors cursor-pointer ${adminTab === 'list-money-receipt' ? 'bg-blue-600 text-white font-semibold' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
+                      >
+                        <FileText className="w-4 h-4 text-emerald-400" />
+                        <span>All Money Receipts</span>
+                      </button>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="px-3 text-xs font-semibold text-slate-300">Payment Voucher</div>
+                      <button
+                        onClick={() => setAdminTab('add-payment-voucher')}
+                        className={`w-full flex items-center gap-2.5 px-3.5 py-2 rounded-lg text-sm transition-colors cursor-pointer ${adminTab === 'add-payment-voucher' ? 'bg-blue-600 text-white font-semibold' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
+                      >
+                        <PlusCircle className="w-4 h-4 text-purple-400" />
+                        <span>Add Payment Voucher</span>
+                      </button>
+                      <button
+                        onClick={() => setAdminTab('list-payment-voucher')}
+                        className={`w-full flex items-center gap-2.5 px-3.5 py-2 rounded-lg text-sm transition-colors cursor-pointer ${adminTab === 'list-payment-voucher' ? 'bg-blue-600 text-white font-semibold' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
+                      >
+                        <FileText className="w-4 h-4 text-purple-400" />
+                        <span>All Payment Vouchers</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -5249,7 +5279,7 @@ export default function App() {
                             <button 
                               type="button"
                               onClick={() => {
-                                setAdminTab('bill');
+                                setAdminTab('add-bill');
                                 setShareToast(`Opening Bill view — Select Quotation #${quotation.quotationNo} from auto-fill to import!`);
                                 setTimeout(() => setShareToast(null), 3500);
                               }}
@@ -6162,9 +6192,10 @@ export default function App() {
               )}
 
               {/* BILL / TAX INVOICE VIEW */}
-              {adminTab === 'bill' && (
+              {(adminTab === 'add-bill' || adminTab === 'list-bill') && (
                 <BillView
                   bills={bills}
+                  initialViewMode={adminTab === 'list-bill' ? 'list' : 'form'}
                   quotations={quotations}
                   onSave={(rec) => {
                     const exists = bills.some(b => b.id === rec.id);
@@ -6188,9 +6219,10 @@ export default function App() {
               )}
 
               {/* MONEY RECEIPT VIEW */}
-              {adminTab === 'money-receipt' && (
+              {(adminTab === 'add-money-receipt' || adminTab === 'list-money-receipt') && (
                 <MoneyReceiptView
                   moneyReceipts={moneyReceipts}
+                  initialViewMode={adminTab === 'list-money-receipt' ? 'list' : 'form'}
                   onSave={(rec) => {
                     const exists = moneyReceipts.some(m => m.id === rec.id);
                     if (exists) {
@@ -6213,9 +6245,10 @@ export default function App() {
               )}
 
               {/* PAYMENT VOUCHER VIEW */}
-              {adminTab === 'payment-voucher' && (
+              {(adminTab === 'add-payment-voucher' || adminTab === 'list-payment-voucher') && (
                 <PaymentVoucherView
                   vouchers={vouchers}
+                  initialViewMode={adminTab === 'list-payment-voucher' ? 'list' : 'form'}
                   customerProfiles={customerProfiles}
                   onSave={(rec) => {
                     const exists = vouchers.some(v => v.id === rec.id);
@@ -6320,8 +6353,8 @@ export default function App() {
           </button>
           <button 
             type="button"
-            onClick={() => handleTabSelect('bill')} 
-            className={`flex flex-col items-center py-1 px-2.5 rounded-xl text-[10px] font-medium transition-colors relative cursor-pointer ${adminTab === 'bill' ? 'text-blue-400 font-bold bg-blue-950/60' : 'text-slate-400 hover:text-slate-200'}`}
+            onClick={() => handleTabSelect('list-bill')}
+            className={`flex flex-col items-center py-1 px-2.5 rounded-xl text-[10px] font-medium transition-colors relative cursor-pointer ${adminTab.includes('bill') ? 'text-blue-400 font-bold bg-blue-950/60' : 'text-slate-400 hover:text-slate-200'}`}
           >
             <FileText className="w-5 h-5 mb-0.5" />
             <span>GST Bills</span>

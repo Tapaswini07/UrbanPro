@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Printer, Save, Plus, FileText, Search, Trash2, Pencil, Share2, Phone, Download, Check, ExternalLink, Loader2 } from 'lucide-react';
 import { UPL_LOGO_BASE64 } from '../assets/logoBase64';
 import { PRAKASH_SIGNATURE_BASE64 } from '../assets/signatureBase64';
@@ -24,6 +24,7 @@ export interface PaymentVoucherData {
 
 interface Props {
   vouchers: PaymentVoucherData[];
+  initialViewMode?: 'form' | 'list';
   onSave: (data: PaymentVoucherData) => void;
   onDelete: (id: string) => void;
   customerProfiles?: any[];
@@ -50,8 +51,8 @@ function numberToWords(num: number): string {
   return inWords(Math.round(num)) + ' Only';
 }
 
-export const PaymentVoucherView: React.FC<Props> = ({ vouchers, onSave, onDelete, customerProfiles = [], globalSignature, companyProfile }) => {
-  const [viewMode, setViewMode] = useState<'form' | 'list' | 'preview'>('form');
+export const PaymentVoucherView: React.FC<Props> = ({ vouchers, initialViewMode = 'form', onSave, onDelete, customerProfiles = [], globalSignature, companyProfile }) => {
+  const [viewMode, setViewMode] = useState<'form' | 'list' | 'preview'>(initialViewMode);
   const [selectedRecord, setSelectedRecord] = useState<PaymentVoucherData | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [isDownloading, setIsDownloading] = useState(false);
@@ -135,6 +136,20 @@ export const PaymentVoucherView: React.FC<Props> = ({ vouchers, onSave, onDelete
   };
 
   const [form, setForm] = useState<PaymentVoucherData>(initialForm);
+
+  useEffect(() => {
+    setViewMode(initialViewMode);
+    if (initialViewMode === 'form') {
+      setForm({
+        ...initialForm,
+        id: `pv-${Date.now()}`,
+        voucherNo: `${vouchers.length + 1}`,
+        amount: 0,
+        payFor: '',
+      });
+      setSelectedRecord(null);
+    }
+  }, [initialViewMode]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -651,8 +666,8 @@ export const PaymentVoucherView: React.FC<Props> = ({ vouchers, onSave, onDelete
               </div>
             </div>
 
-            {/* Payment Voucher Title Banner Line (Light Grey / White) */}
-            <div className="bg-slate-100 text-slate-900 border border-slate-300 text-center font-bold text-sm py-1.5 uppercase tracking-wide">
+            {/* Payment Voucher title banner */}
+            <div className="bg-[#1e3a8a] text-white border border-[#1e3a8a] text-center font-bold text-sm py-1.5 uppercase tracking-wide">
               Payment Voucher
             </div>
 

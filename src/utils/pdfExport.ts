@@ -369,7 +369,7 @@ export function openElementInPrintWindow(element: HTMLElement, title: string = '
         <style>
           @page {
             size: A4 portrait;
-            margin: 8mm;
+            margin: 0;
           }
 
           html, body {

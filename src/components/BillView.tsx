@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   FileText, 
   Printer, 
@@ -147,6 +147,7 @@ export interface BillData {
 
 interface Props {
   bills: BillData[];
+  initialViewMode?: 'form' | 'list';
   onSave: (data: BillData) => void;
   onDelete: (id: string) => void;
   quotations?: any[];
@@ -175,6 +176,7 @@ function numberToWordsIndian(num: number): string {
 
 export const BillView: React.FC<Props> = ({ 
   bills, 
+  initialViewMode = 'form',
   onSave, 
   onDelete, 
   quotations = [],
@@ -182,7 +184,7 @@ export const BillView: React.FC<Props> = ({
   globalSignature,
   companyProfile 
 }) => {
-  const [viewMode, setViewMode] = useState<'form' | 'list' | 'preview'>('form');
+  const [viewMode, setViewMode] = useState<'form' | 'list' | 'preview'>(initialViewMode);
   const [selectedRecord, setSelectedRecord] = useState<BillData | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [isDownloading, setIsDownloading] = useState(false);
@@ -308,6 +310,14 @@ export const BillView: React.FC<Props> = ({
   };
 
   const [form, setForm] = useState<BillData>(initialForm);
+
+  useEffect(() => {
+    setViewMode(initialViewMode);
+    if (initialViewMode === 'form') {
+      setForm({ ...initialForm, id: `bill-${Date.now()}`, billNo: `${bills.length + 1}` });
+      setSelectedRecord(null);
+    }
+  }, [initialViewMode]);
 
   const billChargeItems: { label: string; key: BillChargeKey }[] = [
     { label: 'Transportation Charges', key: 'freightAmount' },

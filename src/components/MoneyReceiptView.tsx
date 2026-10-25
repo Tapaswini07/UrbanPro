@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Printer, Save, Plus, FileText, Sparkles, Building2, Download, Check, ExternalLink, Loader2, Share2 } from 'lucide-react';
 import { UPL_LOGO_BASE64 } from '../assets/logoBase64';
 import { PRAKASH_SIGNATURE_BASE64 } from '../assets/signatureBase64';
@@ -39,6 +39,7 @@ export interface MoneyReceiptData {
 
 interface Props {
   moneyReceipts: MoneyReceiptData[];
+  initialViewMode?: 'form' | 'list';
   onSave: (data: MoneyReceiptData) => void;
   onDelete: (id: string) => void;
   customerProfiles?: any[];
@@ -65,13 +66,14 @@ function numberToWordsRupees(num: number): string {
 
 export const MoneyReceiptView: React.FC<Props> = ({ 
   moneyReceipts, 
+  initialViewMode = 'form',
   onSave, 
   onDelete, 
   customerProfiles = [], 
   globalSignature,
   companyProfile
 }) => {
-  const [viewMode, setViewMode] = useState<'form' | 'list' | 'preview'>('form');
+  const [viewMode, setViewMode] = useState<'form' | 'list' | 'preview'>(initialViewMode);
   const [selectedRecord, setSelectedRecord] = useState<MoneyReceiptData | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
@@ -136,6 +138,14 @@ export const MoneyReceiptView: React.FC<Props> = ({
   };
 
   const [form, setForm] = useState<MoneyReceiptData>(initialForm);
+
+  useEffect(() => {
+    setViewMode(initialViewMode);
+    if (initialViewMode === 'form') {
+      setForm({ ...initialForm, id: `mr-${Date.now()}`, receiptNo: `${moneyReceipts.length + 1}` });
+      setSelectedRecord(null);
+    }
+  }, [initialViewMode]);
 
   const handleAmountChange = (val: number) => {
     setForm(prev => ({
@@ -684,8 +694,8 @@ export const MoneyReceiptView: React.FC<Props> = ({
               </div>
             </div>
 
-            {/* Olive Color Money Receipt Banner Line with WHITE text */}
-            <div className="bg-[#6b8e23] text-white py-1.5 text-center font-bold text-sm tracking-widest uppercase shadow-xs" style={{ backgroundColor: '#6b8e23' }}>
+            {/* Money Receipt title banner */}
+            <div className="bg-[#1e3a8a] text-white py-1.5 text-center font-bold text-sm tracking-widest uppercase">
               <span style={{ color: '#ffffff', fontWeight: 'bold' }}>M.R. (Money Receipt)</span>
             </div>
 

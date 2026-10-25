@@ -66,6 +66,25 @@
   --color-rose-700: #be123c;
 }
 
+#quotation-page-1,
+#quotation-page-2,
+#printable-survey-pdf,
+#printable-packing-list-pdf,
+#printable-bilty-pdf,
+#printable-bill-invoice-pdf,
+#printable-car-condition-pdf,
+#printable-bike-condition-pdf,
+#printable-money-receipt-pdf,
+#printable-payment-voucher-pdf {
+  width: 794px;
+  max-width: 794px;
+  box-sizing: border-box;
+  margin-left: auto;
+  margin-right: auto;
+  background-color: #ffffff;
+  color: #0f172a;
+}
+
 @media print {
   html, body {
     background: #ffffff !important;
@@ -114,6 +133,7 @@
   #printable-payment-voucher-pdf {
     width: 794px !important;
     max-width: 794px !important;
+    box-sizing: border-box !important;
     margin: 0 auto !important;
     box-shadow: none !important;
     transform: none !important;
@@ -121,7 +141,6 @@
     print-color-adjust: exact !important;
     break-inside: avoid !important;
     page-break-inside: avoid !important;
-    display: flex !important;
   }
 
   #quotation-page-1 {
