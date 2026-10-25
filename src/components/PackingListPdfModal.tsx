@@ -248,8 +248,8 @@ export const PackingListPdfModal: React.FC<PackingListPdfModalProps> = ({
               </div>
             </div>
 
-            {/* Packing List Title Bar in Maroon */}
-            <div className="bg-[#1e3a8a] text-center font-bold py-1.5 border-b border-[#1e3a8a] text-[12px] text-white tracking-wide">
+            {/* Packing List Title Bar in Black */}
+            <div className="bg-black text-center font-bold py-1.5 border-b border-black text-[12px] text-white tracking-wide">
               Packing List
             </div>
 

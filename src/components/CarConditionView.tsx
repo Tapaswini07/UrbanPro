@@ -1216,7 +1216,7 @@ export const CarConditionView: React.FC<Props> = ({ carConditions, onSave, onDel
             </div>
 
             {/* Car condition report title */}
-            <div className="bg-[#1e3a8a] text-white border-b border-[#1e3a8a] py-1.5 text-center font-black text-sm tracking-widest uppercase">
+            <div className="bg-[#ede9fe] text-[#4c1d95] border-b border-[#c4b5fd] py-1.5 text-center font-black text-sm tracking-widest uppercase">
               Car Condition Inspection Report
             </div>
 

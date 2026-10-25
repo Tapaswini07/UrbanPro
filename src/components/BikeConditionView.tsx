@@ -1212,7 +1212,7 @@ export const BikeConditionView: React.FC<Props> = ({
             </div>
 
             {/* Bike condition report title */}
-            <div className="bg-[#1e3a8a] text-white border-b border-[#1e3a8a] text-center py-1.5 text-xs font-black tracking-widest uppercase">
+            <div className="bg-[#7f1d1d] text-white border-b border-[#631717] text-center py-1.5 text-xs font-black tracking-widest uppercase">
               Bike Condition Inspection Report
             </div>
 

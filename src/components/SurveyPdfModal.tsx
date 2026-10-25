@@ -358,7 +358,7 @@ export const SurveyPdfModal: React.FC<SurveyPdfModalProps> = ({ survey, onClose,
             </div>
 
             {/* Survey List Title Bar */}
-            <div className="bg-[#1e3a8a] text-center font-bold py-1.5 border-b border-[#1e3a8a] text-[12px] text-white tracking-wide">
+            <div className="bg-[#bae6fd] text-center font-bold py-1.5 border-b border-[#1e3a8a] text-[12px] text-slate-900 tracking-wide">
               Survey List
             </div>
 

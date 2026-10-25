@@ -695,7 +695,7 @@ export const MoneyReceiptView: React.FC<Props> = ({
             </div>
 
             {/* Money Receipt title banner */}
-            <div className="bg-[#1e3a8a] text-white py-1.5 text-center font-bold text-sm tracking-widest uppercase">
+            <div className="bg-[#6b7280] text-white py-1.5 text-center font-bold text-sm tracking-widest uppercase">
               <span style={{ color: '#ffffff', fontWeight: 'bold' }}>M.R. (Money Receipt)</span>
             </div>
 

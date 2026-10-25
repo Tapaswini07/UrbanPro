@@ -1467,7 +1467,7 @@ export const BiltyView: React.FC<Props> = ({
             </div>
 
             {/* Bilty Title Bar in Yellow */}
-            <div className="bg-[#1e3a8a] text-center font-bold py-1 border-b border-[#1e3a8a] text-[12px] text-white tracking-wide">
+            <div className="bg-[#fef08a] text-center font-bold py-1 border-b border-[#1e3a8a] text-[12px] text-slate-900 tracking-wide">
               Bilty (Lorry Receipt)
             </div>
 

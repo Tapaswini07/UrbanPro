@@ -667,7 +667,7 @@ export const PaymentVoucherView: React.FC<Props> = ({ vouchers, initialViewMode 
             </div>
 
             {/* Payment Voucher title banner */}
-            <div className="bg-[#1e3a8a] text-white border border-[#1e3a8a] text-center font-bold text-sm py-1.5 uppercase tracking-wide">
+            <div className="bg-[#16a34a] text-white border border-[#15803d] text-center font-bold text-sm py-1.5 uppercase tracking-wide">
               Payment Voucher
             </div>
 

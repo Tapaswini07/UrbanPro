@@ -85,6 +85,37 @@
   color: #0f172a;
 }
 
+#quotation-page-1 > div:first-child h1,
+#quotation-page-2 > div:first-child h1,
+#printable-survey-pdf > div:first-child h1,
+#printable-packing-list-pdf > div:first-child h1,
+#printable-bilty-pdf > div:first-child h1,
+#printable-bill-invoice-pdf > div:first-child h1,
+#printable-car-condition-pdf > div:first-child h1,
+#printable-bike-condition-pdf > div:first-child h1,
+#printable-money-receipt-pdf > div:first-child h1,
+#printable-payment-voucher-pdf > div:first-child h1 {
+  font-family: "Times New Roman", Times, serif;
+  font-size: 28px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+}
+
+#quotation-page-1 > div:first-child h2,
+#quotation-page-2 > div:first-child h2,
+#printable-survey-pdf > div:first-child h2,
+#printable-packing-list-pdf > div:first-child h2,
+#printable-bilty-pdf > div:first-child h2,
+#printable-bill-invoice-pdf > div:first-child h2,
+#printable-car-condition-pdf > div:first-child h2,
+#printable-bike-condition-pdf > div:first-child h2,
+#printable-money-receipt-pdf > div:first-child h2,
+#printable-payment-voucher-pdf > div:first-child h2 {
+  font-size: 15px !important;
+  font-weight: 900 !important;
+  line-height: 1.1 !important;
+}
+
 @media print {
   html, body {
     background: #ffffff !important;

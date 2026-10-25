@@ -1906,7 +1906,7 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
             </div>
 
             {/* Title Bar */}
-            <div className="bg-[#1e3a8a] border-b border-[#1e3a8a] text-center py-1 text-xs font-black tracking-wider uppercase text-white">
+            <div className="bg-[#fee2e2] border-b border-[#b91c1c] text-center py-1 text-xs font-black tracking-wider uppercase text-[#991b1b]">
               Bill
             </div>
 
