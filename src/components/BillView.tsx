@@ -32,9 +32,30 @@ import { PRAKASH_SIGNATURE_BASE64 } from '../assets/signatureBase64';
 import { downloadPdfFromElement, openElementInPrintWindow } from '../utils/pdfExport';
 import { shareDocument } from '../utils/shareUtils';
 import { INDIAN_STATES, getStateCodeByName } from '../utils/indianStates';
-import { calculateQuotationTotals, parseChargeNumber } from '../utils/quotationCalculations';
+import { calculateQuotationTotals, parseChargeDetails } from '../utils/quotationCalculations';
 import { findCustomerProfileByMobile } from '../utils/customerLookup';
 import { RecordLookup } from './RecordLookup';
+
+type BillChargeKey =
+  | 'freightAmount'
+  | 'packingCharges'
+  | 'unpackingCharges'
+  | 'loadingCharges'
+  | 'unloadingCharges'
+  | 'dismantlingCharges'
+  | 'octroiCharges'
+  | 'carTransportationCharges'
+  | 'bikeTransportationCharges'
+  | 'statCharges';
+
+type BillChargeStatus = 'standard' | 'included' | 'excluded';
+
+interface BillCustomCharge {
+  id: string;
+  name: string;
+  amount: number;
+  status: BillChargeStatus;
+}
 
 export interface BillData {
   id: string;
@@ -107,6 +128,8 @@ export interface BillData {
   carTransportationCharges: number;
   bikeTransportationCharges: number;
   statCharges: number;
+  chargeStatuses?: Partial<Record<BillChargeKey, BillChargeStatus>>;
+  customCharges?: BillCustomCharge[];
 
   // Service/Insurance/GST
   serviceChargePercent: number;
@@ -268,10 +291,12 @@ export const BillView: React.FC<Props> = ({
     carTransportationCharges: 0,
     bikeTransportationCharges: 0,
     statCharges: 0,
+    chargeStatuses: {},
+    customCharges: [],
 
     serviceChargePercent: 0,
     serviceCharge: 0,
-    insurancePercent: 0,
+    insurancePercent: 3,
     goodsValue: 0,
     insuranceCharges: 0,
     gstType: 'CGST/SGST',
@@ -284,6 +309,19 @@ export const BillView: React.FC<Props> = ({
 
   const [form, setForm] = useState<BillData>(initialForm);
 
+  const billChargeItems: { label: string; key: BillChargeKey }[] = [
+    { label: 'Transportation Charges', key: 'freightAmount' },
+    { label: 'Packing Charges', key: 'packingCharges' },
+    { label: 'Unpacking Charges', key: 'unpackingCharges' },
+    { label: 'Loading Charges', key: 'loadingCharges' },
+    { label: 'Unloading Charges', key: 'unloadingCharges' },
+    { label: 'Dismantling/Assembling Charges', key: 'dismantlingCharges' },
+    { label: 'Octroi/Entry Charges', key: 'octroiCharges' },
+    { label: 'Car Transportation Charges', key: 'carTransportationCharges' },
+    { label: 'Bike Transportation Charges', key: 'bikeTransportationCharges' },
+    { label: 'Statistical/Document Charges', key: 'statCharges' },
+  ];
+
   // Calculations
   const calcInsuranceAmt = (f: BillData) => {
     const goodsValue = Number(f.goodsValue) || 0;
@@ -292,18 +330,14 @@ export const BillView: React.FC<Props> = ({
   };
 
   const calcSubTotal = (f: BillData) => {
-    return (
-      (Number(f.freightAmount) || 0) +
-      (Number(f.packingCharges) || 0) +
-      (Number(f.unpackingCharges) || 0) +
-      (Number(f.loadingCharges) || 0) +
-      (Number(f.unloadingCharges) || 0) +
-      (Number(f.dismantlingCharges) || 0) +
-      (Number(f.octroiCharges) || 0) +
-      (Number(f.carTransportationCharges) || 0) +
-      (Number(f.bikeTransportationCharges) || 0) +
-      (Number(f.statCharges) || 0)
-    );
+    const standardTotal = billChargeItems.reduce((total, item) => {
+      if (f.chargeStatuses?.[item.key] === 'excluded') return total;
+      return total + (Number(f[item.key]) || 0);
+    }, 0);
+    const customTotal = (f.customCharges || []).reduce((total, charge) => (
+      charge.status === 'excluded' ? total : total + (Number(charge.amount) || 0)
+    ), 0);
+    return standardTotal + customTotal;
   };
 
   const calcGstAmt = (f: BillData) => {
@@ -399,16 +433,37 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
       toPincode: quot.toPincode || prev.toPincode,
       toFloor: quot.toFloor || prev.toFloor,
       goodsDeliveryDate: quot.deliveryDate || prev.goodsDeliveryDate,
-      freightAmount: parseChargeNumber(quot.transportCharges),
-      packingCharges: parseChargeNumber(quot.packingCharges),
-      unpackingCharges: parseChargeNumber(quot.unpackingCharges),
-      loadingCharges: parseChargeNumber(quot.loadingCharges),
-      unloadingCharges: parseChargeNumber(quot.unloadingCharges),
-      dismantlingCharges: parseChargeNumber(quot.dismantlingCharges),
-      octroiCharges: parseChargeNumber(quot.octroiCharges),
-      carTransportationCharges: parseChargeNumber(quot.carCharges),
-      bikeTransportationCharges: parseChargeNumber(quot.bikeCharges),
-      statCharges: parseChargeNumber(quot.statCharges),
+      freightAmount: parseChargeDetails(quot.transportCharges).amount,
+      packingCharges: parseChargeDetails(quot.packingCharges).amount,
+      unpackingCharges: parseChargeDetails(quot.unpackingCharges).amount,
+      loadingCharges: parseChargeDetails(quot.loadingCharges).amount,
+      unloadingCharges: parseChargeDetails(quot.unloadingCharges).amount,
+      dismantlingCharges: parseChargeDetails(quot.dismantlingCharges).amount,
+      octroiCharges: parseChargeDetails(quot.octroiCharges).amount,
+      carTransportationCharges: parseChargeDetails(quot.carCharges).amount,
+      bikeTransportationCharges: parseChargeDetails(quot.bikeCharges).amount,
+      statCharges: parseChargeDetails(quot.statCharges).amount,
+      chargeStatuses: {
+        freightAmount: parseChargeDetails(quot.transportCharges).status,
+        packingCharges: parseChargeDetails(quot.packingCharges).status,
+        unpackingCharges: parseChargeDetails(quot.unpackingCharges).status,
+        loadingCharges: parseChargeDetails(quot.loadingCharges).status,
+        unloadingCharges: parseChargeDetails(quot.unloadingCharges).status,
+        dismantlingCharges: parseChargeDetails(quot.dismantlingCharges).status,
+        octroiCharges: parseChargeDetails(quot.octroiCharges).status,
+        carTransportationCharges: parseChargeDetails(quot.carCharges).status,
+        bikeTransportationCharges: parseChargeDetails(quot.bikeCharges).status,
+        statCharges: parseChargeDetails(quot.statCharges).status,
+      },
+      customCharges: (quot.customCharges || []).map((charge: { name: string; val: string }, index: number) => {
+        const parsed = parseChargeDetails(charge.val);
+        return {
+          id: `quotation-charge-${index}-${Date.now()}`,
+          name: charge.name,
+          amount: parsed.amount,
+          status: parsed.status,
+        };
+      }),
       serviceChargePercent: parseFloat(String(quot.serviceChargePercent || '0').replace(/[^0-9.]/g, '')) || 0,
       serviceCharge: totals.serviceChargeNum,
       goodsValue: parseFloat(String(quot.goodsValue || '0').replace(/[^0-9.]/g, '')) || 0,
@@ -1219,33 +1274,167 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
             </span>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {[
-                { label: 'Transportation Charges', key: 'freightAmount' },
-                { label: 'Packing Charges', key: 'packingCharges' },
-                { label: 'Unpacking Charges', key: 'unpackingCharges' },
-                { label: 'Loading Charges', key: 'loadingCharges' },
-                { label: 'Unloading Charges', key: 'unloadingCharges' },
-                { label: 'Dismantling/Assembling Charges', key: 'dismantlingCharges' },
-                { label: 'Octroi/Entry Charges', key: 'octroiCharges' },
-                { label: 'Statistical/Document Charges', key: 'statCharges' },
-              ].map((item, idx) => (
-                <div key={idx} className="border border-slate-300 rounded-xl p-3 bg-white flex items-center justify-between gap-2">
-                  <div className="flex-1">
-                    <label className="block text-xs font-semibold text-slate-600 mb-1">
-                      {item.label}
-                    </label>
+              {billChargeItems.map(item => {
+                const status = form.chargeStatuses?.[item.key] || 'standard';
+                const setChargeStatus = (nextStatus: 'included' | 'excluded') => {
+                  setForm({
+                    ...form,
+                    chargeStatuses: {
+                      ...form.chargeStatuses,
+                      [item.key]: status === nextStatus ? 'standard' : nextStatus,
+                    },
+                  });
+                };
+
+                return (
+                  <div key={item.key} className="border border-slate-300 rounded-xl p-3 bg-white">
+                    <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                      <label className="text-xs font-semibold text-slate-600">{item.label}</label>
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => setChargeStatus('included')}
+                          className={`px-2 py-0.5 rounded text-[10px] font-bold border transition-colors ${
+                            status === 'included'
+                              ? 'bg-emerald-600 text-white border-emerald-600'
+                              : 'bg-white text-emerald-700 border-emerald-300 hover:bg-emerald-50'
+                          }`}
+                        >
+                          Included
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setChargeStatus('excluded')}
+                          className={`px-2 py-0.5 rounded text-[10px] font-bold border transition-colors ${
+                            status === 'excluded'
+                              ? 'bg-rose-600 text-white border-rose-600'
+                              : 'bg-white text-rose-700 border-rose-300 hover:bg-rose-50'
+                          }`}
+                        >
+                          Excluded
+                        </button>
+                      </div>
+                    </div>
                     <input
                       type="number"
-                      value={(form as any)[item.key]}
+                      min="0"
+                      value={form[item.key] || ''}
                       onChange={e => setForm({ ...form, [item.key]: parseFloat(e.target.value) || 0 })}
+                      placeholder="₹ Enter amount"
                       className="w-full outline-none font-bold text-slate-900 text-sm"
                     />
                   </div>
-                  <div className="w-8 h-8 rounded-full bg-sky-50 text-sky-600 border border-sky-200 flex items-center justify-center shrink-0">
-                    <Pencil className="w-3.5 h-3.5" />
-                  </div>
+                );
+              })}
+            </div>
+
+            <div className="mt-5 pt-4 border-t border-sky-100">
+              <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+                <div>
+                  <h4 className="text-xs font-bold uppercase tracking-wide text-slate-800">Custom / Additional Charges</h4>
+                  <p className="text-[11px] text-slate-500">Add extra charges to the bill; excluded items will not be added to the subtotal.</p>
                 </div>
-              ))}
+                <button
+                  type="button"
+                  onClick={() => setForm({
+                    ...form,
+                    customCharges: [
+                      ...(form.customCharges || []),
+                      { id: `bill-charge-${Date.now()}`, name: '', amount: 0, status: 'standard' },
+                    ],
+                  })}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-sky-600 px-3 py-2 text-xs font-bold text-white hover:bg-sky-700"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  Add New Charge
+                </button>
+              </div>
+              {(form.customCharges || []).length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {(form.customCharges || []).map(charge => (
+                    <div key={charge.id} className="rounded-xl border border-slate-300 bg-white p-3">
+                      <div className="flex items-center gap-2 mb-2">
+                        <input
+                          type="text"
+                          value={charge.name}
+                          onChange={e => setForm({
+                            ...form,
+                            customCharges: (form.customCharges || []).map(item => (
+                              item.id === charge.id ? { ...item, name: e.target.value } : item
+                            )),
+                          })}
+                          placeholder="Charge name"
+                          className="min-w-0 flex-1 rounded border border-slate-200 px-2 py-1 text-xs font-semibold outline-none focus:border-sky-500"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setForm({
+                            ...form,
+                            customCharges: (form.customCharges || []).filter(item => item.id !== charge.id),
+                          })}
+                          aria-label={`Remove ${charge.name || 'custom charge'}`}
+                          className="rounded p-1 text-rose-600 hover:bg-rose-50"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <input
+                          type="number"
+                          min="0"
+                          value={charge.amount || ''}
+                          onChange={e => setForm({
+                            ...form,
+                            customCharges: (form.customCharges || []).map(item => (
+                              item.id === charge.id ? { ...item, amount: parseFloat(e.target.value) || 0 } : item
+                            )),
+                          })}
+                          placeholder="₹ Enter amount"
+                          className="min-w-[120px] flex-1 rounded border border-slate-200 px-2 py-1 text-sm font-bold outline-none focus:border-sky-500"
+                        />
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => setForm({
+                              ...form,
+                              customCharges: (form.customCharges || []).map(item => (
+                                item.id === charge.id
+                                  ? { ...item, status: item.status === 'included' ? 'standard' : 'included' }
+                                  : item
+                              )),
+                            })}
+                            className={`rounded border px-2 py-1 text-[10px] font-bold ${
+                              charge.status === 'included'
+                                ? 'border-emerald-600 bg-emerald-600 text-white'
+                                : 'border-emerald-300 text-emerald-700 hover:bg-emerald-50'
+                            }`}
+                          >
+                            Included
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setForm({
+                              ...form,
+                              customCharges: (form.customCharges || []).map(item => (
+                                item.id === charge.id
+                                  ? { ...item, status: item.status === 'excluded' ? 'standard' : 'excluded' }
+                                  : item
+                              )),
+                            })}
+                            className={`rounded border px-2 py-1 text-[10px] font-bold ${
+                              charge.status === 'excluded'
+                                ? 'border-rose-600 bg-rose-600 text-white'
+                                : 'border-rose-300 text-rose-700 hover:bg-rose-50'
+                            }`}
+                          >
+                            Excluded
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
@@ -1337,12 +1526,18 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                   <option value={18}>18%</option>
                   <option value={12}>12%</option>
                   <option value={5}>5%</option>
+                  <option value={3}>3%</option>
                   <option value={0}>0%</option>
                 </select>
               </div>
 
               <div className="border-2 border-emerald-400 bg-emerald-50 rounded-xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 md:col-span-2 shadow-2xs">
                 <div className="flex-1">
+                  <div className="flex flex-wrap gap-x-5 gap-y-1 text-xs font-semibold text-slate-700 mb-2">
+                    <span>Charge Subtotal: ₹{calcSubTotal(form).toLocaleString()}</span>
+                    <span>Insurance ({form.insurancePercent || 0}%): ₹{calcInsuranceAmt(form).toLocaleString()}</span>
+                    <span>GST ({form.gstRate || 0}% on subtotal): ₹{calcGstAmt(form).toLocaleString()}</span>
+                  </div>
                   <div className="flex items-center justify-between mb-1">
                     <label className="block text-xs font-bold text-emerald-950 uppercase tracking-wide">
                       Total Payable Bill Amount (Grand Total ₹) *
@@ -1697,7 +1892,7 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
             <div className="grid grid-cols-1 md:grid-cols-12 border-b border-[#1e3a8a] text-[11px]">
               
               {/* Left Column: Meta, Bill To, Relocate Details, Package */}
-              <div className="md:col-span-7 border-r border-[#1e3a8a] flex flex-col justify-between">
+              <div className="md:col-span-6 border-r border-[#1e3a8a] flex flex-col justify-between">
                 
                 {/* Meta Fields: Bill No, Dates, Shipment */}
                 <div className="grid grid-cols-2 p-2 gap-x-2 gap-y-1 text-[11px]">
@@ -1776,7 +1971,10 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
 
                 {/* Insurance charge note */}
                 <div className="border-t border-[#1e3a8a] p-2 text-[11px]">
-                  <span className="font-bold">Insurance charge @{selectedRecord.insurancePercent || 0}% on declaration value of goods ₹</span> {calcInsuranceAmt(selectedRecord).toLocaleString()}
+                  <span className="font-bold">
+                    Insurance: {selectedRecord.insurancePercent || 0}% of declared goods value ₹{Number(selectedRecord.goodsValue || 0).toLocaleString()}
+                    {' = '}₹{calcInsuranceAmt(selectedRecord).toLocaleString()}
+                  </span>
                 </div>
 
                 {/* Total Amount in Words */}
@@ -1788,76 +1986,76 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
               </div>
 
               {/* Right Column: Particulars & Amounts Table */}
-              <div className="md:col-span-5 flex flex-col justify-between">
-                <table className="w-full text-left border-collapse text-[11px]">
+              <div className="md:col-span-6 flex flex-col justify-between">
+                <table className="w-full text-left border-collapse text-[10px]">
                   <thead>
                     <tr className="border-b border-[#1e3a8a] bg-slate-50 font-bold">
-                      <th className="p-1.5 border-r border-[#1e3a8a]">Particulars</th>
-                      <th className="p-1.5 text-right w-24">Amount</th>
+                      <th className="p-1 border-r border-[#1e3a8a] w-[56%]">Charge Details</th>
+                      <th className="p-1 border-r border-[#1e3a8a] text-center w-[22%]">Status</th>
+                      <th className="p-1 text-right w-[22%]">Amount</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#1e3a8a]/40">
-                    <tr>
-                      <td className="p-1 border-r border-[#1e3a8a]">Transportation Charges</td>
-                      <td className="p-1 text-right font-mono">{selectedRecord.freightAmount ? `₹ ${selectedRecord.freightAmount.toLocaleString()}` : ''}</td>
-                    </tr>
-                    <tr>
-                      <td className="p-1 border-r border-[#1e3a8a]">Packing Charges</td>
-                      <td className="p-1 text-right font-mono">{selectedRecord.packingCharges ? `₹ ${selectedRecord.packingCharges.toLocaleString()}` : ''}</td>
-                    </tr>
-                    <tr>
-                      <td className="p-1 border-r border-[#1e3a8a]">Unpacking Charges</td>
-                      <td className="p-1 text-right font-mono">{selectedRecord.unpackingCharges ? `₹ ${selectedRecord.unpackingCharges.toLocaleString()}` : ''}</td>
-                    </tr>
-                    <tr>
-                      <td className="p-1 border-r border-[#1e3a8a]">Loading Charges</td>
-                      <td className="p-1 text-right font-mono">{selectedRecord.loadingCharges ? `₹ ${selectedRecord.loadingCharges.toLocaleString()}` : ''}</td>
-                    </tr>
-                    <tr>
-                      <td className="p-1 border-r border-[#1e3a8a]">Unloadig Charges</td>
-                      <td className="p-1 text-right font-mono">{selectedRecord.unloadingCharges ? `₹ ${selectedRecord.unloadingCharges.toLocaleString()}` : ''}</td>
-                    </tr>
-                    <tr>
-                      <td className="p-1 border-r border-[#1e3a8a]">Dismantling/Assembling Charges</td>
-                      <td className="p-1 text-right font-mono">{selectedRecord.dismantlingCharges ? `₹ ${selectedRecord.dismantlingCharges.toLocaleString()}` : ''}</td>
-                    </tr>
-                    <tr>
-                      <td className="p-1 border-r border-[#1e3a8a]">Octroi/Entry Charges</td>
-                      <td className="p-1 text-right font-mono">{selectedRecord.octroiCharges ? `₹ ${selectedRecord.octroiCharges.toLocaleString()}` : ''}</td>
-                    </tr>
-                    <tr>
-                      <td className="p-1 border-r border-[#1e3a8a]">Car Transportation Charges</td>
-                      <td className="p-1 text-right font-mono">{selectedRecord.carTransportationCharges ? `₹ ${selectedRecord.carTransportationCharges.toLocaleString()}` : ''}</td>
-                    </tr>
-                    <tr>
-                      <td className="p-1 border-r border-[#1e3a8a]">Bike Transportation Charges</td>
-                      <td className="p-1 text-right font-mono">{selectedRecord.bikeTransportationCharges ? `₹ ${selectedRecord.bikeTransportationCharges.toLocaleString()}` : ''}</td>
-                    </tr>
-                    <tr>
-                      <td className="p-1 border-r border-[#1e3a8a]">Statistical/Document Charges</td>
-                      <td className="p-1 text-right font-mono">{selectedRecord.statCharges ? `₹ ${selectedRecord.statCharges.toLocaleString()}` : ''}</td>
-                    </tr>
+                    {billChargeItems.map(item => {
+                      const status = selectedRecord.chargeStatuses?.[item.key] || 'standard';
+                      const amount = Number(selectedRecord[item.key]) || 0;
+                      return (
+                        <tr key={item.key}>
+                          <td className="p-1 border-r border-[#1e3a8a]">{item.label}</td>
+                          <td className={`p-1 border-r border-[#1e3a8a] text-center font-semibold ${
+                            status === 'included' ? 'text-emerald-700' : status === 'excluded' ? 'text-rose-700' : 'text-slate-500'
+                          }`}>
+                            {status === 'standard' ? '—' : status === 'included' ? 'Included' : 'Excluded'}
+                          </td>
+                          <td className="p-1 text-right font-mono">
+                            {amount > 0 ? `₹ ${amount.toLocaleString()}` : '—'}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                    {(selectedRecord.customCharges || []).filter(charge => charge.name.trim()).map(charge => (
+                      <tr key={charge.id}>
+                        <td className="p-1 border-r border-[#1e3a8a]">{charge.name}</td>
+                        <td className={`p-1 border-r border-[#1e3a8a] text-center font-semibold ${
+                          charge.status === 'included' ? 'text-emerald-700' : charge.status === 'excluded' ? 'text-rose-700' : 'text-slate-500'
+                        }`}>
+                          {charge.status === 'standard' ? '—' : charge.status === 'included' ? 'Included' : 'Excluded'}
+                        </td>
+                        <td className="p-1 text-right font-mono">
+                          {charge.amount > 0 ? `₹ ${charge.amount.toLocaleString()}` : '—'}
+                        </td>
+                      </tr>
+                    ))}
                     <tr className="bg-[#1e3a8a] border-y border-[#1e3a8a] font-bold text-white">
-                      <td className="p-1 border-r border-[#1e3a8a]">Sub Total</td>
+                      <td colSpan={2} className="p-1 border-r border-[#1e3a8a]">Charge Sub Total</td>
                       <td className="p-1 text-right font-mono">₹ {calcSubTotal(selectedRecord).toLocaleString()}</td>
                     </tr>
-                    {/* Goods Total Value row if > 0 */}
-                    {Number(selectedRecord.goodsValue) > 0 && (
-                      <tr className="bg-amber-50/50">
-                        <td className="p-1 border-r border-[#1e3a8a] font-semibold text-slate-900">Declared Goods Value (Insurance Basis Only - Not Charged)</td>
-                        <td className="p-1 text-right font-mono font-bold text-slate-950">₹ {Number(selectedRecord.goodsValue).toLocaleString()}</td>
-                      </tr>
-                    )}
                     <tr>
-                      <td className="p-1 border-r border-[#1e3a8a]">Insurance on Goods Total Value</td>
-                      <td className="p-1 text-right font-mono">{calcInsuranceAmt(selectedRecord) ? `₹ ${calcInsuranceAmt(selectedRecord).toLocaleString()}` : ''}</td>
+                      <td colSpan={2} className="p-1 border-r border-[#1e3a8a]">
+                        Declared Goods Value (Insurance Basis Only)
+                      </td>
+                      <td className="p-1 text-right font-mono">
+                        ₹ {Number(selectedRecord.goodsValue || 0).toLocaleString()}
+                      </td>
                     </tr>
                     <tr>
-                      <td className="p-1 border-r border-[#1e3a8a]">GST on Sub Total</td>
-                      <td className="p-1 text-right font-mono">{calcGstAmt(selectedRecord) ? `₹ ${calcGstAmt(selectedRecord).toLocaleString()}` : ''}</td>
+                      <td colSpan={2} className="p-1 border-r border-[#1e3a8a]">
+                        Insurance ({selectedRecord.insurancePercent || 0}% of goods value)
+                      </td>
+                      <td className="p-1 text-right font-mono">
+                        ₹ {calcInsuranceAmt(selectedRecord).toLocaleString()}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td colSpan={2} className="p-1 border-r border-[#1e3a8a]">
+                        GST on Charge Sub Total ({selectedRecord.gstType === 'Exempted' ? 'Exempted' : `${selectedRecord.gstRate || 0}% ${selectedRecord.gstType || ''}`})
+                      </td>
+                      <td className="p-1 text-right font-mono">
+                        ₹ {calcGstAmt(selectedRecord).toLocaleString()}
+                      </td>
                     </tr>
                     <tr className="bg-[#1e3a8a] border-t border-[#1e3a8a] font-bold text-white">
-                      <td className="p-1 border-r border-[#1e3a8a]">Grand Total</td>
+                      <td colSpan={2} className="p-1 border-r border-[#1e3a8a]">Grand Total</td>
                       <td className="p-1 text-right font-mono font-black text-sm">
                         ₹ {calcGrandTotal(selectedRecord).toLocaleString()}
                       </td>

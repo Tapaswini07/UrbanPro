@@ -914,6 +914,7 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
                         <option value="18%">18% Standard</option>
                         <option value="12%">12%</option>
                         <option value="5%">5% GTA</option>
+                        <option value="3%">3%</option>
                         <option value="0%">0% Nil</option>
                       </select>
                     </div>
@@ -1086,6 +1087,9 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
                     </p>
                     <p className="text-[9px] sm:text-[9.5px] leading-tight text-black font-medium mt-0.5">
                       <strong>Helpline:</strong> 8093017400 &nbsp;|&nbsp; <strong>Email:</strong> urbanpro403@gmail.com
+                    </p>
+                    <p className="text-[9px] sm:text-[9.5px] leading-tight text-black font-medium mt-0.5">
+                      <strong>Website:</strong> www.urbanprologistics.com
                     </p>
                   </div>
                 </div>
@@ -1281,6 +1285,22 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
                     </div>
                     <div className="w-36 text-right pr-2 font-semibold text-black">
                       {totals.insuranceNum > 0 ? `₹ ${totals.insuranceNum.toLocaleString()}` : '—'}
+                    </div>
+                  </div>
+
+                  {/* GST Row */}
+                  <div className="flex border-b border-blue-100 py-1 text-[10.5px] items-center bg-purple-50/40">
+                    <div className="w-12 text-center text-slate-500 border-r border-blue-100">+</div>
+                    <div className="flex-1 text-left px-2 font-medium text-black border-r border-blue-100">
+                      GST on Sub Total ({totals.gstPercent})
+                    </div>
+                    <div className="w-36 text-center border-r border-blue-100 text-[10px] font-semibold text-slate-600">
+                      {totals.gstStatus === 'Exempted'
+                        ? 'Exempted'
+                        : `${quotation.gstType === 'IGST' ? 'IGST' : 'CGST/SGST'} @ ${totals.gstPercent}`}
+                    </div>
+                    <div className="w-36 text-right pr-2 font-semibold text-purple-800">
+                      ₹ {totals.gstNum.toLocaleString()}
                     </div>
                   </div>
 

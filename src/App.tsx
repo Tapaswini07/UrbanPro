@@ -4738,6 +4738,7 @@ export default function App() {
                             <option value="18%">18% (Standard Logistics & Packers)</option>
                             <option value="12%">12% (Standard Goods Moving)</option>
                             <option value="5%">5% (Goods Transport Agency / GTA)</option>
+                            <option value="3%">3%</option>
                             <option value="28%">28% (Luxury / Special Move)</option>
                             <option value="0%">0% (Nil / Exempted Tax)</option>
                           </select>
@@ -6473,7 +6474,7 @@ export default function App() {
               </h1>
               <p className="text-base sm:text-lg text-blue-100 max-w-xl leading-relaxed">
                 <strong className="font-extrabold">
-                  <span className="text-blue-200">Urban</span><span className="text-red-300">Pro</span>{' '}
+                  <span className="text-blue-200">Urban</span><span className="text-[#5b0f17] font-bold">Pro</span>{' '}
                   <span className="text-blue-200">Packers & Logistics</span>
                 </strong>{' '}
                 provides professional and reliable Packer & Mover, Relocation, and Transportation services with Packing Material & Labour Supply for Households, Offices, Businesses, and Commercial Shifting requirements.
@@ -6558,7 +6559,7 @@ export default function App() {
                         Your Free Quote Was Sent Successfully!
                       </h4>
                       <p className="text-emerald-50 text-xs sm:text-sm mt-1 leading-relaxed">
-                        Your quotation inquiry has been sent to WhatsApp (+91 8093017400). Our team at <strong className="text-white"><span className="text-blue-200">Urban</span><span className="text-red-300">Pro</span> <span className="text-blue-200">Packers &amp; Logistics</span></strong> will review your details and respond shortly!
+                        Your quotation inquiry has been sent to WhatsApp (+91 8093017400). Our team at <strong className="text-white"><span className="text-blue-200">Urban</span><span className="text-[#5b0f17] font-bold">Pro</span> <span className="text-blue-200">Packers &amp; Logistics</span></strong> will review your details and respond shortly!
                       </p>
 
                       {submittedQuoteDetails && (
@@ -6908,16 +6909,16 @@ export default function App() {
               </div>
               <div>
                 <span className="text-xs font-bold text-yellow-400 uppercase tracking-widest">Company Background & Legacy</span>
-                <h3 className="text-2xl font-bold mt-1"><span className="text-blue-200">Urban</span><span className="text-red-300">Pro</span> <span className="text-blue-200">Packers & Logistics</span></h3>
+                <h3 className="text-2xl font-bold mt-1"><span className="text-blue-200">Urban</span><span className="text-[#5b0f17] font-bold">Pro</span> <span className="text-blue-200">Packers & Logistics</span></h3>
               </div>
             </div>
             
             <p className="text-blue-100 text-base sm:text-lg leading-relaxed mb-6 font-normal">
-              <span className="text-blue-200">Urban</span><span className="text-red-300">Pro</span> <span className="text-blue-200">Packers & Logistics</span> was established in <strong>2009</strong> and has substantial experience in the transportation and logistics sector, undertaking a wide range of transportation-related work over the years.
+              <span className="text-blue-200">Urban</span><span className="text-[#5b0f17] font-bold">Pro</span> <span className="text-blue-200">Packers & Logistics</span> was established in <strong>2009</strong> and has substantial experience in the transportation and logistics sector, undertaking a wide range of transportation-related work over the years.
             </p>
 
             <p className="text-blue-100 text-base sm:text-lg leading-relaxed mb-6 font-normal">
-              <strong><span className="text-blue-200">Urban</span><span className="text-red-300">Pro</span> <span className="text-blue-200">Packers & Logistics</span></strong> provides professional Packer & Mover, relocation, transportation and logistics services across India.
+              <strong><span className="text-blue-200">Urban</span><span className="text-[#5b0f17] font-bold">Pro</span> <span className="text-blue-200">Packers & Logistics</span></strong> provides professional Packer & Mover, relocation, transportation and logistics services across India.
             </p>
 
             {/* State Tags */}
@@ -7348,7 +7349,7 @@ export default function App() {
               <span className="text-xs font-bold text-blue-900 uppercase tracking-widest block mb-1">Long-Term Goal</span>
               <h3 className="text-2xl font-bold text-blue-900 mb-3">OUR VISION</h3>
               <p className="text-sm text-slate-700 leading-relaxed">
-                Our vision is to establish <span className="text-blue-900">Urban</span><span className="text-red-600">Pro</span> <span className="text-blue-900">Packers & Logistics</span> as a trusted and recognized name in India's Packer & Mover and Logistics industry by continuously improving our services and building lasting relationships with our customers.
+                Our vision is to establish <span className="text-blue-900">Urban</span><span className="text-[#5b0f17] font-bold">Pro</span> <span className="text-blue-900">Packers & Logistics</span> as a trusted and recognized name in India's Packer & Mover and Logistics industry by continuously improving our services and building lasting relationships with our customers.
               </p>
             </div>
           </div>
@@ -7692,14 +7693,17 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className="bg-blue-900/90 border border-blue-700/80 rounded-2xl p-5">
+                <div className="bg-blue-900/90 border border-blue-700/80 rounded-2xl p-4 sm:p-5 w-full max-w-full overflow-hidden">
                   <h4 className="font-bold text-xs text-blue-200 uppercase tracking-wider mb-3">CONTACT DETAILS</h4>
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-8 text-xs sm:text-sm font-semibold text-slate-200">
-                    <a href="tel:8093017400" className="flex items-center gap-2 text-blue-100 hover:underline">
-                      <Phone className="w-4 h-4 text-blue-300" /> Contact: 8093017400
+                  <div className="flex flex-wrap items-center gap-3 sm:gap-6 text-xs sm:text-sm font-semibold text-slate-200">
+                    <a href="tel:8093017400" className="inline-flex max-w-full items-center gap-2 text-blue-100 hover:underline break-all">
+                      <Phone className="w-4 h-4 text-blue-300 shrink-0" /> Contact: 8093017400
                     </a>
-                    <a href="mailto:urbanpro403@gmail.com" className="flex items-center gap-2 text-blue-100 hover:underline">
-                      <Mail className="w-4 h-4 text-blue-300" /> urbanpro403@gmail.com
+                    <a href="mailto:urbanpro403@gmail.com" className="inline-flex max-w-full items-center gap-2 text-blue-100 hover:underline break-all">
+                      <Mail className="w-4 h-4 text-blue-300 shrink-0" /> urbanpro403@gmail.com
+                    </a>
+                    <a href="https://www.urbanprologistics.com" target="_blank" rel="noreferrer" className="inline-flex max-w-full items-center gap-2 text-blue-100 hover:underline break-all">
+                      <Globe className="w-4 h-4 text-blue-300 shrink-0" /> www.urbanprologistics.com
                     </a>
                   </div>
                 </div>
