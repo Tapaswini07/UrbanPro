@@ -6497,14 +6497,14 @@ export default function App() {
             >
               <div className="inline-flex items-center gap-2 bg-blue-800/60 backdrop-blur-sm border border-blue-600 rounded-full px-4 py-1.5 text-xs sm:text-sm font-semibold text-yellow-300">
                 <ShieldCheck className="w-4 h-4 text-yellow-400" />
-                “Pack Smart & Move Safe with UrbanPro”
+                “Pack Smart & Move Safe with Urban<span className="text-[#ff0800]">Pro</span>”
               </div>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight">
                 <span className="block text-white">Your Trusted Partner</span>
               </h1>
               <p className="text-base sm:text-lg text-blue-100 max-w-xl leading-relaxed">
                 <strong className="font-extrabold">
-                  <span className="text-blue-200">Urban</span><span className="text-[#5b0f17] font-bold">Pro</span>{' '}
+                  <span className="text-blue-200">Urban</span><span className="text-[#ff0800] font-bold">Pro</span>{' '}
                   <span className="text-blue-200">Packers & Logistics</span>
                 </strong>{' '}
                 provides professional and reliable Packer & Mover, Relocation, and Transportation services with Packing Material & Labour Supply for Households, Offices, Businesses, and Commercial Shifting requirements.
@@ -7627,7 +7627,7 @@ export default function App() {
           </span>
           <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight">Ready to Move?</h2>
           <p className="text-xl sm:text-2xl font-bold text-yellow-300">
-            Pack Smart & Move Safe with UrbanPro
+            Pack Smart & Move Safe with Urban<span className="text-[#ff0800]">Pro</span>
           </p>
           <p className="text-blue-100 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
             Professional Packer & Mover and Logistics Solutions for Local, Intercity, Domestic and Commercial Requirements.
