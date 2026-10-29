@@ -1455,12 +1455,12 @@ export const BiltyView: React.FC<Props> = ({
                   </h2>
                 </div>
                 <p className="text-[10px] sm:text-[10.5px] leading-tight text-black font-semibold mt-0.5">
-                  <strong>Regd. Office:</strong> Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452 | Tel: 8093017400
+                  <strong>Regd. Office:</strong> Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452
                 </p>
                 <p className="text-[10px] sm:text-[10.5px] leading-tight text-black font-semibold mt-0.5">
-                  <strong>Main Operational Office:</strong> Plot No 1491, Balintha Canal Road, Near Lenskart, Hanspal, Bhubaneswar, Odisha – 752101 | Mobile: 8093017400
+                  <strong>Main Operational Office:</strong> Plot No 1491, Balintha Canal Road, Near Lenskart, Hanspal, Bhubaneswar, Odisha – 752101
                 </p>
-                <p className="text-[10px] sm:text-[10.5px] leading-tight text-black font-medium mt-0.5">
+                <p className="text-[12px] sm:text-[12px] leading-tight text-black font-semibold mt-0.5">
                   <strong>Email:</strong> urbanpro403@gmail.com
                 </p>
               </div>

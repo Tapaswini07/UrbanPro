@@ -370,7 +370,7 @@ export const SetupView: React.FC<Props> = ({
                 type="text"
                 value={form.regAddress}
                 onChange={e => setForm({ ...form, regAddress: e.target.value })}
-                placeholder="e.g. Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452 | Tel: 8093017400"
+                placeholder="e.g. Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452"
                 className="w-full border border-slate-300 rounded-xl p-2.5 outline-none font-medium text-slate-800 focus:border-blue-500"
               />
             </div>
@@ -381,7 +381,7 @@ export const SetupView: React.FC<Props> = ({
                 type="text"
                 value={form.branchAddress}
                 onChange={e => setForm({ ...form, branchAddress: e.target.value })}
-                placeholder="e.g. Plot No 1491, Balintha Canal Road, Near Lenskart, Hanspal, Bhubaneswar, Odisha – 752101 | Mobile: 8093017400"
+                placeholder="e.g. Plot No 1491, Balintha Canal Road, Near Lenskart, Hanspal, Bhubaneswar, Odisha – 752101"
                 className="w-full border border-slate-300 rounded-xl p-2.5 outline-none font-medium text-slate-800 focus:border-blue-500"
               />
             </div>

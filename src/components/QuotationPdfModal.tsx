@@ -1080,15 +1080,15 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
                       </h2>
                     </div>
                     <p className="text-[9px] sm:text-[9.5px] leading-tight text-black font-semibold mt-0.5">
-                      <strong>Regd. Office:</strong> Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452 | Tel: 8093017400
+                      <strong>Regd. Office:</strong> Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452
                     </p>
                     <p className="text-[9px] sm:text-[9.5px] leading-tight text-black font-semibold mt-0.5">
-                      <strong>Main Operational Office:</strong> Plot No 1491, Balintha Canal Road, Near Lenskart, Hanspal, Bhubaneswar, Odisha – 752101 | Mobile: 8093017400
+                      <strong>Main Operational Office:</strong> Plot No 1491, Balintha Canal Road, Near Lenskart, Hanspal, Bhubaneswar, Odisha – 752101
                     </p>
-                    <p className="text-[9px] sm:text-[9.5px] leading-tight text-black font-medium mt-0.5">
+                    <p className="text-[12px] sm:text-[12px] leading-tight text-black font-semibold mt-0.5">
                       <strong>Helpline:</strong> 8093017400 &nbsp;|&nbsp; <strong>Email:</strong> urbanpro403@gmail.com
                     </p>
-                    <p className="text-[9px] sm:text-[9.5px] leading-tight text-black font-medium mt-0.5">
+                    <p className="text-[12px] sm:text-[12px] leading-tight text-black font-semibold mt-0.5">
                       <strong>Website:</strong> www.urbanprologistics.com
                     </p>
                   </div>
