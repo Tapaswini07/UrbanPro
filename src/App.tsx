@@ -875,7 +875,7 @@ export default function App() {
     const text = `Quotation #${quotation.quotationNo} from UrbanPro Packer & Logistics for ${quotation.partyName} (₹${quotation.grandTotal}): ${quotation.fromCity} to ${quotation.toCity}. Customer Care: 8093017400`;
     if (navigator.share) {
       navigator.share({
-        title: `Quotation #${quotation.quotationNo} - UrbanPro Logistics`,
+        title: `Quotation #${quotation.quotationNo} - UrbanPro Packer & Logistics`,
         text: text,
         url: window.location.href,
       }).catch(console.error);
@@ -1463,7 +1463,7 @@ export default function App() {
   };
 
   const handleSharePackingList = (pl: any) => {
-    const text = `📦 UrbanPro Logistics - Packing List #${pl.packingListNo}\nParty: ${pl.partyName}\nMobile: ${pl.mobileNo}\nFrom: ${pl.fromCity} -> To: ${pl.toCity}\nTotal Items: ${pl.items?.length || 0}`;
+    const text = `📦 UrbanPro Packer & Logistics - Packing List #${pl.packingListNo}\nParty: ${pl.partyName}\nMobile: ${pl.mobileNo}\nFrom: ${pl.fromCity} -> To: ${pl.toCity}\nTotal Items: ${pl.items?.length || 0}`;
     if (navigator.share) {
       navigator.share({ title: `Packing List #${pl.packingListNo}`, text }).catch(() => {});
     } else if (navigator.clipboard) {
@@ -2634,7 +2634,7 @@ export default function App() {
 
     return (
       <div className="h-screen bg-[#f4f7fb] flex flex-col overflow-hidden text-slate-800">
-        {/* Top Header - UrbanPro Logistics Admin */}
+        {/* Top Header - UrbanPro Packer & Logistics Admin */}
         <header className="bg-[#1e293b] text-white px-3 sm:px-6 py-2 sm:py-2.5 flex items-center justify-between z-20 shrink-0 shadow-md">
           <div className="flex items-center gap-2 sm:gap-3">
             <button
@@ -2648,12 +2648,12 @@ export default function App() {
               <div className="bg-white px-2 sm:px-3 py-1 rounded-lg flex items-center gap-2 shadow-sm border border-slate-700/50">
                 <img
                   src={activeAppLogo || '/urbanpro%20logo.jpeg'}
-                  alt="UrbanPro Logistics"
+                  alt="UrbanPro Packer & Logistics"
                   className="h-7 sm:h-8 w-auto object-contain rounded"
                 />
                 <div className="flex flex-col">
                   <span className="font-bold text-xs sm:text-base tracking-tight leading-tight">
-                    <span className="text-[#1e3a8a] font-black">Urban</span><span className="text-[#dc2626] font-black">Pro</span> <span className="text-[#1e3a8a] font-extrabold hidden xs:inline">Packer & Logistics</span>
+                    <span className="text-[#1e3a8a] font-black">Urban</span><span className="text-[#ff0800] font-black">Pro</span> <span className="text-[#1e3a8a] font-extrabold hidden xs:inline">Packer & Logistics</span>
                   </span>
                   <span className="text-[9px] sm:text-[10px] text-slate-500 font-semibold leading-none">Admin Portal</span>
                 </div>
@@ -2695,14 +2695,14 @@ export default function App() {
         )}
 
         <div className="flex flex-1 overflow-hidden relative">
-          {/* Sidebar Drawer - UrbanPro Logistics Navigation */}
+          {/* Sidebar Drawer - UrbanPro Packer & Logistics Navigation */}
           <aside className={`fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] bg-[#0f172a] text-slate-300 flex flex-col justify-between h-full overflow-y-auto border-r border-slate-800 shadow-2xl transition-transform duration-300 ease-in-out md:static md:translate-x-0 md:w-64 md:shadow-none ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
             <div>
               {/* Admin Portal Label & Mobile Close Button */}
               <div className="p-3 pb-2 border-b border-slate-800/80 flex items-center justify-between">
                 <div className="bg-white px-3.5 py-2 rounded-xl flex flex-col justify-center shadow-sm flex-1 mr-2">
                   <h2 className="font-bold text-sm leading-tight">
-                    <span className="text-[#1e3a8a] font-black">Urban</span><span className="text-[#dc2626] font-black">Pro</span>
+                    <span className="text-[#1e3a8a] font-black">Urban</span><span className="text-[#ff0800] font-black">Pro</span>
                   </h2>
                   <p className="text-[10px] text-[#1e3a8a] font-bold">Packer & Logistics</p>
                 </div>
@@ -2977,8 +2977,11 @@ export default function App() {
             {/* Sidebar Bottom */}
             <div className="p-4 border-t border-slate-800 bg-[#0b1120]">
               <div className="text-xs text-slate-400">
-                <div className="font-semibold text-slate-200">UrbanPro Logistics</div>
-                <div className="text-[11px]">Bhubaneswar, Odisha</div>
+                <div className="font-semibold leading-tight">
+                  <span className="text-blue-200">Urban</span><span style={{ color: '#ff0800' }}>Pro</span>{' '}
+                  <span className="text-blue-200">Packer & Logistics</span>
+                </div>
+                <div className="text-[11px] mt-1">Bhubaneswar, Odisha</div>
                 <div className="text-[11px] text-slate-500 mt-1">Contact: 8093017400</div>
               </div>
             </div>
@@ -3032,12 +3035,12 @@ export default function App() {
                         <div>
                           <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                             <span className="text-[11px] font-bold uppercase tracking-widest bg-red-50 px-2.5 py-0.5 rounded-full border border-red-200">
-                              <span className="text-[#1e3a8a]">Urban</span><span className="text-[#dc2626]">Pro</span>{' '}
+                              <span className="text-[#1e3a8a]">Urban</span><span className="text-[#ff0800]">Pro</span>{' '}
                               <span className="text-[#1e3a8a]">Packer & Logistics</span>
                             </span>
                           </div>
                           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-baseline flex-wrap gap-1.5">
-                            <span className="text-[#1e3a8a] font-black">Urban</span><span className="text-[#dc2626] font-black">Pro</span>
+                            <span className="text-[#1e3a8a] font-black">Urban</span><span className="text-[#ff0800] font-black">Pro</span>
                             <span className="text-[#1e3a8a] font-extrabold text-xl sm:text-2xl">Packer & Logistics</span>
                             <span className="text-slate-500 font-semibold text-base sm:text-lg">Dashboard</span>
                           </h1>
@@ -6448,7 +6451,7 @@ export default function App() {
             <img src={activeAppLogo || '/urbanpro%20logo.jpeg'} alt="UrbanPro Packer & Logistics" className="h-11 sm:h-12 w-auto max-w-[112px] object-contain" />
             <div className="leading-tight hidden sm:block" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
               <div className="text-xl sm:text-[23px] font-black tracking-tight whitespace-nowrap">
-                <span style={{ color: '#1e3a8a', fontWeight: 900 }}>Urban</span><span style={{ color: '#dc2626', fontWeight: 900 }}>Pro</span>
+                <span style={{ color: '#1e3a8a', fontWeight: 900 }}>Urban</span><span style={{ color: '#ff0800', fontWeight: 900 }}>Pro</span>
               </div>
               <div className="text-base sm:text-[18px] font-black tracking-[0.1em] uppercase whitespace-nowrap" style={{ color: '#1e3a8a' }}>
                 Packer & Logistics

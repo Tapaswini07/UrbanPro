@@ -1073,10 +1073,10 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
                   <div className="w-[72%] p-2 text-center flex flex-col justify-center items-center bg-white">
                     <div className="mb-0.5" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
                       <h1 className="text-[22px] sm:text-[24px] font-black tracking-tight leading-none">
-                        <span style={{ color: '#1e3a8a' }}>Urban</span><span style={{ color: '#dc2626' }}>Pro</span>
+                        <span style={{ color: '#1e3a8a' }}>Urban</span><span style={{ color: '#ff0800' }}>Pro</span>
                       </h1>
                       <h2 className="text-[12px] sm:text-[13px] font-extrabold tracking-wider uppercase mt-0.5" style={{ color: '#1e3a8a' }}>
-                        Packers & Logistics
+                        Packer & Logistics
                       </h2>
                     </div>
                     <p className="text-[9px] sm:text-[9.5px] leading-tight text-black font-semibold mt-0.5">
@@ -1334,8 +1334,8 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
                   {/* Left (Col 1): Authorized Signature & Stamp (6 Columns) */}
                   <div className="col-span-6 border-r border-[#1e3a8a] p-3 flex flex-col justify-between items-center text-center relative group">
                     <div className="font-bold text-[11px] leading-tight">
-                      For <span className="text-[#1e3a8a] font-black">Urban</span><span className="text-[#dc2626] font-black">Pro</span><br />
-                      <span className="text-[#1e3a8a] font-extrabold uppercase text-[10px] tracking-wider">Packers & Logistics</span><br />
+                      For <span className="text-[#1e3a8a] font-black">Urban</span><span className="text-[#ff0800] font-black">Pro</span><br />
+                      <span className="text-[#1e3a8a] font-extrabold uppercase text-[10px] tracking-wider">Packer & Logistics</span><br />
                     </div>
 
                     {/* Signature Click-to-edit */}
@@ -1464,8 +1464,8 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
 
                     <div className="pt-4 flex flex-col items-end text-right space-y-2">
                       <p className="font-bold text-black leading-tight">
-                        For <span className="text-[#1e3a8a] font-black">Urban</span><span className="text-[#dc2626] font-black">Pro</span><br />
-                        <span className="text-[#1e3a8a] font-extrabold uppercase text-[11px] tracking-wider">Packers & Logistics</span><br />
+                        For <span className="text-[#1e3a8a] font-black">Urban</span><span className="text-[#ff0800] font-black">Pro</span><br />
+                        <span className="text-[#1e3a8a] font-extrabold uppercase text-[11px] tracking-wider">Packer & Logistics</span><br />
                       </p>
                       <div className="flex flex-col items-end">
                         <img

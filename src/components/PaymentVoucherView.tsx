@@ -648,10 +648,10 @@ export const PaymentVoucherView: React.FC<Props> = ({ vouchers, initialViewMode 
               <div className="w-[72%] p-2 text-center flex flex-col justify-center items-center bg-white">
                 <div className="mb-0.5" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
                   <h1 className="text-[24px] sm:text-[28px] font-black tracking-tight leading-none">
-                    <span style={{ color: '#1e3a8a' }}>Urban</span><span style={{ color: '#dc2626' }}>Pro</span>
+                    <span style={{ color: '#1e3a8a' }}>Urban</span><span style={{ color: '#ff0800' }}>Pro</span>
                   </h1>
                   <h2 className="text-[13px] sm:text-[15px] font-extrabold tracking-wider uppercase mt-0.5" style={{ color: '#1e3a8a' }}>
-                    Packers & Logistics
+                    Packer & Logistics
                   </h2>
                 </div>
                 <p className="text-[9.5px] sm:text-[10px] leading-tight text-slate-900 font-semibold mt-0.5">
@@ -740,7 +740,7 @@ export const PaymentVoucherView: React.FC<Props> = ({ vouchers, initialViewMode 
                   />
                 </div>
                 <p className="font-bold text-[10px] border-t border-slate-300 pt-0.5 leading-tight">
-                  For <span className="text-[#1e3a8a]">Urban</span><span className="text-[#dc2626]">Pro</span> <span className="text-[#1e3a8a]">Packers & Logistics</span><br />
+                  For <span className="text-[#1e3a8a]">Urban</span><span className="text-[#ff0800]">Pro</span> <span className="text-[#1e3a8a]">Packer & Logistics</span><br />
                 </p>
                 <p className="text-[9px] text-blue-900 font-bold uppercase">Authorized Signatory & Stamp</p>
               </div>

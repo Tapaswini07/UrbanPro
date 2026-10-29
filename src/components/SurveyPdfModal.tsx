@@ -339,10 +339,10 @@ export const SurveyPdfModal: React.FC<SurveyPdfModalProps> = ({ survey, onClose,
               <div className="w-[72%] p-2 text-center flex flex-col justify-center items-center bg-white">
                 <div className="mb-0.5" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
                   <h1 className="text-[24px] sm:text-[28px] font-black tracking-tight leading-none">
-                    <span style={{ color: '#1e3a8a' }}>Urban</span><span style={{ color: '#dc2626' }}>Pro</span>
+                    <span style={{ color: '#1e3a8a' }}>Urban</span><span style={{ color: '#ff0800' }}>Pro</span>
                   </h1>
                   <h2 className="text-[13px] sm:text-[15px] font-extrabold tracking-wider uppercase mt-0.5" style={{ color: '#1e3a8a' }}>
-                    Packers & Logistics
+                    Packer & Logistics
                   </h2>
                 </div>
                 <p className="text-[10px] sm:text-[10.5px] leading-tight text-black font-semibold mt-0.5">
@@ -465,7 +465,7 @@ export const SurveyPdfModal: React.FC<SurveyPdfModalProps> = ({ survey, onClose,
               {/* Left Signature: UrbanPro */}
               <div className="w-1/2 border-r border-[#1e3a8a] p-3 flex flex-col justify-between items-center text-center relative group">
                 <div className="font-bold text-[11px] tracking-wide leading-tight">
-                  For <span className="text-[#1e3a8a]">Urban</span><span className="text-[#dc2626]">Pro</span> <span className="text-[#1e3a8a]">Packers & Logistics</span>
+                  For <span className="text-[#1e3a8a]">Urban</span><span className="text-[#ff0800]">Pro</span> <span className="text-[#1e3a8a]">Packer & Logistics</span>
                 </div>
 
                 {/* Inline Signature Display & Interactive Click-to-Choose */}

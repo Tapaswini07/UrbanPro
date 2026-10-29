@@ -253,8 +253,8 @@ export function addCanvasToA4Pdf(pdf: jsPDF, canvas: HTMLCanvasElement, margin =
   const pageHeight = pdf.internal.pageSize.getHeight();
   const printableWidth = pageWidth - margin * 2;
   const printableHeight = pageHeight - margin * 2;
-  const pageHeightPx = Math.floor((printableHeight * canvas.width) / printableWidth);
-  const pageCount = Math.ceil(canvas.height / pageHeightPx);
+  const pageHeightPx = Math.max(1, Math.floor((printableHeight * canvas.width) / printableWidth));
+  const pageCount = Math.max(1, Math.ceil((canvas.height / pageHeightPx) - 0.002));
 
   for (let pageIndex = 0; pageIndex < pageCount; pageIndex++) {
     if (pageIndex > 0) {

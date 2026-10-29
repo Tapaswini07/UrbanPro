@@ -829,18 +829,16 @@ export const SetupView: React.FC<Props> = ({
       {activeTab === 'contact-us' && (
         <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-6">
           <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-            <Phone className="w-5 h-5 text-blue-600" /> UrbanPro Logistics Support
+            <Phone className="w-5 h-5 text-blue-600" /> UrbanPro Packer & Logistics Support
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
             <div className="p-4 bg-blue-50 rounded-xl border border-blue-200">
               <span className="font-bold text-blue-900 block text-sm">Direct Phone Support</span>
               <p className="text-slate-700 mt-1">📞 +91 8093017400</p>
-              <p className="text-slate-700">📞 +91 8093017400</p>
             </div>
             <div className="p-4 bg-blue-50 rounded-xl border border-blue-200">
               <span className="font-bold text-blue-900 block text-sm">Head Office Location</span>
               <p className="text-slate-700 mt-1">📍 Hanspal, Balianta Canal Road, Bhubaneswar, Odisha</p>
-              <p className="text-slate-700">📍 Reg: Dipka, Korba, Chhattisgarh</p>
             </div>
           </div>
         </div>
