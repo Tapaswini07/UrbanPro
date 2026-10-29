@@ -683,10 +683,10 @@ export const MoneyReceiptView: React.FC<Props> = ({
                   </h2>
                 </div>
                 <p className="text-[9.5px] sm:text-[10px] leading-tight text-slate-900 font-semibold mt-0.5">
-                  <strong>Regd. Office:</strong> Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452
+                  <strong>Regd. Office:</strong> {companyProfile?.regAddress || companyProfile?.addressLine1 || 'Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452'}
                 </p>
                 <p className="text-[9.5px] sm:text-[10px] leading-tight text-slate-900 font-semibold mt-0.5">
-                  <strong>Main Operational Office:</strong> Plot No 1491, Balintha Canal Road, Near Lenskart, Hanspal, Bhubaneswar, Odisha – 752101
+                  <strong>Main Operational Office:</strong> {companyProfile?.branchAddress || companyProfile?.addressLine2 || 'Plot No 1491, Balintha Canal Road, Near Lenskart, Hanspal, Bhubaneswar, Odisha – 752101'}
                 </p>
                 <p className="text-[12px] sm:text-[12px] leading-tight text-slate-800 font-semibold mt-0.5">
                   <strong>Email:</strong> {companyProfile?.email || 'urbanpro403@gmail.com'}
