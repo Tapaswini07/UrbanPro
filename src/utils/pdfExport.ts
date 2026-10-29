@@ -253,8 +253,17 @@ export function addCanvasToA4Pdf(pdf: jsPDF, canvas: HTMLCanvasElement, margin =
   const pageHeight = pdf.internal.pageSize.getHeight();
   const printableWidth = pageWidth - margin * 2;
   const printableHeight = pageHeight - margin * 2;
+  const renderedHeightMm = (canvas.height * printableWidth) / canvas.width;
+
+  // Fixed A4 sheets should occupy exactly one PDF page. This also prevents
+  // rounded canvas heights from creating a second blank/partial page.
+  if (renderedHeightMm <= printableHeight + 0.1) {
+    pdf.addImage(canvas.toDataURL('image/jpeg', 0.94), 'JPEG', margin, margin, printableWidth, renderedHeightMm, undefined, 'FAST');
+    return 1;
+  }
+
   const pageHeightPx = Math.max(1, Math.floor((printableHeight * canvas.width) / printableWidth));
-  const pageCount = Math.max(1, Math.ceil((canvas.height / pageHeightPx) - 0.002));
+  const pageCount = Math.ceil(canvas.height / pageHeightPx);
 
   for (let pageIndex = 0; pageIndex < pageCount; pageIndex++) {
     if (pageIndex > 0) {
