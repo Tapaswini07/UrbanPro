@@ -91,10 +91,10 @@ interface Props {
   initialViewMode?: 'form' | 'list';
 }
 
-export const BiltyView: React.FC<Props> = ({ 
-  bilties, 
-  onSave, 
-  onDelete, 
+export const BiltyView: React.FC<Props> = ({
+  bilties,
+  onSave,
+  onDelete,
   customerProfiles = [],
   globalSignature,
   companyProfile,
@@ -216,7 +216,7 @@ export const BiltyView: React.FC<Props> = ({
 
     // Bank Details (Optional, NOT added automatically)
     showBankDetails: false,
-    bankBeneficiaryName: companyProfile?.beneficiaryName || companyProfile?.companyName || 'UrbanPro Packers & Logistics',
+    bankBeneficiaryName: companyProfile?.beneficiaryName || companyProfile?.companyName || 'UrbanPro Packer & Logistics',
     bankName: companyProfile?.bankName || '',
     bankAccNo: companyProfile?.bankAccNo || companyProfile?.accountNo || '',
     bankIfsc: companyProfile?.bankIfsc || companyProfile?.ifscCode || '',
@@ -265,7 +265,7 @@ export const BiltyView: React.FC<Props> = ({
     const totalFreight = bilty.freightToBeBilled || 0;
     const toPay = bilty.freightToPay || 0;
     const paid = bilty.freightPaid || 0;
-    const shareText = `🚚 *UrbanPro Packers & Logistics*
+    const shareText = `🚚 *UrbanPro Packer & Logistics*
 *CONSIGNMENT NOTE / BILTY (LR) #${bilty.biltyNo}*
 ----------------------------------------
 👤 *Consignor (Sender):* ${bilty.consignorName || 'Customer'}
@@ -334,8 +334,8 @@ export const BiltyView: React.FC<Props> = ({
                 <select
                   onChange={(e) => {
                     if (!e.target.value) return;
-                    const match = customerProfiles.find(c => 
-                      c.partyName === e.target.value || 
+                    const match = customerProfiles.find(c =>
+                      c.partyName === e.target.value ||
                       (c.uniqueIds && c.uniqueIds.includes(e.target.value))
                     );
                     if (match) handleAutoFillCustomer(match);
@@ -484,7 +484,7 @@ export const BiltyView: React.FC<Props> = ({
                   onChange={e => {
                     const val = e.target.value;
                     setForm(prev => ({ ...prev, consignorName: val }));
-                    const match = customerProfiles.find(c => 
+                    const match = customerProfiles.find(c =>
                       (c.partyName && c.partyName.toLowerCase() === val.trim().toLowerCase()) ||
                       (c.uniqueIds && c.uniqueIds.some((id: string) => String(id).toLowerCase() === val.trim().toLowerCase()))
                     );
@@ -541,10 +541,10 @@ export const BiltyView: React.FC<Props> = ({
                   onChange={e => {
                     const st = e.target.value;
                     const autoCode = getStateCodeByName(st);
-                    setForm({ 
-                      ...form, 
+                    setForm({
+                      ...form,
                       consignorState: st,
-                      consignorStateCode: autoCode || form.consignorStateCode 
+                      consignorStateCode: autoCode || form.consignorStateCode
                     });
                   }}
                   className="w-full outline-none font-medium text-slate-800 bg-transparent"
@@ -652,8 +652,8 @@ export const BiltyView: React.FC<Props> = ({
                   onChange={e => {
                     const st = e.target.value;
                     const autoCode = getStateCodeByName(st);
-                    setForm({ 
-                      ...form, 
+                    setForm({
+                      ...form,
                       consigneeState: st,
                       consigneeStateCode: autoCode || form.consigneeStateCode
                     });
@@ -806,9 +806,9 @@ export const BiltyView: React.FC<Props> = ({
                   onChange={e => {
                     const val = parseFloat(e.target.value) || 0;
                     const words = val > 0 ? `${numberToIndianWords(val)} Rupees Only` : 'Zero Rupees Only';
-                    setForm({ 
-                      ...form, 
-                      freightToBeBilled: val, 
+                    setForm({
+                      ...form,
+                      freightToBeBilled: val,
                       freightToPay: Math.max(0, val - form.freightPaid),
                       totalAmtInWords: words
                     });
@@ -991,7 +991,7 @@ export const BiltyView: React.FC<Props> = ({
                       setForm({
                         ...form,
                         showBankDetails: isChecked,
-                        bankBeneficiaryName: form.bankBeneficiaryName || companyProfile?.beneficiaryName || companyProfile?.companyName || 'UrbanPro Packers & Logistics',
+                        bankBeneficiaryName: form.bankBeneficiaryName || companyProfile?.beneficiaryName || companyProfile?.companyName || 'UrbanPro Packer & Logistics',
                         bankName: form.bankName || companyProfile?.bankName || '',
                         bankAccNo: form.bankAccNo || companyProfile?.bankAccNo || companyProfile?.accountNo || '',
                         bankIfsc: form.bankIfsc || companyProfile?.bankIfsc || companyProfile?.ifscCode || '',
@@ -1428,7 +1428,7 @@ export const BiltyView: React.FC<Props> = ({
           )}
 
           {/* Official Printable Sheet */}
-          <div 
+          <div
             id="printable-bilty-pdf"
             className="bg-white w-full max-w-[794px] border-2 border-[#1e3a8a] text-[11px] text-black font-sans box-border relative mx-auto my-auto print:border print:border-[#1e3a8a] print:shadow-none print:w-full print:max-w-none shadow-xl"
             style={{ fontFamily: 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}
@@ -1437,10 +1437,10 @@ export const BiltyView: React.FC<Props> = ({
             <div className="flex border-b border-[#1e3a8a] min-h-[96px]">
               {/* Logo Container */}
               <div className="w-[28%] border-r border-[#1e3a8a] flex items-center justify-center p-2 bg-white">
-                <img 
-                  src={companyProfile?.logo || UPL_LOGO_BASE64 || '/urbanpro-logo.jpeg'} 
-                  alt="UrbanPro Packers & Logistics Logo" 
-                  className="max-h-20 w-auto object-contain" 
+                <img
+                  src={companyProfile?.logo || UPL_LOGO_BASE64 || '/urbanpro-logo.jpeg'}
+                  alt="UrbanPro Packer & Logistics Logo"
+                  className="max-h-20 w-auto object-contain"
                 />
               </div>
 
@@ -1621,10 +1621,10 @@ export const BiltyView: React.FC<Props> = ({
                     For <span className="text-[#1e3a8a]">Urban</span><span className="text-[#dc2626]">Pro</span> <span className="text-[#1e3a8a]">Packers & Logistics</span><br />
                   </p>
                   <div className="my-1 flex items-center justify-center min-h-[44px]">
-                    <img 
-                      src={globalSignature?.image || PRAKASH_SIGNATURE_BASE64} 
-                      alt="Authorized Signature & Stamp" 
-                      className="max-h-11 max-w-[140px] object-contain mx-auto" 
+                    <img
+                      src={globalSignature?.image || PRAKASH_SIGNATURE_BASE64}
+                      alt="Authorized Signature & Stamp"
+                      className="max-h-11 max-w-[140px] object-contain mx-auto"
                     />
                   </div>
                   <p className="text-blue-900 font-bold text-[9px] uppercase">Authorized Signatory & Stamp</p>
@@ -1658,10 +1658,10 @@ export const BiltyView: React.FC<Props> = ({
                     For <span className="text-[#1e3a8a]">Urban</span><span className="text-[#dc2626]">Pro</span> <span className="text-[#1e3a8a]">Packers & Logistics</span><br />
                   </p>
                   <div className="my-1.5 flex items-center justify-center min-h-[46px]">
-                    <img 
-                      src={globalSignature?.image || PRAKASH_SIGNATURE_BASE64} 
-                      alt="Authorized Signature & Stamp" 
-                      className="max-h-12 max-w-[170px] object-contain mx-auto" 
+                    <img
+                      src={globalSignature?.image || PRAKASH_SIGNATURE_BASE64}
+                      alt="Authorized Signature & Stamp"
+                      className="max-h-12 max-w-[170px] object-contain mx-auto"
                     />
                   </div>
                   <p className="text-blue-900 font-bold text-[9px] uppercase">Authorized Signatory & Stamp</p>

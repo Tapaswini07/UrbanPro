@@ -11,7 +11,7 @@ export interface MoneyReceiptData {
   id: string;
   receiptNo: string;
   date: string;
-  
+
   // Receipt Details
   receiptAgainst: 'Quotation' | 'Bill';
   quotationBillNo: string;
@@ -64,12 +64,12 @@ function numberToWordsRupees(num: number): string {
   return inWords(Math.floor(num)) + ' Rupees Only';
 }
 
-export const MoneyReceiptView: React.FC<Props> = ({ 
-  moneyReceipts, 
+export const MoneyReceiptView: React.FC<Props> = ({
+  moneyReceipts,
   initialViewMode = 'form',
-  onSave, 
-  onDelete, 
-  customerProfiles = [], 
+  onSave,
+  onDelete,
+  customerProfiles = [],
   globalSignature,
   companyProfile
 }) => {
@@ -168,7 +168,7 @@ export const MoneyReceiptView: React.FC<Props> = ({
   };
 
   const handleShareReceipt = async (receipt: MoneyReceiptData) => {
-    const shareText = `💳 *UrbanPro Packers & Logistics*
+    const shareText = `💳 *UrbanPro Packer & Logistics*
 *MONEY RECEIPT #${receipt.receiptNo}*
 ----------------------------------------
 👤 *Received From:* ${receipt.partyName || receipt.receivedFrom}
@@ -222,7 +222,7 @@ export const MoneyReceiptView: React.FC<Props> = ({
 
       {viewMode === 'form' && (
         <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl mx-auto">
-          
+
           {/* Section 1: Receipt Details */}
           <div className="border border-emerald-300 border-l-4 border-l-emerald-500 rounded-2xl p-6 pt-7 relative bg-white shadow-sm space-y-4">
             <span className="absolute -top-3.5 left-6 bg-emerald-500 text-white px-4 py-1 rounded-md text-xs font-bold shadow-sm">
@@ -232,31 +232,31 @@ export const MoneyReceiptView: React.FC<Props> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
               <div className="border border-slate-300 rounded-xl p-2.5 px-3 bg-white focus-within:ring-2 focus-within:ring-emerald-500">
                 <label className="block text-[11px] text-slate-500 font-bold mb-0.5">Receipt No. *</label>
-                <input 
-                  type="text" 
-                  required 
-                  value={form.receiptNo} 
-                  onChange={e => setForm({ ...form, receiptNo: e.target.value })} 
-                  className="w-full outline-none text-slate-800 text-sm font-bold bg-transparent" 
+                <input
+                  type="text"
+                  required
+                  value={form.receiptNo}
+                  onChange={e => setForm({ ...form, receiptNo: e.target.value })}
+                  className="w-full outline-none text-slate-800 text-sm font-bold bg-transparent"
                 />
               </div>
 
               <div className="border border-slate-300 rounded-xl p-2.5 px-3 bg-white focus-within:ring-2 focus-within:ring-emerald-500">
                 <label className="block text-[11px] text-slate-500 font-bold mb-0.5">Receipt Date *</label>
-                <input 
-                  type="date" 
-                  required 
-                  value={form.date} 
-                  onChange={e => setForm({ ...form, date: e.target.value })} 
-                  className="w-full outline-none text-slate-800 text-sm font-medium bg-transparent" 
+                <input
+                  type="date"
+                  required
+                  value={form.date}
+                  onChange={e => setForm({ ...form, date: e.target.value })}
+                  className="w-full outline-none text-slate-800 text-sm font-medium bg-transparent"
                 />
               </div>
 
               <div className="border border-slate-300 rounded-xl p-2.5 px-3 bg-white focus-within:ring-2 focus-within:ring-emerald-500">
                 <label className="block text-[11px] text-slate-500 font-bold mb-0.5">Receipt Against *</label>
-                <select 
-                  value={form.receiptAgainst} 
-                  onChange={e => setForm({ ...form, receiptAgainst: e.target.value as 'Quotation' | 'Bill' })} 
+                <select
+                  value={form.receiptAgainst}
+                  onChange={e => setForm({ ...form, receiptAgainst: e.target.value as 'Quotation' | 'Bill' })}
                   className="w-full outline-none text-slate-800 text-sm font-semibold bg-transparent cursor-pointer"
                 >
                   <option value="Quotation">Quotation</option>
@@ -266,22 +266,22 @@ export const MoneyReceiptView: React.FC<Props> = ({
 
               <div className="border border-slate-300 rounded-xl p-2.5 px-3 bg-white focus-within:ring-2 focus-within:ring-emerald-500">
                 <label className="block text-[11px] text-slate-500 font-bold mb-0.5">Quotation/Bill No.</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   placeholder="e.g. Q-1001 or BILL-204"
-                  value={form.quotationBillNo} 
-                  onChange={e => setForm({ ...form, quotationBillNo: e.target.value })} 
-                  className="w-full outline-none text-slate-800 text-sm font-medium bg-transparent" 
+                  value={form.quotationBillNo}
+                  onChange={e => setForm({ ...form, quotationBillNo: e.target.value })}
+                  className="w-full outline-none text-slate-800 text-sm font-medium bg-transparent"
                 />
               </div>
 
               <div className="border border-slate-300 rounded-xl p-2.5 px-3 bg-white focus-within:ring-2 focus-within:ring-emerald-500 md:col-span-2">
                 <label className="block text-[11px] text-slate-500 font-bold mb-0.5">Quotation/Bill Date</label>
-                <input 
-                  type="date" 
-                  value={form.quotationBillDate} 
-                  onChange={e => setForm({ ...form, quotationBillDate: e.target.value })} 
-                  className="w-full outline-none text-slate-800 text-sm font-medium bg-transparent" 
+                <input
+                  type="date"
+                  value={form.quotationBillDate}
+                  onChange={e => setForm({ ...form, quotationBillDate: e.target.value })}
+                  className="w-full outline-none text-slate-800 text-sm font-medium bg-transparent"
                 />
               </div>
             </div>
@@ -315,8 +315,8 @@ export const MoneyReceiptView: React.FC<Props> = ({
                   <select
                     onChange={(e) => {
                       if (!e.target.value) return;
-                      const cp = customerProfiles.find(c => 
-                        c.partyName === e.target.value || 
+                      const cp = customerProfiles.find(c =>
+                        c.partyName === e.target.value ||
                         (c.uniqueIds && c.uniqueIds.includes(e.target.value))
                       );
                       if (cp) {
@@ -344,9 +344,9 @@ export const MoneyReceiptView: React.FC<Props> = ({
                     <button
                       key={idx}
                       type="button"
-                      onClick={() => setForm(prev => ({ 
-                        ...prev, 
-                        partyName: cp.partyName || cp.name || '', 
+                      onClick={() => setForm(prev => ({
+                        ...prev,
+                        partyName: cp.partyName || cp.name || '',
                         mobileNo: cp.mobileNo || cp.phone || '',
                         relocateFrom: cp.relocateFrom || cp.fromCity || prev.relocateFrom,
                         relocateTo: cp.relocateTo || cp.toCity || prev.relocateTo
@@ -364,22 +364,22 @@ export const MoneyReceiptView: React.FC<Props> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
               <div className="border border-slate-300 rounded-xl p-2.5 px-3 bg-white focus-within:ring-2 focus-within:ring-sky-500">
                 <label className="block text-[11px] text-slate-500 font-bold mb-0.5">Party Name *</label>
-                <input 
-                  type="text" 
-                  required 
+                <input
+                  type="text"
+                  required
                   placeholder="Client Full Name"
-                  value={form.partyName} 
-                  onChange={e => setForm({ ...form, partyName: e.target.value })} 
-                  className="w-full outline-none text-slate-800 text-sm font-semibold bg-transparent" 
+                  value={form.partyName}
+                  onChange={e => setForm({ ...form, partyName: e.target.value })}
+                  className="w-full outline-none text-slate-800 text-sm font-semibold bg-transparent"
                 />
               </div>
 
               <div className="border border-slate-300 rounded-xl p-2.5 px-3 bg-white focus-within:ring-2 focus-within:ring-sky-500">
                 <label className="block text-[11px] text-slate-500 font-bold mb-0.5">Client Mobile No.</label>
-                <input 
-                  type="tel" 
+                <input
+                  type="tel"
                   placeholder="Mobile / Contact No."
-                  value={form.mobileNo} 
+                  value={form.mobileNo}
                   onChange={e => {
                     const mobileNo = e.target.value;
                     const match = findCustomerProfileByMobile(customerProfiles, mobileNo);
@@ -399,34 +399,34 @@ export const MoneyReceiptView: React.FC<Props> = ({
 
               <div className="border border-slate-300 rounded-xl p-2.5 px-3 bg-white focus-within:ring-2 focus-within:ring-sky-500">
                 <label className="block text-[11px] text-slate-500 font-bold mb-0.5">Relocate From</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   placeholder="Origin Address / City"
-                  value={form.relocateFrom} 
-                  onChange={e => setForm({ ...form, relocateFrom: e.target.value })} 
-                  className="w-full outline-none text-slate-800 text-sm font-medium bg-transparent" 
+                  value={form.relocateFrom}
+                  onChange={e => setForm({ ...form, relocateFrom: e.target.value })}
+                  className="w-full outline-none text-slate-800 text-sm font-medium bg-transparent"
                 />
               </div>
 
               <div className="border border-slate-300 rounded-xl p-2.5 px-3 bg-white focus-within:ring-2 focus-within:ring-sky-500">
                 <label className="block text-[11px] text-slate-500 font-bold mb-0.5">Relocate To</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   placeholder="Destination Address / City"
-                  value={form.relocateTo} 
-                  onChange={e => setForm({ ...form, relocateTo: e.target.value })} 
-                  className="w-full outline-none text-slate-800 text-sm font-medium bg-transparent" 
+                  value={form.relocateTo}
+                  onChange={e => setForm({ ...form, relocateTo: e.target.value })}
+                  className="w-full outline-none text-slate-800 text-sm font-medium bg-transparent"
                 />
               </div>
 
               <div className="border border-slate-300 rounded-xl p-2.5 px-3 bg-white focus-within:ring-2 focus-within:ring-sky-500 md:col-span-2">
                 <label className="block text-[11px] text-slate-500 font-bold mb-0.5">Branch City</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   placeholder="e.g. Bhubaneswar"
-                  value={form.branchCity} 
-                  onChange={e => setForm({ ...form, branchCity: e.target.value })} 
-                  className="w-full outline-none text-slate-800 text-sm font-medium bg-transparent" 
+                  value={form.branchCity}
+                  onChange={e => setForm({ ...form, branchCity: e.target.value })}
+                  className="w-full outline-none text-slate-800 text-sm font-medium bg-transparent"
                 />
               </div>
             </div>
@@ -441,9 +441,9 @@ export const MoneyReceiptView: React.FC<Props> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
               <div className="border border-slate-300 rounded-xl p-2.5 px-3 bg-white focus-within:ring-2 focus-within:ring-slate-800">
                 <label className="block text-[11px] text-slate-500 font-bold mb-0.5">Payment Type *</label>
-                <select 
-                  value={form.paymentType} 
-                  onChange={e => setForm({ ...form, paymentType: e.target.value as any })} 
+                <select
+                  value={form.paymentType}
+                  onChange={e => setForm({ ...form, paymentType: e.target.value as any })}
                   className="w-full outline-none text-slate-800 text-sm font-bold bg-transparent cursor-pointer"
                 >
                   <option value="Token Money">Token Money</option>
@@ -455,20 +455,20 @@ export const MoneyReceiptView: React.FC<Props> = ({
 
               <div className="border border-slate-300 rounded-xl p-2.5 px-3 bg-white focus-within:ring-2 focus-within:ring-slate-800">
                 <label className="block text-[11px] text-slate-500 font-bold mb-0.5">Receipt Amount (₹) *</label>
-                <input 
-                  type="number" 
-                  required 
-                  value={form.amount} 
-                  onChange={e => handleAmountChange(parseFloat(e.target.value) || 0)} 
-                  className="w-full outline-none text-slate-800 text-sm font-bold bg-transparent" 
+                <input
+                  type="number"
+                  required
+                  value={form.amount}
+                  onChange={e => handleAmountChange(parseFloat(e.target.value) || 0)}
+                  className="w-full outline-none text-slate-800 text-sm font-bold bg-transparent"
                 />
               </div>
 
               <div className="border border-slate-300 rounded-xl p-2.5 px-3 bg-white focus-within:ring-2 focus-within:ring-slate-800">
                 <label className="block text-[11px] text-slate-500 font-bold mb-0.5">Payment Mode *</label>
-                <select 
-                  value={form.paymentMode} 
-                  onChange={e => setForm({ ...form, paymentMode: e.target.value as any })} 
+                <select
+                  value={form.paymentMode}
+                  onChange={e => setForm({ ...form, paymentMode: e.target.value as any })}
                   className="w-full outline-none text-slate-800 text-sm font-semibold bg-transparent cursor-pointer"
                 >
                   <option value="Cash">Cash</option>
@@ -482,41 +482,41 @@ export const MoneyReceiptView: React.FC<Props> = ({
 
               <div className="border border-slate-300 rounded-xl p-2.5 px-3 bg-white focus-within:ring-2 focus-within:ring-slate-800">
                 <label className="block text-[11px] text-slate-500 font-bold mb-0.5">Reference/Transaction No.</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   placeholder="e.g. UPI-9028109281 / Chq #00129"
-                  value={form.paymentRefNo} 
-                  onChange={e => setForm({ ...form, paymentRefNo: e.target.value })} 
-                  className="w-full outline-none text-slate-800 text-sm font-medium bg-transparent" 
+                  value={form.paymentRefNo}
+                  onChange={e => setForm({ ...form, paymentRefNo: e.target.value })}
+                  className="w-full outline-none text-slate-800 text-sm font-medium bg-transparent"
                 />
               </div>
 
               <div className="md:col-span-2 border border-slate-300 rounded-xl p-2.5 px-3 bg-white focus-within:ring-2 focus-within:ring-slate-800">
                 <label className="block text-[11px] text-slate-500 font-bold mb-0.5">Amount in Words</label>
-                <input 
-                  type="text" 
-                  value={form.amountInWords} 
-                  onChange={e => setForm({ ...form, amountInWords: e.target.value })} 
-                  className="w-full outline-none text-slate-800 text-sm font-medium bg-transparent" 
+                <input
+                  type="text"
+                  value={form.amountInWords}
+                  onChange={e => setForm({ ...form, amountInWords: e.target.value })}
+                  className="w-full outline-none text-slate-800 text-sm font-medium bg-transparent"
                 />
               </div>
 
               <div className="md:col-span-2 border border-slate-300 rounded-xl p-2.5 px-3 bg-white focus-within:ring-2 focus-within:ring-slate-800">
                 <label className="block text-[11px] text-slate-500 font-bold mb-0.5">Additional Info.</label>
-                <textarea 
-                  rows={2} 
+                <textarea
+                  rows={2}
                   placeholder="Any additional remarks or note..."
-                  value={form.additionalInfo || ''} 
-                  onChange={e => setForm({ ...form, additionalInfo: e.target.value })} 
-                  className="w-full outline-none text-slate-800 text-xs font-medium bg-transparent resize-none" 
+                  value={form.additionalInfo || ''}
+                  onChange={e => setForm({ ...form, additionalInfo: e.target.value })}
+                  className="w-full outline-none text-slate-800 text-xs font-medium bg-transparent resize-none"
                 />
               </div>
             </div>
           </div>
 
           <div className="flex justify-end gap-3 pt-3">
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-3 rounded-xl text-sm shadow-md transition-all cursor-pointer flex items-center gap-2 active:scale-95"
             >
               <Save className="w-4 h-4" /> Save & View Money Receipt
@@ -657,7 +657,7 @@ export const MoneyReceiptView: React.FC<Props> = ({
           )}
 
           {/* PDF Container - Matches PDF Template Screenshot Exactly */}
-          <div 
+          <div
             id="printable-money-receipt-pdf"
             className="bg-white rounded-2xl border-2 border-[#1e3a8a] shadow-lg p-6 sm:p-8 space-y-4 max-w-3xl mx-auto print:max-w-none print:shadow-none print:border-2 print:border-[#1e3a8a]"
           >
@@ -665,10 +665,10 @@ export const MoneyReceiptView: React.FC<Props> = ({
             <div className="flex border-b border-[#1e3a8a] min-h-[96px]">
               {/* Left Logo Container */}
               <div className="w-[28%] border-r border-[#1e3a8a] flex items-center justify-center p-2 bg-white">
-                <img 
-                  src={companyProfile?.logo || UPL_LOGO_BASE64 || '/urbanpro-logo.jpeg'} 
-                  alt="UrbanPro Logo" 
-                  className="max-h-20 w-auto object-contain" 
+                <img
+                  src={companyProfile?.logo || UPL_LOGO_BASE64 || '/urbanpro-logo.jpeg'}
+                  alt="UrbanPro Logo"
+                  className="max-h-20 w-auto object-contain"
                 />
               </div>
 
@@ -701,7 +701,7 @@ export const MoneyReceiptView: React.FC<Props> = ({
 
             {/* Underlined Printable Receipt Details Lines */}
             <div className="space-y-3.5 text-xs sm:text-sm pt-2 leading-relaxed text-slate-900 font-sans">
-              
+
               {/* Line 1: Receipt No & Date */}
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-400 pb-1">
                 <div>
@@ -791,10 +791,10 @@ export const MoneyReceiptView: React.FC<Props> = ({
                     For <span className="text-[#1e3a8a]">Urban</span><span className="text-[#dc2626]">Pro</span> <span className="text-[#1e3a8a]">Packers & Logistics</span><br />
                   </div>
                   <div className="my-1 flex items-center justify-center min-h-[46px]">
-                    <img 
-                      src={globalSignature?.image || PRAKASH_SIGNATURE_BASE64} 
-                      alt="Authorized Signature & Stamp" 
-                      className="max-h-12 max-w-[145px] object-contain mx-auto" 
+                    <img
+                      src={globalSignature?.image || PRAKASH_SIGNATURE_BASE64}
+                      alt="Authorized Signature & Stamp"
+                      className="max-h-12 max-w-[145px] object-contain mx-auto"
                     />
                   </div>
                   <div className="font-bold text-[9.5px] text-blue-900 border-t border-slate-400 pt-0.5 min-w-[130px] uppercase">
@@ -811,14 +811,14 @@ export const MoneyReceiptView: React.FC<Props> = ({
 
             {/* Print Buttons Bar */}
             <div className="flex justify-end gap-3 print:hidden pt-4 border-t border-slate-200">
-              <button 
-                onClick={() => setViewMode('form')} 
+              <button
+                onClick={() => setViewMode('form')}
                 className="px-4 py-2 border rounded-xl text-xs font-semibold cursor-pointer hover:bg-slate-50"
               >
                 Back to Form
               </button>
-              <button 
-                onClick={() => window.print()} 
+              <button
+                onClick={() => window.print()}
                 className="bg-blue-600 text-white font-bold px-5 py-2 rounded-xl text-xs flex items-center gap-1.5 cursor-pointer shadow-xs hover:bg-blue-700"
               >
                 <Printer className="w-4 h-4" /> Print Money Receipt

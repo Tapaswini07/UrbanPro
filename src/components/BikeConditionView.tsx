@@ -99,14 +99,14 @@ interface Props {
   companyProfile?: any;
 }
 
-export const BikeConditionView: React.FC<Props> = ({ 
-  bikeConditions, 
-  onSave, 
-  onDelete, 
-  customerProfiles = [], 
-  globalSignature, 
+export const BikeConditionView: React.FC<Props> = ({
+  bikeConditions,
+  onSave,
+  onDelete,
+  customerProfiles = [],
+  globalSignature,
   initialViewMode = 'form',
-  companyProfile 
+  companyProfile
 }) => {
   const [viewMode, setViewMode] = useState<'form' | 'list' | 'preview'>(initialViewMode);
   const [selectedRecord, setSelectedRecord] = useState<BikeConditionData | null>(null);
@@ -241,7 +241,7 @@ export const BikeConditionView: React.FC<Props> = ({
     setViewMode('preview');
   };
 
-  const filteredReports = bikeConditions.filter(r => 
+  const filteredReports = bikeConditions.filter(r =>
     (r.partyName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
     (r.conditionNo || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
     (r.bikeRegNo || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -249,7 +249,7 @@ export const BikeConditionView: React.FC<Props> = ({
   );
 
   const handleShareBikeCondition = async (report: BikeConditionData) => {
-    const shareText = `🏍 *UrbanPro Packers & Logistics*
+    const shareText = `🏍 *UrbanPro Packer & Logistics*
 *BIKE CONDITION REPORT #${report.conditionNo}*
 ----------------------------------------
 👤 *Customer:* ${report.partyName}
@@ -320,8 +320,8 @@ export const BikeConditionView: React.FC<Props> = ({
                 <select
                   onChange={(e) => {
                     if (!e.target.value) return;
-                    const match = customerProfiles.find(c => 
-                      c.partyName === e.target.value || 
+                    const match = customerProfiles.find(c =>
+                      c.partyName === e.target.value ||
                       (c.uniqueIds && c.uniqueIds.includes(e.target.value))
                     );
                     if (match) handleAutoFillCustomer(match);
@@ -406,7 +406,7 @@ export const BikeConditionView: React.FC<Props> = ({
                   onChange={e => {
                     const val = e.target.value;
                     setForm(prev => ({ ...prev, partyName: val }));
-                    const match = customerProfiles.find(c => 
+                    const match = customerProfiles.find(c =>
                       (c.partyName && c.partyName.toLowerCase() === val.trim().toLowerCase()) ||
                       (c.uniqueIds && c.uniqueIds.some((id: string) => String(id).toLowerCase() === val.trim().toLowerCase()))
                     );
@@ -1173,19 +1173,19 @@ export const BikeConditionView: React.FC<Props> = ({
           )}
 
           {/* PDF View Container */}
-          <div 
+          <div
             id="printable-bike-condition-pdf"
             className="bg-white border-2 border-[#1e3a8a] shadow-xl p-4 sm:p-6 text-slate-900 font-sans print:border-0 print:shadow-none print:p-0 print:m-0 print:w-full"
           >
-            
+
             {/* Company Header */}
             <div className="flex border-b border-[#1e3a8a] min-h-[96px]">
               {/* Left Logo Container */}
               <div className="w-[28%] border-r border-[#1e3a8a] flex items-center justify-center p-2 bg-white">
-                <img 
-                  src={companyProfile?.logo || UPL_LOGO_BASE64 || '/urbanpro-logo.jpeg'} 
-                  alt="UrbanPro Packers & Logistics Logo" 
-                  className="max-h-20 w-auto object-contain" 
+                <img
+                  src={companyProfile?.logo || UPL_LOGO_BASE64 || '/urbanpro-logo.jpeg'}
+                  alt="UrbanPro Packer & Logistics Logo"
+                  className="max-h-20 w-auto object-contain"
                 />
               </div>
 
@@ -1346,10 +1346,10 @@ export const BikeConditionView: React.FC<Props> = ({
                   Agree with Terms & Conditions as Overleaf Signature Receiver's
                 </div>
                 <div className="mt-4 flex flex-col items-end">
-                  <img 
-                    src={globalSignature?.image || PRAKASH_SIGNATURE_BASE64} 
-                    alt="Authorized Signature & Stamp" 
-                    className="max-h-12 max-w-[145px] object-contain mb-1" 
+                  <img
+                    src={globalSignature?.image || PRAKASH_SIGNATURE_BASE64}
+                    alt="Authorized Signature & Stamp"
+                    className="max-h-12 max-w-[145px] object-contain mb-1"
                   />
                   <div className="font-bold text-slate-800 text-[10px] uppercase border-t border-slate-300 pt-0.5 w-full text-right">
                     Authorized Signatory & Stamp

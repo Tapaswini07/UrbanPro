@@ -39,7 +39,7 @@ export const SurveyPdfModal: React.FC<SurveyPdfModalProps> = ({ survey, onClose,
   const [isOpeningInTab, setIsOpeningInTab] = useState(false);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
   const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null);
-  
+
   // Authorized Signature options: customizable directly on the signature box
   const [authSignMode, setAuthSignMode] = useState<'default' | 'text' | 'image'>('default');
   const [authSignName, setAuthSignName] = useState('VIJAY');
@@ -142,7 +142,7 @@ export const SurveyPdfModal: React.FC<SurveyPdfModalProps> = ({ survey, onClose,
 
   const handleShareSurvey = async () => {
     const itemCount = survey.items?.length || 0;
-    const shareText = `📋 *UrbanPro Packers & Logistics*
+    const shareText = `📋 *UrbanPro Packer & Logistics*
 *PRE-MOVE SURVEY LIST #${survey.surveyNo || survey.id}*
 ----------------------------------------
 👤 *Customer:* ${survey.partyName || 'Customer'}
@@ -198,11 +198,11 @@ export const SurveyPdfModal: React.FC<SurveyPdfModalProps> = ({ survey, onClose,
   };
 
   return (
-    <div 
+    <div
       className="fixed inset-0 bg-slate-900/70 z-50 flex items-center justify-center p-2 sm:p-6 overflow-y-auto"
       onClick={onClose}
     >
-      <div 
+      <div
         className="bg-white rounded-xl shadow-2xl max-w-4xl w-full my-auto flex flex-col max-h-[96vh] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
@@ -218,12 +218,12 @@ export const SurveyPdfModal: React.FC<SurveyPdfModalProps> = ({ survey, onClose,
 
           <div className="flex items-center gap-2">
             {/* Automatic Download to Device Button */}
-            <button 
+            <button
               onClick={handleDownloadPdf}
               disabled={isDownloading || isOpeningInTab}
               className={`px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all flex items-center gap-1.5 shadow-xs cursor-pointer ${
-                downloadSuccess 
-                  ? 'bg-emerald-700 text-white' 
+                downloadSuccess
+                  ? 'bg-emerald-700 text-white'
                   : 'bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white'
               }`}
               title="Save PDF file directly to device downloads"
@@ -240,14 +240,14 @@ export const SurveyPdfModal: React.FC<SurveyPdfModalProps> = ({ survey, onClose,
                 </>
               ) : (
                 <>
-                  <Download className="w-4 h-4" /> 
+                  <Download className="w-4 h-4" />
                   <span>Download PDF</span>
                 </>
               )}
             </button>
 
             {/* Open in New Tab Button */}
-            <button 
+            <button
               onClick={handleOpenInNewTab}
               disabled={isDownloading || isOpeningInTab}
               className="bg-slate-700 hover:bg-slate-800 text-white px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer"
@@ -267,7 +267,7 @@ export const SurveyPdfModal: React.FC<SurveyPdfModalProps> = ({ survey, onClose,
             </button>
 
             {/* Share Button */}
-            <button 
+            <button
               onClick={handleShareSurvey}
               className="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer"
               title="Share via WhatsApp / Native Share"
@@ -276,7 +276,7 @@ export const SurveyPdfModal: React.FC<SurveyPdfModalProps> = ({ survey, onClose,
             </button>
 
             {/* Print Button */}
-            <button 
+            <button
               onClick={handlePrint}
               className="bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer"
               title="Print document"
@@ -285,7 +285,7 @@ export const SurveyPdfModal: React.FC<SurveyPdfModalProps> = ({ survey, onClose,
             </button>
 
             {/* Close */}
-            <button 
+            <button
               onClick={onClose}
               className="text-slate-500 hover:text-slate-800 p-1.5 bg-slate-200 hover:bg-slate-300 rounded-full transition-colors cursor-pointer ml-1"
               title="Close"
@@ -303,10 +303,10 @@ export const SurveyPdfModal: React.FC<SurveyPdfModalProps> = ({ survey, onClose,
               <span>Survey PDF downloaded to your device! If your browser blocked the download, click here:</span>
             </div>
             {pdfBlobUrl && (
-              <a 
-                href={pdfBlobUrl} 
-                target="_blank" 
-                rel="noopener noreferrer" 
+              <a
+                href={pdfBlobUrl}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="font-bold underline text-emerald-900 hover:text-emerald-700 flex items-center gap-1 mt-1 sm:mt-0"
               >
                 <span>Open / Save PDF in New Window</span>
@@ -318,9 +318,9 @@ export const SurveyPdfModal: React.FC<SurveyPdfModalProps> = ({ survey, onClose,
 
         {/* Modal Body / Scrollable Area */}
         <div className="flex-1 overflow-y-auto bg-slate-100 flex justify-center p-2 sm:p-6 print:p-0 print:bg-white print:overflow-visible">
-          
+
           {/* PDF Container - Exact Match to Official UrbanPro Format */}
-          <div 
+          <div
             id="printable-survey-pdf"
             className="bg-white w-[794px] max-w-[794px] min-h-[1123px] shadow-2xl border-2 border-[#1e3a8a] text-[12px] text-black font-sans box-border relative mx-auto my-auto flex flex-col justify-between print:border print:border-[#1e3a8a] print:shadow-none print:w-[794px] print:max-w-[794px] print:min-h-[1120px]"
           >
@@ -328,10 +328,10 @@ export const SurveyPdfModal: React.FC<SurveyPdfModalProps> = ({ survey, onClose,
             <div className="flex border-b border-[#1e3a8a] min-h-[96px]">
               {/* Logo Container */}
               <div className="w-[28%] border-r border-[#1e3a8a] flex items-center justify-center p-2 bg-white">
-                <img 
-                  src={companyLogo || companyProfile?.logo || UPL_LOGO_BASE64} 
-                  alt="UrbanPro Packers & Logistics Logo" 
-                  className="max-h-20 w-auto object-contain" 
+                <img
+                  src={companyLogo || companyProfile?.logo || UPL_LOGO_BASE64}
+                  alt="UrbanPro Packer & Logistics Logo"
+                  className="max-h-20 w-auto object-contain"
                 />
               </div>
 
@@ -423,8 +423,8 @@ export const SurveyPdfModal: React.FC<SurveyPdfModalProps> = ({ survey, onClose,
               {/* Table Rows */}
               <div className="flex-1 flex flex-col min-h-[200px]">
                 {itemsList.map((item, idx) => (
-                  <div 
-                    key={idx} 
+                  <div
+                    key={idx}
                     className="flex text-[11.5px] text-center border-b border-blue-100 py-1 font-medium text-black min-h-[26px]"
                   >
                     <div className="w-12 border-r border-[#1e3a8a] flex items-center justify-center shrink-0">
@@ -469,14 +469,14 @@ export const SurveyPdfModal: React.FC<SurveyPdfModalProps> = ({ survey, onClose,
                 </div>
 
                 {/* Inline Signature Display & Interactive Click-to-Choose */}
-                <div 
+                <div
                   className="flex flex-col items-center justify-center my-auto py-1 min-h-[55px] cursor-pointer relative"
                   onClick={() => setIsEditingSign(!isEditingSign)}
                   title="Click to change signature / upload signature"
                 >
-                  <img 
-                    src={globalSignature?.image || authSignImage || PRAKASH_SIGNATURE_BASE64} 
-                    alt="Authorized Signature & Stamp" 
+                  <img
+                    src={globalSignature?.image || authSignImage || PRAKASH_SIGNATURE_BASE64}
+                    alt="Authorized Signature & Stamp"
                     className="max-h-13 max-w-[145px] object-contain"
                   />
                   <div className="font-bold text-blue-900 text-[9.5px] uppercase border-t border-slate-300 pt-0.5 mt-0.5">
@@ -491,13 +491,13 @@ export const SurveyPdfModal: React.FC<SurveyPdfModalProps> = ({ survey, onClose,
 
                 {/* Popover / Drawer to change signature right here on the signature block */}
                 {isEditingSign && (
-                  <div 
+                  <div
                     className="absolute top-10 left-2 right-2 bg-white rounded-lg shadow-xl border border-slate-300 p-3 z-30 text-left print:hidden"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <div className="flex justify-between items-center pb-2 mb-2 border-b border-slate-100">
                       <span className="font-bold text-slate-800 text-[11px]">Choose Authorized Signature</span>
-                      <button 
+                      <button
                         onClick={() => setIsEditingSign(false)}
                         className="text-slate-400 hover:text-slate-700 text-xs p-1"
                       >
@@ -528,10 +528,10 @@ export const SurveyPdfModal: React.FC<SurveyPdfModalProps> = ({ survey, onClose,
                       >
                         <Upload className="w-3 h-3" /> Upload
                       </button>
-                      <input 
-                        type="file" 
-                        ref={fileInputRef} 
-                        className="hidden" 
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        className="hidden"
                         accept="image/*"
                         onChange={handleImageUpload}
                       />
@@ -541,9 +541,9 @@ export const SurveyPdfModal: React.FC<SurveyPdfModalProps> = ({ survey, onClose,
                       <div className="space-y-1.5 mb-2">
                         <div>
                           <label className="text-[10px] text-slate-600 font-semibold block">Signatory Name:</label>
-                          <input 
-                            type="text" 
-                            value={authSignName} 
+                          <input
+                            type="text"
+                            value={authSignName}
                             onChange={(e) => setAuthSignName(e.target.value)}
                             placeholder="e.g. VIJAY / Tapaswini"
                             className="w-full bg-slate-50 border border-slate-300 rounded px-2 py-1 text-slate-800 font-medium text-[11px] focus:ring-1 focus:ring-blue-500 focus:outline-none"
@@ -551,9 +551,9 @@ export const SurveyPdfModal: React.FC<SurveyPdfModalProps> = ({ survey, onClose,
                         </div>
                         <div>
                           <label className="text-[10px] text-slate-600 font-semibold block">Designation Label:</label>
-                          <input 
-                            type="text" 
-                            value={authSignTitle} 
+                          <input
+                            type="text"
+                            value={authSignTitle}
                             onChange={(e) => setAuthSignTitle(e.target.value)}
                             placeholder="Authorized Signature"
                             className="w-full bg-slate-50 border border-slate-300 rounded px-2 py-1 text-slate-800 font-medium text-[11px] focus:ring-1 focus:ring-blue-500 focus:outline-none"
@@ -567,7 +567,7 @@ export const SurveyPdfModal: React.FC<SurveyPdfModalProps> = ({ survey, onClose,
                         <span className="text-emerald-700 font-semibold flex items-center gap-1">
                           <Check className="w-3 h-3" /> Image uploaded
                         </span>
-                        <button 
+                        <button
                           onClick={() => fileInputRef.current?.click()}
                           className="text-blue-600 font-medium hover:underline text-[10px]"
                         >

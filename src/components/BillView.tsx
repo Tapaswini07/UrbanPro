@@ -1,24 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import { 
-  FileText, 
-  Printer, 
-  Save, 
-  Plus, 
-  Sparkles, 
-  Search, 
-  User, 
-  MapPin, 
-  Phone, 
-  Clock, 
-  Share2, 
-  Trash2, 
-  IndianRupee, 
-  Pencil, 
-  Check, 
-  Building2, 
-  Calendar, 
-  Truck, 
-  Box, 
+import {
+  FileText,
+  Printer,
+  Save,
+  Plus,
+  Sparkles,
+  Search,
+  User,
+  MapPin,
+  Phone,
+  Clock,
+  Share2,
+  Trash2,
+  IndianRupee,
+  Pencil,
+  Check,
+  Building2,
+  Calendar,
+  Truck,
+  Box,
   ShieldCheck,
   CheckCircle2,
   Download,
@@ -174,15 +174,15 @@ function numberToWordsIndian(num: number): string {
   return 'Rupees ' + inWords(rounded).trim() + ' Only';
 }
 
-export const BillView: React.FC<Props> = ({ 
-  bills, 
+export const BillView: React.FC<Props> = ({
+  bills,
   initialViewMode = 'form',
-  onSave, 
-  onDelete, 
+  onSave,
+  onDelete,
   quotations = [],
-  customerProfiles = [], 
+  customerProfiles = [],
   globalSignature,
-  companyProfile 
+  companyProfile
 }) => {
   const [viewMode, setViewMode] = useState<'form' | 'list' | 'preview'>(initialViewMode);
   const [selectedRecord, setSelectedRecord] = useState<BillData | null>(null);
@@ -382,7 +382,7 @@ export const BillView: React.FC<Props> = ({
   const handleShareBill = async (bill: BillData) => {
     const totalAmt = calcGrandTotal(bill);
     const words = bill.payableInWords || numberToWordsIndian(totalAmt);
-    const shareText = `🧾 *UrbanPro Packers & Logistics*
+    const shareText = `🧾 *UrbanPro Packer & Logistics*
 *TAX INVOICE / GST BILL #${bill.billNo}*
 ----------------------------------------
 👤 *Customer / Consignor:* ${bill.partyName || bill.consignorName || 'Customer'}
@@ -504,7 +504,7 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
             }}
             className={`font-bold px-4 py-1.5 rounded-full text-xs transition-colors cursor-pointer flex items-center gap-1.5 ${
               viewMode === 'form' && !isEditingExistingBill
-                ? 'bg-black text-white shadow-xs' 
+                ? 'bg-black text-white shadow-xs'
                 : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-300'
             }`}
           >
@@ -516,8 +516,8 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
             type="button"
             onClick={() => setViewMode('list')}
             className={`font-bold px-4 py-1.5 rounded-full text-xs transition-colors cursor-pointer flex items-center gap-1.5 ${
-              viewMode === 'list' 
-                ? 'bg-black text-white shadow-xs' 
+              viewMode === 'list'
+                ? 'bg-black text-white shadow-xs'
                 : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-300'
             }`}
           >
@@ -773,8 +773,8 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                   onChange={e => {
                     const st = e.target.value;
                     const autoCode = getStateCodeByName(st);
-                    setForm({ 
-                      ...form, 
+                    setForm({
+                      ...form,
                       state: st,
                       stateCode: autoCode || form.stateCode
                     });
@@ -902,7 +902,7 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                   }));
                 }}
                 className={`flex items-center gap-2 font-bold text-xs px-4 py-2 rounded-lg cursor-pointer transition-colors ${
-                  form.sameAsBillingConsignor 
+                  form.sameAsBillingConsignor
                     ? 'bg-emerald-50 text-emerald-700 border border-emerald-300'
                     : 'bg-slate-100 text-slate-700 border border-slate-300'
                 }`}
@@ -1031,7 +1031,7 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                   }));
                 }}
                 className={`flex items-center gap-2 font-bold text-xs px-4 py-2 rounded-lg cursor-pointer transition-colors ${
-                  form.sameAsBillingRelocateFrom 
+                  form.sameAsBillingRelocateFrom
                     ? 'bg-emerald-50 text-emerald-700 border border-emerald-300'
                     : 'bg-slate-100 text-slate-700 border border-slate-300'
                 }`}
@@ -1619,7 +1619,7 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {bills
-                .filter(rec => 
+                .filter(rec =>
                   (rec.partyName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
                   (rec.billNo || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
                   (rec.mobileNo || '').includes(searchTerm)
@@ -1868,7 +1868,7 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
           </div>
 
           {/* Clean Printable A4 Document Sheet */}
-          <div 
+          <div
             id="printable-bill-invoice-pdf"
             className="bg-white border-2 border-[#1e3a8a] shadow-xl p-4 sm:p-6 text-slate-900 font-sans print:border-0 print:shadow-none print:p-0 print:m-0 print:w-full"
           >
@@ -1876,10 +1876,10 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
             <div className="flex border-b border-[#1e3a8a] min-h-[96px]">
               {/* Left Logo Container (28%) */}
               <div className="w-[28%] border-r border-[#1e3a8a] flex items-center justify-center p-2 bg-white">
-                <img 
-                  src={companyProfile?.logo || UPL_LOGO_BASE64 || '/urbanpro-logo.jpeg'} 
-                  alt="UrbanPro Logo" 
-                  className="max-h-20 w-auto object-contain" 
+                <img
+                  src={companyProfile?.logo || UPL_LOGO_BASE64 || '/urbanpro-logo.jpeg'}
+                  alt="UrbanPro Logo"
+                  className="max-h-20 w-auto object-contain"
                 />
               </div>
 
@@ -1912,10 +1912,10 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
 
             {/* Main Content 2-Column Grid */}
             <div className="grid grid-cols-1 md:grid-cols-12 border-b border-[#1e3a8a] text-[11px]">
-              
+
               {/* Left Column: Meta, Bill To, Relocate Details, Package */}
               <div className="md:col-span-6 border-r border-[#1e3a8a] flex flex-col justify-between">
-                
+
                 {/* Meta Fields: Bill No, Dates, Shipment */}
                 <div className="grid grid-cols-2 p-2 gap-x-2 gap-y-1 text-[11px]">
                   <div><span className="font-bold">Bill No.</span> {selectedRecord.billNo || '1'}</div>
@@ -2107,10 +2107,10 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                   For <span className="text-[#1e3a8a]">Urban</span><span className="text-[#dc2626]">Pro</span> <span className="text-[#1e3a8a]">Packers & Logistics</span><br />
                 </div>
                 <div className="my-1 flex items-center justify-center min-h-[46px]">
-                  <img 
-                    src={globalSignature?.image || PRAKASH_SIGNATURE_BASE64} 
-                    alt="Authorized Signature & Stamp" 
-                    className="max-h-12 max-w-[145px] object-contain mx-auto" 
+                  <img
+                    src={globalSignature?.image || PRAKASH_SIGNATURE_BASE64}
+                    alt="Authorized Signature & Stamp"
+                    className="max-h-12 max-w-[145px] object-contain mx-auto"
                   />
                 </div>
                 <div className="font-bold text-[9.5px] text-blue-900 border-t border-slate-300 pt-0.5 w-full uppercase">

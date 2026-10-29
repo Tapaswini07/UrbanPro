@@ -233,7 +233,7 @@ export const CarConditionView: React.FC<Props> = ({ carConditions, onSave, onDel
     setViewMode('list');
   };
 
-  const filteredReports = carConditions.filter(r => 
+  const filteredReports = carConditions.filter(r =>
     (r.partyName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
     (r.conditionNo || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
     (r.carRegNo || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -241,7 +241,7 @@ export const CarConditionView: React.FC<Props> = ({ carConditions, onSave, onDel
   );
 
   const handleShareCarCondition = async (report: CarConditionData) => {
-    const shareText = `🚗 *UrbanPro Packers & Logistics*
+    const shareText = `🚗 *UrbanPro Packer & Logistics*
 *CAR CONDITION REPORT #${report.conditionNo}*
 ----------------------------------------
 👤 *Customer:* ${report.partyName}
@@ -317,8 +317,8 @@ export const CarConditionView: React.FC<Props> = ({ carConditions, onSave, onDel
                 <select
                   onChange={(e) => {
                     if (!e.target.value) return;
-                    const match = customerProfiles.find(c => 
-                      c.partyName === e.target.value || 
+                    const match = customerProfiles.find(c =>
+                      c.partyName === e.target.value ||
                       (c.uniqueIds && c.uniqueIds.includes(e.target.value))
                     );
                     if (match) handleAutoFillCustomer(match);
@@ -403,7 +403,7 @@ export const CarConditionView: React.FC<Props> = ({ carConditions, onSave, onDel
                   onChange={e => {
                     const val = e.target.value;
                     setForm(prev => ({ ...prev, partyName: val }));
-                    const match = customerProfiles.find(c => 
+                    const match = customerProfiles.find(c =>
                       (c.partyName && c.partyName.toLowerCase() === val.trim().toLowerCase()) ||
                       (c.uniqueIds && c.uniqueIds.some((id: string) => String(id).toLowerCase() === val.trim().toLowerCase()))
                     );
@@ -673,7 +673,7 @@ export const CarConditionView: React.FC<Props> = ({ carConditions, onSave, onDel
                   <option value="Midnight Black" />
                   <option value="Cherry Red" />
                 </datalist>
-                
+
                 {/* Color Buttons */}
                 <div className="flex flex-wrap gap-1.5 mt-2 pt-1.5 border-t border-slate-100">
                   {VEHICLE_POPULAR_COLORS.map((col, idx) => (
@@ -1177,19 +1177,19 @@ export const CarConditionView: React.FC<Props> = ({ carConditions, onSave, onDel
           )}
 
           {/* PDF View Container */}
-          <div 
+          <div
             id="printable-car-condition-pdf"
             className="bg-white border-2 border-[#1e3a8a] shadow-xl p-4 sm:p-6 text-slate-900 font-sans print:border-0 print:shadow-none print:p-0 print:m-0 print:w-full"
           >
-            
+
             {/* Company Header */}
             <div className="flex border-b border-[#1e3a8a] min-h-[96px]">
               {/* Left Logo Container */}
               <div className="w-[28%] border-r border-[#1e3a8a] flex items-center justify-center p-2 bg-white">
-                <img 
-                  src={companyProfile?.logo || UPL_LOGO_BASE64 || '/urbanpro-logo.jpeg'} 
-                  alt="UrbanPro Packers & Logistics Logo" 
-                  className="max-h-20 w-auto object-contain" 
+                <img
+                  src={companyProfile?.logo || UPL_LOGO_BASE64 || '/urbanpro-logo.jpeg'}
+                  alt="UrbanPro Packer & Logistics Logo"
+                  className="max-h-20 w-auto object-contain"
                 />
               </div>
 
@@ -1229,10 +1229,10 @@ export const CarConditionView: React.FC<Props> = ({ carConditions, onSave, onDel
 
             {/* Main Grid: Left Details + Right Accessories */}
             <div className="grid grid-cols-12 border-b border-[#1e3a8a] bg-white">
-              
+
               {/* Left Column (7/12 width) */}
               <div className="col-span-7 border-r border-[#1e3a8a] flex flex-col justify-between">
-                
+
                 {/* Vehicle & Condition Info */}
                 <div className="grid grid-cols-2 border-b border-[#1e3a8a] text-[10px] p-2 gap-1 leading-tight text-slate-900">
                   <div className="space-y-0.5">
@@ -1339,7 +1339,7 @@ export const CarConditionView: React.FC<Props> = ({ carConditions, onSave, onDel
 
             {/* Bottom Footer Section: Bank Details + Signatures */}
             <div className="grid grid-cols-12 border-b border-[#1e3a8a] min-h-[120px] bg-white text-[10px]">
-              
+
               {/* Bank Details */}
               {(() => {
                 const beneficiary = companyProfile?.accountHolder || '';
@@ -1367,10 +1367,10 @@ export const CarConditionView: React.FC<Props> = ({ carConditions, onSave, onDel
                   For <span className="text-[#1e3a8a]">Urban</span><span className="text-[#dc2626]">Pro</span> <span className="text-[#1e3a8a]">Packers & Logistics</span><br />
                 </div>
                 <div className="my-auto py-1">
-                  <img 
-                    src={globalSignature?.image || PRAKASH_SIGNATURE_BASE64} 
-                    alt="Authorized Signature & Stamp" 
-                    className="max-h-12 max-w-[145px] object-contain mx-auto" 
+                  <img
+                    src={globalSignature?.image || PRAKASH_SIGNATURE_BASE64}
+                    alt="Authorized Signature & Stamp"
+                    className="max-h-12 max-w-[145px] object-contain mx-auto"
                   />
                 </div>
                 <div className="text-blue-900 font-bold text-[9.5px] uppercase">

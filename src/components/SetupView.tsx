@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  Building2, Save, Phone, Mail, MapPin, CheckCircle2, Globe, Shield, 
+import {
+  Building2, Save, Phone, Mail, MapPin, CheckCircle2, Globe, Shield,
   CreditCard, Sparkles, UserCheck, Upload, Trash2, Image as ImageIcon,
   PenTool, Eraser, Check, RotateCcw, Database, HardDrive, Download, RefreshCw, AlertCircle
 } from 'lucide-react';
@@ -42,13 +42,13 @@ interface Props {
   onSaveSignature?: (sig: SignatureData) => void;
 }
 
-export const SetupView: React.FC<Props> = ({ 
-  activeTab, 
-  profile, 
-  signature, 
-  globalSignature, 
-  onSaveProfile, 
-  onSaveSignature 
+export const SetupView: React.FC<Props> = ({
+  activeTab,
+  profile,
+  signature,
+  globalSignature,
+  onSaveProfile,
+  onSaveSignature
 }) => {
   const [form, setForm] = useState<CompanyProfileData>(profile);
   const [savedSuccess, setSavedSuccess] = useState(false);
@@ -287,11 +287,11 @@ export const SetupView: React.FC<Props> = ({
                 <label className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-xs cursor-pointer flex items-center gap-1.5 transition-colors">
                   <Upload className="w-3.5 h-3.5" />
                   <span>Upload Logo</span>
-                  <input 
-                    type="file" 
-                    accept="image/*" 
-                    onChange={handleLogoUpload} 
-                    className="hidden" 
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleLogoUpload}
+                    className="hidden"
                   />
                 </label>
                 <button
@@ -310,9 +310,9 @@ export const SetupView: React.FC<Props> = ({
             <div className="bg-white rounded-xl border border-slate-200 p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <div className="w-36 h-20 bg-slate-50 border border-slate-200 rounded-lg p-2 flex items-center justify-center overflow-hidden shrink-0 shadow-inner">
-                  <img 
-                    src={activeLogo} 
-                    alt="Active Company Logo" 
+                  <img
+                    src={activeLogo}
+                    alt="Active Company Logo"
                     className="max-h-full max-w-full object-contain"
                   />
                 </div>
@@ -366,23 +366,23 @@ export const SetupView: React.FC<Props> = ({
 
             <div className="md:col-span-2">
               <label className="block font-semibold text-slate-700 mb-1">Registered Office Address</label>
-              <input 
-                type="text" 
-                value={form.regAddress} 
-                onChange={e => setForm({ ...form, regAddress: e.target.value })} 
+              <input
+                type="text"
+                value={form.regAddress}
+                onChange={e => setForm({ ...form, regAddress: e.target.value })}
                 placeholder="e.g. Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452 | Tel: 8093017400"
-                className="w-full border border-slate-300 rounded-xl p-2.5 outline-none font-medium text-slate-800 focus:border-blue-500" 
+                className="w-full border border-slate-300 rounded-xl p-2.5 outline-none font-medium text-slate-800 focus:border-blue-500"
               />
             </div>
 
             <div className="md:col-span-2">
               <label className="block font-semibold text-slate-700 mb-1">Main Operational Office / Branch Address</label>
-              <input 
-                type="text" 
-                value={form.branchAddress} 
-                onChange={e => setForm({ ...form, branchAddress: e.target.value })} 
+              <input
+                type="text"
+                value={form.branchAddress}
+                onChange={e => setForm({ ...form, branchAddress: e.target.value })}
                 placeholder="e.g. Plot No 1491, Balintha Canal Road, Near Lenskart, Hanspal, Bhubaneswar, Odisha – 752101 | Mobile: 8093017400"
-                className="w-full border border-slate-300 rounded-xl p-2.5 outline-none font-medium text-slate-800 focus:border-blue-500" 
+                className="w-full border border-slate-300 rounded-xl p-2.5 outline-none font-medium text-slate-800 focus:border-blue-500"
               />
             </div>
           </div>
@@ -398,62 +398,62 @@ export const SetupView: React.FC<Props> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
               <div>
                 <label className="block font-semibold text-slate-700 mb-1">Beneficiary / Account Holder Name</label>
-                <input 
-                  type="text" 
-                  value={form.accountHolder || form.brandName || ''} 
-                  onChange={e => setForm({ ...form, accountHolder: e.target.value })} 
+                <input
+                  type="text"
+                  value={form.accountHolder || form.brandName || ''}
+                  onChange={e => setForm({ ...form, accountHolder: e.target.value })}
                   placeholder="e.g. UrbanPro Packer & Logistics"
-                  className="w-full border border-slate-300 rounded-xl p-2.5 outline-none font-medium text-slate-800 focus:border-blue-500" 
+                  className="w-full border border-slate-300 rounded-xl p-2.5 outline-none font-medium text-slate-800 focus:border-blue-500"
                 />
               </div>
               <div>
                 <label className="block font-semibold text-slate-700 mb-1">Bank Name</label>
-                <input 
-                  type="text" 
-                  value={form.bankName} 
-                  onChange={e => setForm({ ...form, bankName: e.target.value })} 
+                <input
+                  type="text"
+                  value={form.bankName}
+                  onChange={e => setForm({ ...form, bankName: e.target.value })}
                   placeholder="e.g. State Bank of India"
-                  className="w-full border border-slate-300 rounded-xl p-2.5 outline-none font-medium text-slate-800 focus:border-blue-500" 
+                  className="w-full border border-slate-300 rounded-xl p-2.5 outline-none font-medium text-slate-800 focus:border-blue-500"
                 />
               </div>
               <div>
                 <label className="block font-semibold text-slate-700 mb-1">Account Number</label>
-                <input 
-                  type="text" 
-                  value={form.bankAccNo} 
-                  onChange={e => setForm({ ...form, bankAccNo: e.target.value })} 
+                <input
+                  type="text"
+                  value={form.bankAccNo}
+                  onChange={e => setForm({ ...form, bankAccNo: e.target.value })}
                   placeholder="e.g. 30789330266"
-                  className="w-full border border-slate-300 rounded-xl p-2.5 font-mono outline-none font-bold text-slate-800 focus:border-blue-500" 
+                  className="w-full border border-slate-300 rounded-xl p-2.5 font-mono outline-none font-bold text-slate-800 focus:border-blue-500"
                 />
               </div>
               <div>
                 <label className="block font-semibold text-slate-700 mb-1">IFSC Code</label>
-                <input 
-                  type="text" 
-                  value={form.bankIfsc} 
-                  onChange={e => setForm({ ...form, bankIfsc: e.target.value })} 
+                <input
+                  type="text"
+                  value={form.bankIfsc}
+                  onChange={e => setForm({ ...form, bankIfsc: e.target.value })}
                   placeholder="e.g. SBIN0009343"
-                  className="w-full border border-slate-300 rounded-xl p-2.5 font-mono uppercase outline-none font-bold text-slate-800 focus:border-blue-500" 
+                  className="w-full border border-slate-300 rounded-xl p-2.5 font-mono uppercase outline-none font-bold text-slate-800 focus:border-blue-500"
                 />
               </div>
               <div>
                 <label className="block font-semibold text-slate-700 mb-1">Bank Branch</label>
-                <input 
-                  type="text" 
-                  value={form.bankBranch} 
-                  onChange={e => setForm({ ...form, bankBranch: e.target.value })} 
+                <input
+                  type="text"
+                  value={form.bankBranch}
+                  onChange={e => setForm({ ...form, bankBranch: e.target.value })}
                   placeholder="e.g. Dipka, Korba"
-                  className="w-full border border-slate-300 rounded-xl p-2.5 outline-none font-medium text-slate-800 focus:border-blue-500" 
+                  className="w-full border border-slate-300 rounded-xl p-2.5 outline-none font-medium text-slate-800 focus:border-blue-500"
                 />
               </div>
               <div>
                 <label className="block font-semibold text-slate-700 mb-1">UPI ID</label>
-                <input 
-                  type="text" 
-                  value={form.upiId} 
-                  onChange={e => setForm({ ...form, upiId: e.target.value })} 
+                <input
+                  type="text"
+                  value={form.upiId}
+                  onChange={e => setForm({ ...form, upiId: e.target.value })}
                   placeholder="e.g. 8093017400@sbi"
-                  className="w-full border border-slate-300 rounded-xl p-2.5 outline-none font-medium text-slate-800 focus:border-blue-500" 
+                  className="w-full border border-slate-300 rounded-xl p-2.5 outline-none font-medium text-slate-800 focus:border-blue-500"
                 />
               </div>
             </div>
@@ -490,13 +490,13 @@ export const SetupView: React.FC<Props> = ({
           {/* Live Signature PDF Preview Stamp Box */}
           <div className="border-2 border-dashed border-blue-200 rounded-2xl p-6 text-center bg-blue-50/40 relative">
             <span className="text-[10px] font-bold text-blue-800 uppercase tracking-wider block mb-2">Live PDF Signature Stamp Preview</span>
-            
+
             <div className="max-w-md mx-auto p-5 bg-white border border-slate-300 rounded-xl shadow-xs text-slate-800 space-y-2">
               {signatureState.image ? (
                 <div className="relative inline-block">
-                  <img 
-                    src={signatureState.image} 
-                    alt="Uploaded Signature Stamp" 
+                  <img
+                    src={signatureState.image}
+                    alt="Uploaded Signature Stamp"
                     className="max-h-24 max-w-full object-contain mx-auto border-b border-slate-200 pb-1"
                   />
                   <button
@@ -551,12 +551,12 @@ export const SetupView: React.FC<Props> = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs bg-slate-50 p-4 rounded-xl border border-slate-200">
                 <div>
                   <label className="block font-semibold text-slate-700 mb-1">Authorized Title / Text Designation</label>
-                  <input 
-                    type="text" 
-                    value={signatureState.text} 
-                    onChange={e => setSignatureState({ ...signatureState, text: e.target.value })} 
+                  <input
+                    type="text"
+                    value={signatureState.text}
+                    onChange={e => setSignatureState({ ...signatureState, text: e.target.value })}
                     placeholder="e.g. Authorized Signatory & Stamp"
-                    className="w-full border border-slate-300 rounded-xl p-2.5 text-xs text-slate-800 font-medium outline-none focus:border-blue-500 bg-white" 
+                    className="w-full border border-slate-300 rounded-xl p-2.5 text-xs text-slate-800 font-medium outline-none focus:border-blue-500 bg-white"
                   />
                   <p className="text-[10px] text-slate-500 mt-1">Text shown on PDFs when no image is uploaded.</p>
                 </div>
@@ -567,11 +567,11 @@ export const SetupView: React.FC<Props> = ({
                     <Upload className="w-5 h-5 text-blue-600" />
                     <span>{signatureState.image ? 'Replace Uploaded Image' : 'Select PNG / JPG Signature File'}</span>
                     <span className="text-[10px] text-slate-400 font-normal">Auto-optimized for crisp PDF printing</span>
-                    <input 
-                      type="file" 
-                      accept="image/*" 
-                      onChange={handleSignatureImageUpload} 
-                      className="hidden" 
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleSignatureImageUpload}
+                      className="hidden"
                     />
                   </label>
                 </div>
@@ -642,8 +642,8 @@ export const SetupView: React.FC<Props> = ({
           </div>
 
           <div className="flex justify-end pt-2 border-t border-slate-100">
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-2.5 rounded-xl text-xs cursor-pointer shadow-xs flex items-center gap-2 transition-all active:scale-95"
             >
               <Save className="w-4 h-4" /> Save Signature (Applies to All PDFs)
@@ -671,7 +671,7 @@ export const SetupView: React.FC<Props> = ({
               <span>Permanent Storage Status: ACTIVE & PERMANENT</span>
             </div>
             <p className="text-emerald-900 leading-relaxed">
-              All records you create (Surveys, Quotations, Bills, Bilties, Receipts, Vouchers, and Vehicle Reports) are stored permanently in your browser's persistent database storage. 
+              All records you create (Surveys, Quotations, Bills, Bilties, Receipts, Vouchers, and Vehicle Reports) are stored permanently in your browser's persistent database storage.
               <strong> They have NO expiry date and will NOT be automatically deleted.</strong> Records remain safe until you explicitly click the red <em>"Delete"</em> button on any specific record.
             </p>
           </div>

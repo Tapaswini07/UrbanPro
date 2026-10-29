@@ -48,9 +48,9 @@ interface PackingListPdfModalProps {
   companyProfile?: any;
 }
 
-export const PackingListPdfModal: React.FC<PackingListPdfModalProps> = ({ 
-  packingList, 
-  onClose, 
+export const PackingListPdfModal: React.FC<PackingListPdfModalProps> = ({
+  packingList,
+  onClose,
   globalSignature,
   companyLogo,
   companyProfile
@@ -125,7 +125,7 @@ export const PackingListPdfModal: React.FC<PackingListPdfModalProps> = ({
   };
 
   const handleShare = async () => {
-    const text = `📦 *UrbanPro Packers & Logistics*
+    const text = `📦 *UrbanPro Packer & Logistics*
 *PACKING LIST / INVENTORY SHEET #${packingList.packingListNo}*
 ----------------------------------------
 👤 *Customer:* ${packingList.partyName}
@@ -149,7 +149,7 @@ export const PackingListPdfModal: React.FC<PackingListPdfModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/80 backdrop-blur-xs flex justify-center p-2 sm:p-4 md:p-6 print:p-0 print:bg-white print:fixed print:inset-0">
       <div className="relative bg-slate-100 rounded-2xl shadow-2xl max-w-4xl w-full flex flex-col my-auto max-h-[96vh] overflow-hidden print:max-h-none print:shadow-none print:bg-white print:w-full print:max-w-none print:rounded-none">
-        
+
         {/* Modal Top Bar (Hidden in Print) */}
         <div className="bg-[#0f172a] text-white p-3 sm:p-4 px-6 flex justify-between items-center shrink-0 print:hidden border-b border-slate-800">
           <div className="flex items-center gap-3">
@@ -208,10 +208,10 @@ export const PackingListPdfModal: React.FC<PackingListPdfModalProps> = ({
 
         {/* Modal Scrollable Area */}
         <div className="flex-1 overflow-y-auto bg-slate-100 flex justify-center p-2 sm:p-6 print:p-0 print:bg-white print:overflow-visible">
-          
+
           {/* Printable A4 Sheet - Exact Match to Official UrbanPro Format */}
-          <div 
-            id="printable-packing-list-pdf" 
+          <div
+            id="printable-packing-list-pdf"
             className="bg-white w-[794px] max-w-[794px] min-h-[1123px] shadow-2xl border-2 border-[#1e3a8a] text-[12px] text-black font-sans box-border relative mx-auto my-auto flex flex-col justify-between print:border print:border-[#1e3a8a] print:shadow-none print:w-[794px] print:max-w-[794px] print:min-h-[1120px]"
             style={{ fontFamily: 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}
           >
@@ -219,10 +219,10 @@ export const PackingListPdfModal: React.FC<PackingListPdfModalProps> = ({
             <div className="flex border-b border-[#1e3a8a] min-h-[96px]">
               {/* Logo Container */}
               <div className="w-[28%] border-r border-[#1e3a8a] flex items-center justify-center p-2 bg-white">
-                <img 
-                  src={companyLogo || companyProfile?.logo || UPL_LOGO_BASE64} 
-                  alt="UrbanPro Packers & Logistics Logo" 
-                  className="max-h-20 w-auto object-contain" 
+                <img
+                  src={companyLogo || companyProfile?.logo || UPL_LOGO_BASE64}
+                  alt="UrbanPro Packer & Logistics Logo"
+                  className="max-h-20 w-auto object-contain"
                 />
               </div>
 
@@ -315,8 +315,8 @@ export const PackingListPdfModal: React.FC<PackingListPdfModalProps> = ({
               {/* Table Rows */}
               <div className="min-h-[140px] flex flex-col">
                 {displayItems.map((item, idx) => (
-                  <div 
-                    key={idx} 
+                  <div
+                    key={idx}
                     className="flex text-[11.5px] text-center border-b border-blue-100 py-1 font-medium text-black min-h-[26px]"
                   >
                     <div className="w-12 border-r border-[#1e3a8a] flex items-center justify-center shrink-0">
@@ -366,15 +366,15 @@ export const PackingListPdfModal: React.FC<PackingListPdfModalProps> = ({
                 </div>
 
                 {/* Inline Signature Display & Interactive Click-to-Choose */}
-                <div 
+                <div
                   className="flex flex-col items-center justify-center my-auto py-1 min-h-[55px] cursor-pointer relative"
                   onClick={() => setIsEditingSign(!isEditingSign)}
                   title="Click to change signature / upload signature"
                 >
-                  <img 
-                    src={globalSignature?.image || PRAKASH_SIGNATURE_BASE64} 
-                    alt="Authorized Signature & Stamp" 
-                    className="max-h-12 w-auto object-contain" 
+                  <img
+                    src={globalSignature?.image || PRAKASH_SIGNATURE_BASE64}
+                    alt="Authorized Signature & Stamp"
+                    className="max-h-12 w-auto object-contain"
                   />
                   <span className="text-[8px] text-blue-600 bg-blue-50 border border-blue-200 px-1 py-0.2 rounded opacity-0 group-hover:opacity-100 transition-opacity print:hidden">
                     Change signature
@@ -383,7 +383,7 @@ export const PackingListPdfModal: React.FC<PackingListPdfModalProps> = ({
 
                 {/* Popover for quick signature customization */}
                 {isEditingSign && (
-                  <div 
+                  <div
                     className="absolute z-20 bottom-12 left-1/2 -translate-x-1/2 bg-white border border-slate-300 shadow-xl rounded-lg p-3 w-56 text-left print:hidden"
                     onClick={(e) => e.stopPropagation()}
                   >
@@ -394,7 +394,7 @@ export const PackingListPdfModal: React.FC<PackingListPdfModalProps> = ({
 
                     <div className="mb-2">
                       <label className="block text-[10px] text-slate-600 font-semibold mb-0.5">Signer Name</label>
-                      <input 
+                      <input
                         type="text"
                         value={authSignName}
                         onChange={(e) => setAuthSignName(e.target.value)}
@@ -405,7 +405,7 @@ export const PackingListPdfModal: React.FC<PackingListPdfModalProps> = ({
 
                     <div className="mb-2">
                       <label className="block text-[10px] text-slate-600 font-semibold mb-0.5">Signer Designation</label>
-                      <input 
+                      <input
                         type="text"
                         value={authSignTitle}
                         onChange={(e) => setAuthSignTitle(e.target.value)}

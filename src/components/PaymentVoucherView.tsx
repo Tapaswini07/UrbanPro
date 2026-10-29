@@ -35,7 +35,7 @@ interface Props {
 // Number to words converter
 function numberToWords(num: number): string {
   if (isNaN(num) || num === 0) return 'Zero';
-  
+
   const a = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
   const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
 
@@ -98,7 +98,7 @@ export const PaymentVoucherView: React.FC<Props> = ({ vouchers, initialViewMode 
   };
 
   const handleShareVoucher = async (voucher: PaymentVoucherData) => {
-    const shareText = `💵 *UrbanPro Packers & Logistics*
+    const shareText = `💵 *UrbanPro Packer & Logistics*
 *PAYMENT VOUCHER #${voucher.voucherNo}*
 ----------------------------------------
 👤 *Receiver Name:* ${voucher.receiverName}
@@ -629,7 +629,7 @@ export const PaymentVoucherView: React.FC<Props> = ({ vouchers, initialViewMode 
           )}
 
           {/* Official Printable Sheet (Matching exact screenshot) */}
-          <div 
+          <div
             id="printable-payment-voucher-pdf"
             className="bg-white rounded-xl border-2 border-[#1e3a8a] shadow-xl p-8 sm:p-12 text-slate-900 space-y-5 print:border-2 print:border-[#1e3a8a] print:p-8"
           >
@@ -637,10 +637,10 @@ export const PaymentVoucherView: React.FC<Props> = ({ vouchers, initialViewMode 
             <div className="flex border-b border-[#1e3a8a] min-h-[96px]">
               {/* Logo Container on Side */}
               <div className="w-[28%] border-r border-[#1e3a8a] flex items-center justify-center p-2 bg-white">
-                <img 
-                  src={companyProfile?.logo || UPL_LOGO_BASE64 || '/urbanpro-logo.jpeg'} 
-                  alt="UrbanPro Logo" 
-                  className="max-h-20 w-auto object-contain" 
+                <img
+                  src={companyProfile?.logo || UPL_LOGO_BASE64 || '/urbanpro-logo.jpeg'}
+                  alt="UrbanPro Logo"
+                  className="max-h-20 w-auto object-contain"
                 />
               </div>
 
@@ -733,10 +733,10 @@ export const PaymentVoucherView: React.FC<Props> = ({ vouchers, initialViewMode 
 
               <div className="text-right space-y-1">
                 <div className="h-14 flex items-end justify-end">
-                  <img 
-                    src={globalSignature?.image || PRAKASH_SIGNATURE_BASE64} 
-                    alt="Authorized Signature & Stamp" 
-                    className="max-h-12 max-w-[140px] object-contain" 
+                  <img
+                    src={globalSignature?.image || PRAKASH_SIGNATURE_BASE64}
+                    alt="Authorized Signature & Stamp"
+                    className="max-h-12 max-w-[140px] object-contain"
                   />
                 </div>
                 <p className="font-bold text-[10px] border-t border-slate-300 pt-0.5 leading-tight">

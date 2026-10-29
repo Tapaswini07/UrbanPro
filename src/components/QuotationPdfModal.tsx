@@ -1,19 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  Printer, 
-  X, 
-  Download, 
-  Upload, 
-  Check, 
-  ExternalLink, 
-  Share2, 
-  Edit, 
-  Pencil, 
-  Sliders, 
-  Save, 
-  RotateCcw, 
-  Plus, 
-  Trash2, 
+import {
+  Printer,
+  X,
+  Download,
+  Upload,
+  Check,
+  ExternalLink,
+  Share2,
+  Edit,
+  Pencil,
+  Sliders,
+  Save,
+  RotateCcw,
+  Plus,
+  Trash2,
   Receipt,
   Sparkles,
   ZoomIn,
@@ -134,14 +134,14 @@ export function numberToIndianWords(num: number): string {
   return inWords(num);
 }
 
-export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({ 
-  quotation: initialQuotation, 
-  onClose, 
+export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
+  quotation: initialQuotation,
+  onClose,
   onEdit,
   onSave,
   globalSignature,
   companyLogo,
-  companyProfile 
+  companyProfile
 }) => {
   const [quotation, setQuotation] = useState<QuotationData | null>(initialQuotation);
   const [showQuickEdit, setShowQuickEdit] = useState(false);
@@ -208,8 +208,8 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
   // Accurately cross-verify and calculate all quotation totals (Base Charges, Service %, Sub Total, Insurance, GST, Grand Total)
   const totals = calculateQuotationTotals(quotation);
   const finalGrandTotalNum = totals.grandTotal;
-  const wordsAmount = (finalGrandTotalNum > 0) 
-    ? `${numberToIndianWords(finalGrandTotalNum)} Rupees Only` 
+  const wordsAmount = (finalGrandTotalNum > 0)
+    ? `${numberToIndianWords(finalGrandTotalNum)} Rupees Only`
     : (quotation.payableInWords || '');
 
   const handlePrint = () => {
@@ -292,7 +292,7 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
   };
 
   const handleShare = async () => {
-    const shareText = `📦 *UrbanPro Packers & Logistics*
+    const shareText = `📦 *UrbanPro Packer & Logistics*
 *QUOTATION #${quotation.quotationNo || quotation.id}*
 ----------------------------------------
 👤 *Customer:* ${quotation.partyName}
@@ -368,11 +368,11 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
   };
 
   return (
-    <div 
+    <div
       className="fixed inset-0 bg-slate-900/75 z-50 flex items-center justify-center p-2 sm:p-4 overflow-y-auto"
       onClick={onClose}
     >
-      <div 
+      <div
         className="bg-white rounded-xl shadow-2xl max-w-4xl w-full my-auto flex flex-col max-h-[96vh] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
@@ -458,7 +458,7 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
           <div className="flex items-center gap-2 flex-wrap">
             {/* Edit Quotation Button (Opens Full Form Editor) */}
             {onEdit && (
-              <button 
+              <button
                 type="button"
                 onClick={() => onEdit(quotation)}
                 className="bg-amber-600 hover:bg-amber-700 active:scale-95 text-white px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
@@ -470,12 +470,12 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
             )}
 
             {/* Quick Edit in Modal Toggle */}
-            <button 
+            <button
               type="button"
               onClick={() => setShowQuickEdit(!showQuickEdit)}
               className={`px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 shadow-xs cursor-pointer ${
-                showQuickEdit 
-                  ? 'bg-sky-800 text-white' 
+                showQuickEdit
+                  ? 'bg-sky-800 text-white'
                   : 'bg-sky-600 hover:bg-sky-700 active:scale-95 text-white'
               }`}
               title="Edit charges & details directly inside this modal"
@@ -485,12 +485,12 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
             </button>
 
             {/* Automatic Download to Device Button */}
-            <button 
+            <button
               onClick={handleDownloadPdf}
               disabled={isDownloading || isOpeningInTab}
               className={`px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all flex items-center gap-1.5 shadow-xs cursor-pointer ${
-                downloadSuccess 
-                  ? 'bg-emerald-700 text-white' 
+                downloadSuccess
+                  ? 'bg-emerald-700 text-white'
                   : 'bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white'
               }`}
               title="Download PDF file directly to your device"
@@ -507,7 +507,7 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
                 </>
               ) : (
                 <>
-                  <Download className="w-4 h-4" /> 
+                  <Download className="w-4 h-4" />
                   <span>Download PDF</span>
                 </>
               )}
@@ -515,7 +515,7 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
 
             {/* Direct Download Link for Laptop/Desktop */}
             {pdfBlobUrl && (
-              <a 
+              <a
                 href={pdfBlobUrl}
                 download={`UrbanPro_Quotation_${quotation.quotationNo || quotation.id}.pdf`}
                 className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-md animate-pulse cursor-pointer border border-emerald-400"
@@ -527,7 +527,7 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
             )}
 
             {/* Open in New Tab Button */}
-            <button 
+            <button
               onClick={handleOpenInNewTab}
               disabled={isDownloading || isOpeningInTab}
               className="bg-slate-700 hover:bg-slate-800 text-white px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer"
@@ -547,7 +547,7 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
             </button>
 
             {/* Share Button */}
-            <button 
+            <button
               onClick={handleShare}
               className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer"
               title="Share via WhatsApp / Native Share"
@@ -556,7 +556,7 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
             </button>
 
             {/* Print Button */}
-            <button 
+            <button
               onClick={handlePrint}
               className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer"
               title="Print document"
@@ -565,7 +565,7 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
             </button>
 
             {/* Close Button */}
-            <button 
+            <button
               onClick={onClose}
               className="text-slate-500 hover:text-slate-800 p-1.5 bg-slate-200 hover:bg-slate-300 rounded-full transition-colors cursor-pointer ml-1"
               title="Close"
@@ -783,7 +783,7 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
                 <h4 className="font-bold text-sky-950 uppercase tracking-wider text-[11px]">
                   <span>3. Service, Insurance & GST</span>
                 </h4>
-                
+
                 {/* Service Charge */}
                 <div className="grid grid-cols-2 gap-2">
                   <div>
@@ -828,9 +828,9 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
                           key={status}
                           type="button"
                           onClick={() => {
-                            setQuotation({ 
-                              ...quotation, 
-                              insuranceStatus: status, 
+                            setQuotation({
+                              ...quotation,
+                              insuranceStatus: status,
                               insuranceCharge: status === 'Exempted' ? 'Exempted' : '',
                             });
                           }}
@@ -883,9 +883,9 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
                           key={status}
                           type="button"
                           onClick={() => {
-                            setQuotation({ 
-                              ...quotation, 
-                              gstStatus: status, 
+                            setQuotation({
+                              ...quotation,
+                              gstStatus: status,
                               gstCharge: status === 'Exempted' ? 'Exempted' : '',
                             });
                           }}
@@ -989,18 +989,18 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
             </div>
             {pdfBlobUrl && (
               <div className="flex items-center gap-3">
-                <a 
-                  href={pdfBlobUrl} 
+                <a
+                  href={pdfBlobUrl}
                   download={`UrbanPro_Quotation_${quotation.quotationNo || quotation.id}.pdf`}
                   className="font-bold underline text-emerald-900 hover:text-emerald-700 flex items-center gap-1 bg-emerald-100/80 px-2.5 py-1 rounded"
                 >
                   <Download className="w-3.5 h-3.5" />
                   <span>Download File Again</span>
                 </a>
-                <a 
-                  href={pdfBlobUrl} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
+                <a
+                  href={pdfBlobUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="font-bold underline text-emerald-900 hover:text-emerald-700 flex items-center gap-1"
                 >
                   <span>Open PDF in Tab</span>
@@ -1012,7 +1012,7 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
         )}
 
         {/* Modal Scrollable Body */}
-        <div 
+        <div
           ref={scrollContainerRef}
           className="flex-1 overflow-x-auto overflow-y-auto bg-slate-200/80 p-2 sm:p-6 print:p-0 print:space-y-0 print:bg-white print:overflow-visible"
         >
@@ -1047,7 +1047,7 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
           </div>
 
           {/* Scaling wrapper so A4 PDF fits gracefully on any mobile, tablet or desktop screen */}
-          <div 
+          <div
             className="flex flex-col items-center gap-6 w-full mx-auto print:!transform-none print:!m-0 print:!mb-0 print:!gap-0"
             style={{
               transform: effectiveScale !== 1 ? `scale(${effectiveScale})` : 'none',
@@ -1057,17 +1057,17 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
           >
             {/* ================= PAGE 1 ================= */}
             {(activePage === 'both' || activePage === 'page1') && (
-              <div 
+              <div
                 id="quotation-page-1"
                 className="bg-white w-[794px] max-w-[794px] min-h-[1123px] shadow-2xl border-2 border-[#1e3a8a] text-[11px] text-black font-sans box-border relative mx-auto flex flex-col justify-between print:border print:border-[#1e3a8a] print:shadow-none print:w-[794px] print:max-w-[794px] print:break-after-page print:min-h-[1120px]"
               >
                 {/* Company Header */}
                 <div className="flex border-b border-[#1e3a8a] min-h-[86px]">
                   <div className="w-[28%] border-r border-[#1e3a8a] flex items-center justify-center p-2 bg-white">
-                    <img 
-                      src={companyLogo || companyProfile?.logo || UPL_LOGO_BASE64} 
-                      alt="UrbanPro Packers & Logistics Logo" 
-                      className="max-h-16 w-auto object-contain" 
+                    <img
+                      src={companyLogo || companyProfile?.logo || UPL_LOGO_BASE64}
+                      alt="UrbanPro Packer & Logistics Logo"
+                      className="max-h-16 w-auto object-contain"
                     />
                   </div>
                   <div className="w-[72%] p-2 text-center flex flex-col justify-center items-center bg-white">
@@ -1330,7 +1330,7 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
 
                 {/* Signatures Row (Clean 2 Columns matching quotation template without bank details) */}
                 <div className="grid grid-cols-12 border-b border-[#1e3a8a] min-h-[145px] bg-white mt-auto">
-                  
+
                   {/* Left (Col 1): Authorized Signature & Stamp (6 Columns) */}
                   <div className="col-span-6 border-r border-[#1e3a8a] p-3 flex flex-col justify-between items-center text-center relative group">
                     <div className="font-bold text-[11px] leading-tight">
@@ -1339,15 +1339,15 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
                     </div>
 
                     {/* Signature Click-to-edit */}
-                    <div 
+                    <div
                       className="flex flex-col items-center justify-center my-auto py-1 min-h-[55px] cursor-pointer relative"
                       onClick={() => setIsEditingSign(!isEditingSign)}
                       title="Click to customize authorized signature"
                     >
-                      <img 
-                        src={globalSignature?.image || authSignImage || PRAKASH_SIGNATURE_BASE64} 
-                        alt="Authorized Signature & Stamp" 
-                        className="max-h-14 max-w-[160px] object-contain" 
+                      <img
+                        src={globalSignature?.image || authSignImage || PRAKASH_SIGNATURE_BASE64}
+                        alt="Authorized Signature & Stamp"
+                        className="max-h-14 max-w-[160px] object-contain"
                       />
                       <span className="text-[8px] text-blue-600 bg-blue-50 border border-blue-200 px-1 py-0.2 rounded opacity-0 group-hover:opacity-100 transition-opacity print:hidden">
                         Change signature
@@ -1356,7 +1356,7 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
 
                     {/* Popover to customize */}
                     {isEditingSign && (
-                      <div 
+                      <div
                         className="absolute top-8 left-4 right-4 bg-white rounded-lg shadow-xl border border-slate-300 p-2.5 z-30 text-left print:hidden"
                         onClick={(e) => e.stopPropagation()}
                       >
@@ -1421,7 +1421,7 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
 
             {/* ================= PAGE 2 (TERMS & CONDITIONS) ================= */}
             {(activePage === 'both' || activePage === 'page2') && (
-              <div 
+              <div
                 id="quotation-page-2"
                 className="bg-white w-[794px] max-w-[794px] shadow-2xl border-2 border-[#1e3a8a] text-[11.5px] text-black font-sans box-border relative mx-auto p-4 flex flex-col justify-between min-h-[1123px] print:border print:border-[#1e3a8a] print:shadow-none print:w-[794px] print:max-w-[794px] print:min-h-[1120px]"
               >
@@ -1468,10 +1468,10 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
                         <span className="text-[#1e3a8a] font-extrabold uppercase text-[11px] tracking-wider">Packers & Logistics</span><br />
                       </p>
                       <div className="flex flex-col items-end">
-                        <img 
-                          src={globalSignature?.image || authSignImage || PRAKASH_SIGNATURE_BASE64} 
-                          alt="Authorized Signature & Stamp" 
-                          className="max-h-16 max-w-[160px] object-contain mb-1" 
+                        <img
+                          src={globalSignature?.image || authSignImage || PRAKASH_SIGNATURE_BASE64}
+                          alt="Authorized Signature & Stamp"
+                          className="max-h-16 max-w-[160px] object-contain mb-1"
                         />
                         <span className="text-[11px] font-bold text-black uppercase border-t border-slate-300 pt-0.5 px-4">
                           Authorized Signatory & Stamp

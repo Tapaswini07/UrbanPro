@@ -1,5 +1,5 @@
 /**
- * Comprehensive quotation calculation utilities for UrbanPro Packers & Logistics.
+ * Comprehensive quotation calculation utilities for UrbanPro Packer & Logistics.
  * Accurately cross-verifies:
  * - Base Moving Charges (Transportation, Packing, Unpacking, Loading, Unloading, Dismantling, Octroi, Car, Bike, Statistical, Custom)
  * - Sub Total
@@ -86,7 +86,7 @@ export function formatChargeValue(amountStr: string, status: 'standard' | 'inclu
 export function parseChargeNumber(val: any): number {
   if (val === undefined || val === null) return 0;
   if (typeof val === 'number') return isNaN(val) ? 0 : val;
-  
+
   const { amount, status, rawText } = parseChargeDetails(val);
   const lower = rawText.toLowerCase();
 

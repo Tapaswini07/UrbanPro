@@ -5,18 +5,18 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'motion/react';
-import { 
-  Home, 
-  Building2, 
-  Truck, 
-  Package, 
-  Car, 
-  Bike, 
-  Globe, 
-  Phone, 
+import {
+  Home,
+  Building2,
+  Truck,
+  Package,
+  Car,
+  Bike,
+  Globe,
+  Phone,
   PhoneCall,
-  Mail, 
-  MapPin, 
+  Mail,
+  MapPin,
   CheckCircle2,
   Clock,
   ShieldCheck,
@@ -280,7 +280,7 @@ export default function App() {
     } catch (e) {}
     return sampleSurveys;
   });
-  
+
   useEffect(() => {
     try {
       localStorage.setItem('upl_surveys', JSON.stringify(surveys));
@@ -288,7 +288,7 @@ export default function App() {
       console.error(e);
     }
   }, [surveys]);
-  
+
   const [currentItem, setCurrentItem] = useState({name: '', qty: '1', value: '', remark: ''});
   const [editingSurveyId, setEditingSurveyId] = useState<number | null>(null);
   const [viewingSurvey, setViewingSurvey] = useState<any | null>(null);
@@ -337,7 +337,7 @@ export default function App() {
   const removeItemFromSurvey = (index: number) => {
     setSurveyForm(prev => ({ ...prev, items: prev.items.filter((_, i) => i !== index) }));
   };
-  
+
   const handleSaveSurvey = () => {
     if (!surveyForm.partyName.trim()) {
       setShareToast('Please enter Party Name');
@@ -351,13 +351,13 @@ export default function App() {
 
     // Uniqueness validation check across all other records
     const duplicate = surveys.find(
-      s => String(s.id) !== String(editingSurveyId) && 
+      s => String(s.id) !== String(editingSurveyId) &&
            String(s.surveyNo || '').trim().toLowerCase() === finalSurveyNo.toLowerCase()
     );
 
     if (duplicate) {
       setSurveyNoWarning(`Survey No. "${finalSurveyNo}" already exists for ${duplicate.partyName || 'another customer'}. Every survey number must be unique.`);
-      setShareToast(`⚠️ Survey No. "${finalSurveyNo}" is already in use! Please choose a unique number.`);
+      setShareToast(`âš ï¸ Survey No. "${finalSurveyNo}" is already in use! Please choose a unique number.`);
       setTimeout(() => setShareToast(null), 4000);
       return;
     }
@@ -367,12 +367,12 @@ export default function App() {
     if (editingSurveyId) {
       updatedSurveys = surveys.map(s => String(s.id) === String(editingSurveyId) ? { ...surveyForm, surveyNo: finalSurveyNo, id: s.id } : s);
       setSurveys(updatedSurveys);
-      setShareToast(`✓ Survey #${finalSurveyNo} updated successfully!`);
+      setShareToast(`âœ“ Survey #${finalSurveyNo} updated successfully!`);
     } else {
       const newSurvey = { ...surveyForm, surveyNo: finalSurveyNo, id: Date.now() };
       updatedSurveys = [newSurvey, ...surveys];
       setSurveys(updatedSurveys);
-      setShareToast(`✓ Survey #${newSurvey.surveyNo} created and saved successfully!`);
+      setShareToast(`âœ“ Survey #${newSurvey.surveyNo} created and saved successfully!`);
     }
 
     // Direct synchronous save to localStorage
@@ -424,7 +424,7 @@ export default function App() {
     setShareToast(`Survey #${surveyNo} deleted successfully`);
     setTimeout(() => setShareToast(null), 3000);
   };
-  
+
   const handleShareSurvey = (survey: any) => {
     if (navigator.share) {
       navigator.share({
@@ -496,7 +496,7 @@ export default function App() {
     }));
 
     setSelectedSurveyForQuotationAutoFill(surveyNoOrId.trim());
-    setShareToast(`✓ Auto-filled details from Survey #${match.surveyNo} for ${match.partyName}`);
+    setShareToast(`âœ“ Auto-filled details from Survey #${match.surveyNo} for ${match.partyName}`);
     setTimeout(() => setShareToast(null), 3500);
   };
 
@@ -504,7 +504,7 @@ export default function App() {
     if (!surveyNoOrId || !surveyNoOrId.trim()) return;
     const query = surveyNoOrId.trim().toLowerCase();
     const match = surveys.find(
-      s => String(s.surveyNo || '').trim().toLowerCase() === query || 
+      s => String(s.surveyNo || '').trim().toLowerCase() === query ||
            String(s.id) === query ||
            String(s.partyName || '').trim().toLowerCase().includes(query)
     );
@@ -548,7 +548,7 @@ export default function App() {
     }));
 
     setSelectedSurveyForPackingAutoFill(String(match.surveyNo));
-    setShareToast(`✓ Auto-filled details and ${match.items?.length || 0} items from Survey #${match.surveyNo} for ${match.partyName}`);
+    setShareToast(`âœ“ Auto-filled details and ${match.items?.length || 0} items from Survey #${match.surveyNo} for ${match.partyName}`);
     setTimeout(() => setShareToast(null), 3500);
   };
 
@@ -615,7 +615,7 @@ export default function App() {
     });
     setSelectedSurveyForQuotationAutoFill(String(survey.surveyNo));
     setAdminTab('add-quotation');
-    setShareToast(`✓ Pre-loaded all customer & route info from Survey #${survey.surveyNo}`);
+    setShareToast(`âœ“ Pre-loaded all customer & route info from Survey #${survey.surveyNo}`);
     setTimeout(() => setShareToast(null), 3500);
   };
 
@@ -655,7 +655,7 @@ export default function App() {
     });
     setSelectedSurveyForPackingAutoFill(String(survey.surveyNo));
     setAdminTab('add-packing');
-    setShareToast(`✓ Pre-loaded info & ${convertedItems.length} items from Survey #${survey.surveyNo}`);
+    setShareToast(`âœ“ Pre-loaded info & ${convertedItems.length} items from Survey #${survey.surveyNo}`);
     setTimeout(() => setShareToast(null), 3500);
   };
 
@@ -727,8 +727,8 @@ export default function App() {
         if (Array.isArray(parsed)) {
           // Exclude legacy mock items if any
           const cleaned = parsed.filter(
-            q => !(q.id === '3' && q.partyName === 'Anita Mohapatra') && 
-                 !(q.id === '2' && q.partyName === 'Ramesh Sharma') && 
+            q => !(q.id === '3' && q.partyName === 'Anita Mohapatra') &&
+                 !(q.id === '2' && q.partyName === 'Ramesh Sharma') &&
                  !(q.id === '1' && q.partyName === 'Devender Raolloth')
           );
           return cleaned;
@@ -872,7 +872,7 @@ export default function App() {
   };
 
   const handleShareQuotation = (quotation: any) => {
-    const text = `Quotation #${quotation.quotationNo} from UrbanPro Packer & Logistics for ${quotation.partyName} (₹${quotation.grandTotal}): ${quotation.fromCity} to ${quotation.toCity}. Customer Care: 8093017400`;
+    const text = `Quotation #${quotation.quotationNo} from UrbanPro Packer & Logistics for ${quotation.partyName} (â‚¹${quotation.grandTotal}): ${quotation.fromCity} to ${quotation.toCity}. Customer Care: 8093017400`;
     if (navigator.share) {
       navigator.share({
         title: `Quotation #${quotation.quotationNo} - UrbanPro Logistics`,
@@ -967,7 +967,7 @@ export default function App() {
 
   const handleAddItemToPackingList = () => {
     if (!currentPackingItem.name.trim()) {
-      alert('Please enter Item Name (सामान का नाम) before adding this row.');
+      alert('Please enter Item Name (à¤¸à¤¾à¤®à¤¾à¤¨ à¤•à¤¾ à¤¨à¤¾à¤®) before adding this row.');
       return;
     }
     if (!String(currentPackingItem.value).trim()) {
@@ -1463,7 +1463,7 @@ export default function App() {
   };
 
   const handleSharePackingList = (pl: any) => {
-    const text = `📦 UrbanPro Logistics - Packing List #${pl.packingListNo}\nParty: ${pl.partyName}\nMobile: ${pl.mobileNo}\nFrom: ${pl.fromCity} -> To: ${pl.toCity}\nTotal Items: ${pl.items?.length || 0}`;
+    const text = `ðŸ“¦ UrbanPro Logistics - Packing List #${pl.packingListNo}\nParty: ${pl.partyName}\nMobile: ${pl.mobileNo}\nFrom: ${pl.fromCity} -> To: ${pl.toCity}\nTotal Items: ${pl.items?.length || 0}`;
     if (navigator.share) {
       navigator.share({ title: `Packing List #${pl.packingListNo}`, text }).catch(() => {});
     } else if (navigator.clipboard) {
@@ -1494,10 +1494,10 @@ export default function App() {
           parsed.upiId = '';
         }
         if (!parsed.addressLine1) {
-          parsed.addressLine1 = 'Regd. Office: UrbanPro Packer & Logistics, Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452';
+          parsed.addressLine1 = 'Regd. Office: UrbanPro Packer & Logistics, Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG â€“ 495452';
         }
         if (!parsed.addressLine2) {
-          parsed.addressLine2 = 'Main Operational Office: Plot No. 1491, Hanspal, Balianta Canal Road, Near Lenskart, Bhubaneswar, Odisha – 752101';
+          parsed.addressLine2 = 'Main Operational Office: Plot No. 1491, Hanspal, Balianta Canal Road, Near Lenskart, Bhubaneswar, Odisha â€“ 752101';
         }
         return parsed;
       }
@@ -1506,9 +1506,9 @@ export default function App() {
       companyName: 'UrbanPro Packer & Logistics',
       groupName: 'UrbanPro Packer & Logistics',
       gstin: '',
-      regAddress: 'Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452',
-      addressLine1: 'Regd. Office: UrbanPro Packer & Logistics, Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452',
-      addressLine2: 'Main Operational Office: Plot No. 1491, Hanspal, Balianta Canal Road, Near Lenskart, Bhubaneswar, Odisha – 752101',
+      regAddress: 'Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG â€“ 495452',
+      addressLine1: 'Regd. Office: UrbanPro Packer & Logistics, Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG â€“ 495452',
+      addressLine2: 'Main Operational Office: Plot No. 1491, Hanspal, Balianta Canal Road, Near Lenskart, Bhubaneswar, Odisha â€“ 752101',
       mobilePrimary: '8093017400',
       mobileSecondary: '8093017400',
       email: 'urbanpro403@gmail.com',
@@ -1816,10 +1816,10 @@ export default function App() {
   // Smart Survey form changes
   const handleSurveyNoInputChange = (val: string) => {
     const trimmed = (val || '').trim().toLowerCase();
-    
+
     // Search for existing survey with this survey number
     const match = surveys.find(s => String(s.surveyNo || '').trim().toLowerCase() === trimmed);
-    
+
     if (match && String(match.id) !== String(editingSurveyId)) {
       setSurveyForm({
         ...match,
@@ -1827,7 +1827,7 @@ export default function App() {
       });
       setEditingSurveyId(match.id);
       setSurveyNoWarning(null);
-      setShareToast(`✓ Existing Survey #${match.surveyNo} found! Auto-loaded details for "${match.partyName}"`);
+      setShareToast(`âœ“ Existing Survey #${match.surveyNo} found! Auto-loaded details for "${match.partyName}"`);
       setTimeout(() => setShareToast(null), 3500);
     } else {
       setSurveyForm(prev => ({ ...prev, surveyNo: val }));
@@ -1839,7 +1839,7 @@ export default function App() {
     setSurveyForm(prev => {
       const match = findCustomerProfile(val);
       if (match) {
-        setShareToast(`✓ Auto-filled customer details for ${match.partyName}`);
+        setShareToast(`âœ“ Auto-filled customer details for ${match.partyName}`);
         setTimeout(() => setShareToast(null), 3000);
         return {
           ...prev,
@@ -1869,7 +1869,7 @@ export default function App() {
       if (cleanDigits.length >= 10) {
         const match = findCustomerProfile(val);
         if (match) {
-          setShareToast(`✓ Auto-filled customer info for ${match.partyName}`);
+          setShareToast(`âœ“ Auto-filled customer info for ${match.partyName}`);
           setTimeout(() => setShareToast(null), 3000);
           return {
             ...prev,
@@ -1903,7 +1903,7 @@ export default function App() {
     setQuotationForm(prev => {
       const match = findCustomerProfile(val);
       if (match) {
-        setShareToast(`✓ Auto-filled quotation details for ${match.partyName}`);
+        setShareToast(`âœ“ Auto-filled quotation details for ${match.partyName}`);
         setTimeout(() => setShareToast(null), 3000);
         return {
           ...prev,
@@ -1939,7 +1939,7 @@ export default function App() {
       if (cleanDigits.length >= 10) {
         const match = findCustomerProfile(val);
         if (match) {
-          setShareToast(`✓ Auto-filled party & route for ${match.partyName}`);
+          setShareToast(`âœ“ Auto-filled party & route for ${match.partyName}`);
           setTimeout(() => setShareToast(null), 3000);
           return {
             ...prev,
@@ -1986,7 +1986,7 @@ export default function App() {
             remark: it.remark || 'Standard Packing'
           }));
         }
-        setShareToast(`✓ Auto-filled packing list for ${match.partyName}`);
+        setShareToast(`âœ“ Auto-filled packing list for ${match.partyName}`);
         setTimeout(() => setShareToast(null), 3000);
         return {
           ...prev,
@@ -2027,7 +2027,7 @@ export default function App() {
                 remark: item.remark || 'Standard Packing',
               }))
             : prev.items;
-          setShareToast(`✓ Auto-filled name & route for ${match.partyName}`);
+          setShareToast(`âœ“ Auto-filled name & route for ${match.partyName}`);
           setTimeout(() => setShareToast(null), 3000);
           return {
             ...prev,
@@ -2069,7 +2069,7 @@ export default function App() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Prepare the enquiry for the admin's WhatsApp.
     const finalItem = formData.item === 'Other' ? (formData.otherItem || 'Custom requirement') : formData.item;
     const itemListText = formData.itemRows
@@ -2092,7 +2092,7 @@ export default function App() {
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
 
     window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
-    
+
     const submittedDetails: SubmittedQuoteDetails = {
       name: formData.name,
       phone: formData.phone,
@@ -2151,115 +2151,115 @@ export default function App() {
   ];
 
   const services = [
-    { 
+    {
       category: 'Shifting Services',
-      icon: Home, 
-      title: 'Household Shifting', 
+      icon: Home,
+      title: 'Household Shifting',
       desc: 'Safe and organized packing & moving solutions for Household Relocation.',
       details: [
-        { 
-          title: 'Comprehensive household relocation with multi-layer packing for furniture, appliances, kitchenware, and fragile items', 
-          text: 'Comprehensive household relocation with multi-layer packing for furniture, appliances, kitchenware, and fragile items.' 
+        {
+          title: 'Comprehensive household relocation with multi-layer packing for furniture, appliances, kitchenware, and fragile items',
+          text: 'Comprehensive household relocation with multi-layer packing for furniture, appliances, kitchenware, and fragile items.'
         },
-        { 
-          title: 'Safe Packing & Unpacking', 
-          text: 'Doorstep packing with high quality bubble wraps and boxes, followed by organized unloading and unpacking at your new home.' 
+        {
+          title: 'Safe Packing & Unpacking',
+          text: 'Doorstep packing with high quality bubble wraps and boxes, followed by organized unloading and unpacking at your new home.'
         }
       ]
     },
-    { 
+    {
       category: 'Shifting Services',
-      icon: Building2, 
-      title: 'Office & Corporate Relocation', 
+      icon: Building2,
+      title: 'Office & Corporate Relocation',
       desc: 'Professional relocation support for offices, companies and commercial establishments.',
       details: [
-        { 
-          title: 'Corporate Moving', 
-          text: 'Systematic packing and moving of office desks, workstations, IT equipment, servers, filing cabinets, and conference room setups with minimum downtime.' 
+        {
+          title: 'Corporate Moving',
+          text: 'Systematic packing and moving of office desks, workstations, IT equipment, servers, filing cabinets, and conference room setups with minimum downtime.'
         },
-        { 
-          title: 'Organized Execution', 
-          text: 'Weekend and after-hours relocation options available to keep your business operations running without interruption.' 
+        {
+          title: 'Organized Execution',
+          text: 'Weekend and after-hours relocation options available to keep your business operations running without interruption.'
         }
       ]
     },
-    { 
+    {
       category: 'Shifting Services',
-      icon: Store, 
-      title: 'Commercial Shifting', 
+      icon: Store,
+      title: 'Commercial Shifting',
       desc: 'Complete shifting solutions for shops, businesses and commercial establishments.',
       details: [
-        { 
-          title: 'Shop & Retail Relocation', 
-          text: 'Fast, secure shifting of retail inventory, showcase fixtures, display units, machinery, and commercial stock.' 
+        {
+          title: 'Shop & Retail Relocation',
+          text: 'Fast, secure shifting of retail inventory, showcase fixtures, display units, machinery, and commercial stock.'
         },
-        { 
-          title: 'Custom Logistics Plans', 
-          text: 'Tailored transportation solutions for warehouses, local businesses, and commercial spaces of all sizes.' 
+        {
+          title: 'Custom Logistics Plans',
+          text: 'Tailored transportation solutions for warehouses, local businesses, and commercial spaces of all sizes.'
         }
       ]
     },
-    { 
+    {
       category: 'Transportation Services',
-      icon: Car, 
-      title: 'Vehicle Shifting', 
+      icon: Car,
+      title: 'Vehicle Shifting',
       desc: 'Transportation support for moving vehicles (Cars, Bikes, Scooters) from one location to another.',
       details: [
-        { 
-          title: 'Car & Bike Relocation', 
-          text: 'Safe and scratch-free vehicle shifting for two-wheelers, four-wheelers, and luxury cars with dedicated wheel stoppers and tie-down clamps.' 
+        {
+          title: 'Car & Bike Relocation',
+          text: 'Safe and scratch-free vehicle shifting for two-wheelers, four-wheelers, and luxury cars with dedicated wheel stoppers and tie-down clamps.'
         },
-        { 
-          title: 'All-India Transit Carriers', 
-          text: 'Covered car carrier trailers and specialized open carriers with real-time transit tracking across all Indian states.' 
+        {
+          title: 'All-India Transit Carriers',
+          text: 'Covered car carrier trailers and specialized open carriers with real-time transit tracking across all Indian states.'
         }
       ]
     },
-    { 
+    {
       category: 'Transportation Services',
-      icon: Truck, 
-      title: 'Transportation & Fleet Logistics', 
+      icon: Truck,
+      title: 'Transportation & Fleet Logistics',
       desc: 'All types of commercial vehicles including Truck, Trailer, 22 Feet Container and Heavy Fleet for shifting.',
       details: [
-        { 
-          title: 'All Types of Vehicles Available', 
-          text: 'Complete fleet range available: Closed Container Trucks, Open Body Trucks, 22 Feet Vehicles, 14ft/17ft/32ft Multi-Axle, and Heavy Trailers.' 
+        {
+          title: 'All Types of Vehicles Available',
+          text: 'Complete fleet range available: Closed Container Trucks, Open Body Trucks, 22 Feet Vehicles, 14ft/17ft/32ft Multi-Axle, and Heavy Trailers.'
         },
-        { 
-          title: 'Domestic & Intercity Transit', 
-          text: 'Full Truck Load (FTL) and Part Load (LTL) services connecting all major industrial hubs and residential sectors across India.' 
+        {
+          title: 'Domestic & Intercity Transit',
+          text: 'Full Truck Load (FTL) and Part Load (LTL) services connecting all major industrial hubs and residential sectors across India.'
         }
       ]
     },
-    { 
+    {
       category: 'Packing Material & Labour Supply',
-      icon: Package, 
-      title: 'Packing Material Supply', 
+      icon: Package,
+      title: 'Packing Material Supply',
       desc: 'Premium packing materials available for household, office and commercial packing requirements.',
       details: [
-        { 
-          title: 'Materials Available', 
-          text: 'Corrugated boxes & cartons, heavy-duty bubble wrap, stretch film, packing tape, thermocol, foam sheets, cushioning materials, and waterproof wrapping.' 
+        {
+          title: 'Materials Available',
+          text: 'Corrugated boxes & cartons, heavy-duty bubble wrap, stretch film, packing tape, thermocol, foam sheets, cushioning materials, and waterproof wrapping.'
         },
-        { 
-          title: 'Bulk & Custom Orders', 
-          text: 'Supplied directly to your doorstep for DIY packing or shifting projects as per your exact count requirement.' 
+        {
+          title: 'Bulk & Custom Orders',
+          text: 'Supplied directly to your doorstep for DIY packing or shifting projects as per your exact count requirement.'
         }
       ]
     },
-    { 
+    {
       category: 'Packing Material & Labour Supply',
-      icon: HardHat, 
-      title: 'Skilled Labour Available', 
+      icon: HardHat,
+      title: 'Skilled Labour Available',
       desc: 'Skilled and Experienced Labour available for Packing, Loading, Unloading, Shifting & Related work.',
       details: [
-        { 
-          title: 'Trained Manpower', 
-          text: 'Skilled and verified labourers for packing, heavy lifting, truck loading, unloading, shifting, and furniture assembling.' 
+        {
+          title: 'Trained Manpower',
+          text: 'Skilled and verified labourers for packing, heavy lifting, truck loading, unloading, shifting, and furniture assembling.'
         },
-        { 
-          title: 'Flexible Support', 
-          text: 'Whether you require only labour, only packing material, or both, we arrange tailored support according to your exact needs.' 
+        {
+          title: 'Flexible Support',
+          text: 'Whether you require only labour, only packing material, or both, we arrange tailored support according to your exact needs.'
         }
       ]
     }
@@ -2269,11 +2269,11 @@ export default function App() {
     <>
       {/* In-App Delete Survey Confirmation Modal */}
       {surveyToDelete && (
-        <div 
+        <div
           className="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4"
           onClick={() => setSurveyToDelete(null)}
         >
-          <div 
+          <div
             className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 relative animate-in fade-in zoom-in-95 duration-150"
             onClick={(e) => e.stopPropagation()}
           >
@@ -2315,11 +2315,11 @@ export default function App() {
 
       {/* In-App Delete Quotation Confirmation Modal */}
       {quotationToDelete && (
-        <div 
+        <div
           className="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4"
           onClick={() => setQuotationToDelete(null)}
         >
-          <div 
+          <div
             className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 relative animate-in fade-in zoom-in-95 duration-150"
             onClick={(e) => e.stopPropagation()}
           >
@@ -2360,18 +2360,18 @@ export default function App() {
       )}
 
       {/* Survey PDF Preview Modal */}
-      <SurveyPdfModal 
-        survey={viewingSurvey} 
-        onClose={() => setViewingSurvey(null)} 
+      <SurveyPdfModal
+        survey={viewingSurvey}
+        onClose={() => setViewingSurvey(null)}
         globalSignature={globalSignature}
         companyLogo={activeAppLogo}
         companyProfile={companyProfile}
       />
 
       {/* Quotation PDF Preview Modal */}
-      <QuotationPdfModal 
-        quotation={viewingQuotation} 
-        onClose={() => setViewingQuotation(null)} 
+      <QuotationPdfModal
+        quotation={viewingQuotation}
+        onClose={() => setViewingQuotation(null)}
         onEdit={(quot) => {
           setViewingQuotation(null);
           handleEditQuotation(quot);
@@ -2406,11 +2406,11 @@ export default function App() {
 
       {/* In-App Delete Packing List Confirmation Modal */}
       {packingListToDelete && (
-        <div 
+        <div
           className="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4"
           onClick={() => setPackingListToDelete(null)}
         >
-          <div 
+          <div
             className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 relative animate-in fade-in zoom-in-95 duration-150"
             onClick={(e) => e.stopPropagation()}
           >
@@ -2452,11 +2452,11 @@ export default function App() {
 
       {/* Import from Quotation / Survey Modal for Packing List */}
       {showQuotationPickerForPacking && (
-        <div 
+        <div
           className="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4"
           onClick={() => setShowQuotationPickerForPacking(false)}
         >
-          <div 
+          <div
             className="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 relative max-h-[85vh] flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
@@ -2490,7 +2490,7 @@ export default function App() {
                 ) : (
                   <div className="space-y-2">
                     {quotations.map((q) => (
-                      <div 
+                      <div
                         key={q.id}
                         onClick={() => handleImportQuotationToPacking(q)}
                         className="p-3 border border-slate-200 hover:border-sky-500 hover:bg-sky-50/50 rounded-xl cursor-pointer transition-all flex items-center justify-between group"
@@ -2505,10 +2505,10 @@ export default function App() {
                             </span>
                           </div>
                           <div className="text-xs text-slate-500 mt-0.5">
-                            {q.fromCity || 'Origin'} &rarr; {q.toCity || 'Destination'} • {q.mobileNo || 'No phone'}
+                            {q.fromCity || 'Origin'} &rarr; {q.toCity || 'Destination'} â€¢ {q.mobileNo || 'No phone'}
                           </div>
                         </div>
-                        <button 
+                        <button
                           type="button"
                           className="text-xs font-semibold text-white bg-[#0284c7] group-hover:bg-sky-700 px-3 py-1.5 rounded-lg shadow-xs"
                         >
@@ -2530,7 +2530,7 @@ export default function App() {
                 ) : (
                   <div className="space-y-2">
                     {surveys.map((s) => (
-                      <div 
+                      <div
                         key={s.id}
                         onClick={() => handleImportSurveyToPacking(s)}
                         className="p-3 border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/50 rounded-xl cursor-pointer transition-all flex items-center justify-between group"
@@ -2548,10 +2548,10 @@ export default function App() {
                             </span>
                           </div>
                           <div className="text-xs text-slate-500 mt-0.5">
-                            {s.fromCity || 'Origin'} &rarr; {s.toCity || 'Destination'} • {s.mobileNo || 'No phone'}
+                            {s.fromCity || 'Origin'} &rarr; {s.toCity || 'Destination'} â€¢ {s.mobileNo || 'No phone'}
                           </div>
                         </div>
-                        <button 
+                        <button
                           type="button"
                           className="text-xs font-semibold text-white bg-emerald-600 group-hover:bg-emerald-700 px-3 py-1.5 rounded-lg shadow-xs"
                         >
@@ -2574,9 +2574,9 @@ export default function App() {
             <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
             <span className="font-semibold text-slate-100">{shareToast}</span>
           </div>
-          <button 
+          <button
             type="button"
-            onClick={() => setShareToast(null)} 
+            onClick={() => setShareToast(null)}
             className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer shrink-0"
             title="Dismiss message"
           >
@@ -2637,7 +2637,7 @@ export default function App() {
         {/* Top Header - UrbanPro Logistics Admin */}
         <header className="bg-[#1e293b] text-white px-3 sm:px-6 py-2 sm:py-2.5 flex items-center justify-between z-20 shrink-0 shadow-md">
           <div className="flex items-center gap-2 sm:gap-3">
-            <button 
+            <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
               className="text-slate-300 hover:text-white p-1.5 sm:p-2 rounded-lg hover:bg-slate-700/60 transition-colors cursor-pointer"
               title="Toggle Menu"
@@ -2646,14 +2646,14 @@ export default function App() {
             </button>
             <div className="flex items-center gap-2 sm:gap-3">
               <div className="bg-white px-2 sm:px-3 py-1 rounded-lg flex items-center gap-2 shadow-sm border border-slate-700/50">
-                <img 
-                  src={activeAppLogo || '/urbanpro%20logo.jpeg'} 
-                  alt="UrbanPro Logistics" 
-                  className="h-7 sm:h-8 w-auto object-contain rounded" 
+                <img
+                  src={activeAppLogo || '/urbanpro%20logo.jpeg'}
+                  alt="UrbanPro Logistics"
+                  className="h-7 sm:h-8 w-auto object-contain rounded"
                 />
                 <div className="flex flex-col">
                   <span className="font-bold text-xs sm:text-base tracking-tight leading-tight">
-                    <span className="text-[#1e3a8a] font-black">Urban</span><span className="text-[#dc2626] font-black">Pro</span> <span className="text-[#1e3a8a] font-extrabold hidden xs:inline">Packers & Logistics</span>
+                    <span className="text-[#1e3a8a] font-black">Urban</span><span className="text-[#dc2626] font-black">Pro</span> <span className="text-[#1e3a8a] font-extrabold hidden xs:inline">Packer & Logistics</span>
                   </span>
                   <span className="text-[9px] sm:text-[10px] text-slate-500 font-semibold leading-none">Admin Portal</span>
                 </div>
@@ -2662,7 +2662,7 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-4">
-            <button 
+            <button
               onClick={() => setIsAdminView(false)}
               className="text-xs text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 px-2.5 sm:px-3.5 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 border border-slate-700 shadow-xs cursor-pointer"
               title="View Public Website"
@@ -2671,7 +2671,7 @@ export default function App() {
               <span className="hidden sm:inline">View Website</span>
             </button>
 
-            <button 
+            <button
               onClick={() => {
                 setIsAdminAuthenticated(false);
                 setIsAdminView(false);
@@ -2688,9 +2688,9 @@ export default function App() {
 
         {/* Mobile Backdrop Overlay */}
         {sidebarOpen && (
-          <div 
-            className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs z-40 md:hidden animate-fadeIn" 
-            onClick={() => setSidebarOpen(false)} 
+          <div
+            className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs z-40 md:hidden animate-fadeIn"
+            onClick={() => setSidebarOpen(false)}
           />
         )}
 
@@ -2704,10 +2704,10 @@ export default function App() {
                   <h2 className="font-bold text-sm leading-tight">
                     <span className="text-[#1e3a8a] font-black">Urban</span><span className="text-[#dc2626] font-black">Pro</span>
                   </h2>
-                  <p className="text-[10px] text-[#1e3a8a] font-bold">Packers & Logistics</p>
+                  <p className="text-[10px] text-[#1e3a8a] font-bold">Packer & Logistics</p>
                 </div>
 
-                <button 
+                <button
                   onClick={() => setSidebarOpen(false)}
                   className="md:hidden p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
                   title="Close Menu"
@@ -2720,7 +2720,7 @@ export default function App() {
               <div className="px-3 py-3 space-y-4">
                 <div>
                   <div className="px-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">HOME</div>
-                  <button 
+                  <button
                     onClick={() => setAdminTab('dashboard')}
                     className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm transition-colors cursor-pointer ${adminTab === 'dashboard' ? 'bg-blue-600 text-white font-semibold shadow-sm' : 'text-slate-300 hover:bg-slate-800 hover:text-white font-medium'}`}
                   >
@@ -2734,9 +2734,9 @@ export default function App() {
                     <span>SURVEYS</span>
                     <span className="bg-slate-800 text-slate-400 text-[10px] px-1.5 py-0.5 rounded-full">{surveys.length}</span>
                   </div>
-                  
+
                   <div className="space-y-1">
-                    <button 
+                    <button
                       onClick={() => {
                         setAdminTab('add-survey');
                         setEditingSurveyId(null);
@@ -2748,7 +2748,7 @@ export default function App() {
                       <span>Add Survey List</span>
                     </button>
 
-                    <button 
+                    <button
                       onClick={() => setAdminTab('list-survey')}
                       className={`w-full flex items-center gap-2.5 px-3.5 py-2 rounded-lg text-sm transition-colors cursor-pointer ${adminTab === 'list-survey' ? 'bg-blue-600 text-white font-semibold' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
                     >
@@ -2761,7 +2761,7 @@ export default function App() {
                 <div>
                   <div className="px-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">QUOTATIONS</div>
                   <div className="space-y-1">
-                    <button 
+                    <button
                       onClick={() => setAdminTab('add-quotation')}
                       className={`w-full flex items-center gap-2.5 px-3.5 py-2 rounded-lg text-sm transition-colors cursor-pointer ${adminTab === 'add-quotation' ? 'bg-blue-600 text-white font-semibold' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
                     >
@@ -2769,7 +2769,7 @@ export default function App() {
                       <span>Add Quotation</span>
                     </button>
 
-                    <button 
+                    <button
                       onClick={() => setAdminTab('list-quotation')}
                       className={`w-full flex items-center gap-2.5 px-3.5 py-2 rounded-lg text-sm transition-colors cursor-pointer ${adminTab === 'list-quotation' ? 'bg-blue-600 text-white font-semibold' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
                     >
@@ -2782,7 +2782,7 @@ export default function App() {
                 <div>
                   <div className="px-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">PACKING LISTS</div>
                   <div className="space-y-1">
-                    <button 
+                    <button
                       onClick={() => setAdminTab('add-packing')}
                       className={`w-full flex items-center gap-2.5 px-3.5 py-2 rounded-lg text-sm transition-colors cursor-pointer ${adminTab === 'add-packing' ? 'bg-blue-600 text-white font-semibold' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
                     >
@@ -2790,7 +2790,7 @@ export default function App() {
                       <span>Add Packing List</span>
                     </button>
 
-                    <button 
+                    <button
                       onClick={() => setAdminTab('list-packing')}
                       className={`w-full flex items-center gap-2.5 px-3.5 py-2 rounded-lg text-sm transition-colors cursor-pointer ${adminTab === 'list-packing' ? 'bg-blue-600 text-white font-semibold' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
                     >
@@ -2807,14 +2807,14 @@ export default function App() {
                     <span className="bg-slate-800 text-emerald-400 text-[10px] px-1.5 py-0.5 rounded-full">{bilties.length}</span>
                   </div>
                   <div className="space-y-1">
-                    <button 
+                    <button
                       onClick={() => { setAdminTab('add-bilty'); setEditingBiltyId(null); }}
                       className={`w-full flex items-center gap-2.5 px-3.5 py-2 rounded-lg text-sm transition-colors cursor-pointer ${adminTab === 'add-bilty' ? 'bg-blue-600 text-white font-semibold' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
                     >
                       <PlusCircle className="w-4 h-4 text-emerald-400" />
                       <span>Add Bilty (L.R.)</span>
                     </button>
-                    <button 
+                    <button
                       onClick={() => setAdminTab('list-bilty')}
                       className={`w-full flex items-center gap-2.5 px-3.5 py-2 rounded-lg text-sm transition-colors cursor-pointer ${adminTab === 'list-bilty' ? 'bg-blue-600 text-white font-semibold' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
                     >
@@ -2831,14 +2831,14 @@ export default function App() {
                     <span className="bg-slate-800 text-sky-400 text-[10px] px-1.5 py-0.5 rounded-full">{carConditions.length}</span>
                   </div>
                   <div className="space-y-1">
-                    <button 
+                    <button
                       onClick={() => { setAdminTab('car-condition'); setCarConditionViewMode('form'); }}
                       className={`w-full flex items-center gap-2.5 px-3.5 py-2 rounded-lg text-sm transition-colors cursor-pointer ${adminTab === 'car-condition' && carConditionViewMode === 'form' ? 'bg-blue-600 text-white font-semibold' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
                     >
                       <PlusCircle className="w-4 h-4 text-sky-400" />
                       <span>Add Car Condition</span>
                     </button>
-                    <button 
+                    <button
                       onClick={() => { setAdminTab('car-condition'); setCarConditionViewMode('list'); }}
                       className={`w-full flex items-center gap-2.5 px-3.5 py-2 rounded-lg text-sm transition-colors cursor-pointer ${adminTab === 'car-condition' && carConditionViewMode === 'list' ? 'bg-blue-600 text-white font-semibold' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
                     >
@@ -2855,14 +2855,14 @@ export default function App() {
                     <span className="bg-slate-800 text-indigo-400 text-[10px] px-1.5 py-0.5 rounded-full">{bikeConditions.length}</span>
                   </div>
                   <div className="space-y-1">
-                    <button 
+                    <button
                       onClick={() => { setAdminTab('bike-condition'); setBikeConditionViewMode('form'); }}
                       className={`w-full flex items-center gap-2.5 px-3.5 py-2 rounded-lg text-sm transition-colors cursor-pointer ${adminTab === 'bike-condition' && bikeConditionViewMode === 'form' ? 'bg-blue-600 text-white font-semibold' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
                     >
                       <PlusCircle className="w-4 h-4 text-indigo-400" />
                       <span>Add Bike Condition</span>
                     </button>
-                    <button 
+                    <button
                       onClick={() => { setAdminTab('bike-condition'); setBikeConditionViewMode('list'); }}
                       className={`w-full flex items-center gap-2.5 px-3.5 py-2 rounded-lg text-sm transition-colors cursor-pointer ${adminTab === 'bike-condition' && bikeConditionViewMode === 'list' ? 'bg-blue-600 text-white font-semibold' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
                     >
@@ -2934,14 +2934,14 @@ export default function App() {
                 <div>
                   <div className="px-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">SETUP</div>
                   <div className="space-y-1">
-                    <button 
+                    <button
                       onClick={() => setAdminTab('signature')}
                       className={`w-full flex items-center gap-2.5 px-3.5 py-2 rounded-lg text-sm transition-colors cursor-pointer ${adminTab === 'signature' ? 'bg-blue-600 text-white font-semibold' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
                     >
                       <CheckCircle2 className="w-4 h-4 text-teal-400" />
                       <span>Signature</span>
                     </button>
-                    <button 
+                    <button
                       onClick={() => setAdminTab('company-profile')}
                       className={`w-full flex items-center gap-2.5 px-3.5 py-2 rounded-lg text-sm transition-colors cursor-pointer ${adminTab === 'company-profile' ? 'bg-blue-600 text-white font-semibold' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
                     >
@@ -2955,14 +2955,14 @@ export default function App() {
                 <div>
                   <div className="px-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">SETTINGS</div>
                   <div className="space-y-1">
-                    <button 
+                    <button
                       onClick={() => setAdminTab('settings')}
                       className={`w-full flex items-center gap-2.5 px-3.5 py-2 rounded-lg text-sm transition-colors cursor-pointer ${adminTab === 'settings' ? 'bg-blue-600 text-white font-semibold' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
                     >
                       <Home className="w-4 h-4 text-slate-400" />
                       <span>Settings</span>
                     </button>
-                    <button 
+                    <button
                       onClick={() => setAdminTab('contact-us')}
                       className={`w-full flex items-center gap-2.5 px-3.5 py-2 rounded-lg text-sm transition-colors cursor-pointer ${adminTab === 'contact-us' ? 'bg-blue-600 text-white font-semibold' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
                     >
@@ -2990,12 +2990,12 @@ export default function App() {
             <datalist id="upl-customer-parties-datalist">
               {customerProfiles.map((c, i) => (
                 <option key={`dl-p-${i}`} value={c.partyName}>
-                  {c.mobileNo ? `${c.mobileNo} • ${c.source}` : c.source}
+                  {c.mobileNo ? `${c.mobileNo} â€¢ ${c.source}` : c.source}
                 </option>
               ))}
               {customerProfiles.flatMap((c, i) => (c.uniqueIds || []).map((id, j) => (
                 <option key={`dl-uid-${i}-${j}`} value={String(id)}>
-                  {c.partyName} ({c.mobileNo || 'No phone'}) • {c.source}
+                  {c.partyName} ({c.mobileNo || 'No phone'}) â€¢ {c.source}
                 </option>
               )))}
             </datalist>
@@ -3011,7 +3011,7 @@ export default function App() {
             <datalist id="upl-all-surveys-datalist">
               {surveys.map((s, i) => (
                 <option key={`dl-s-${i}`} value={s.surveyNo}>
-                  Survey #{s.surveyNo} — {s.partyName} ({s.fromCity || 'Origin'} → {s.toCity || 'Dest'})
+                  Survey #{s.surveyNo} â€” {s.partyName} ({s.fromCity || 'Origin'} â†’ {s.toCity || 'Dest'})
                 </option>
               ))}
             </datalist>
@@ -3038,24 +3038,24 @@ export default function App() {
                           </div>
                           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-baseline flex-wrap gap-1.5">
                             <span className="text-[#1e3a8a] font-black">Urban</span><span className="text-[#dc2626] font-black">Pro</span>
-                            <span className="text-[#1e3a8a] font-extrabold text-xl sm:text-2xl">Packers & Logistics</span>
+                            <span className="text-[#1e3a8a] font-extrabold text-xl sm:text-2xl">Packer & Logistics</span>
                             <span className="text-slate-500 font-semibold text-base sm:text-lg">Dashboard</span>
                           </h1>
                           <p className="text-slate-500 text-xs sm:text-sm mt-1 font-medium">
-                            Pack Smart & Move Safe • Admin Management & Documentation Suite
+                            Pack Smart & Move Safe â€¢ Admin Management & Documentation Suite
                           </p>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-2.5 w-full sm:w-auto">
-                        <button 
+                        <button
                           onClick={() => { setAdminTab('add-survey'); setEditingSurveyId(null); setSurveyForm(initialSurveyForm); }}
                           className="flex-1 sm:flex-initial bg-[#1e3a8a] hover:bg-blue-900 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
                         >
                           <PlusCircle className="w-4 h-4 text-emerald-400" />
                           <span>New Survey</span>
                         </button>
-                        <button 
+                        <button
                           onClick={() => { setAdminTab('add-quotation'); setEditingQuotationId(null); setQuotationForm({ ...initialQuotationForm, quotationNo: getNextQuotationNumber() }); }}
                           className="flex-1 sm:flex-initial bg-[#0f172a] hover:bg-slate-800 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
                         >
@@ -3079,13 +3079,13 @@ export default function App() {
                       <div className="text-3xl font-black text-slate-800">{surveys.length}</div>
                       <p className="text-xs text-slate-500 mt-1 mb-4">Total recorded surveys & inventory lists</p>
                       <div className="flex gap-2 pt-3 border-t border-slate-100">
-                        <button 
+                        <button
                           onClick={() => { setAdminTab('add-survey'); setEditingSurveyId(null); setSurveyForm(initialSurveyForm); }}
                           className="flex-1 text-xs font-semibold bg-emerald-50 hover:bg-emerald-100 text-emerald-700 py-1.5 rounded-lg transition-colors cursor-pointer text-center"
                         >
                           + Add Survey
                         </button>
-                        <button 
+                        <button
                           onClick={() => setAdminTab('list-survey')}
                           className="flex-1 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 py-1.5 rounded-lg transition-colors cursor-pointer text-center"
                         >
@@ -3105,13 +3105,13 @@ export default function App() {
                       <div className="text-3xl font-black text-slate-800">{quotations.length}</div>
                       <p className="text-xs text-slate-500 mt-1 mb-4">Official estimates & client proposals</p>
                       <div className="flex gap-2 pt-3 border-t border-slate-100">
-                        <button 
+                        <button
                           onClick={() => { setAdminTab('add-quotation'); setEditingQuotationId(null); setQuotationForm({ ...initialQuotationForm, quotationNo: getNextQuotationNumber() }); }}
                           className="flex-1 text-xs font-semibold bg-amber-50 hover:bg-amber-100 text-amber-700 py-1.5 rounded-lg transition-colors cursor-pointer text-center"
                         >
                           + Add Quote
                         </button>
-                        <button 
+                        <button
                           onClick={() => setAdminTab('list-quotation')}
                           className="flex-1 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 py-1.5 rounded-lg transition-colors cursor-pointer text-center"
                         >
@@ -3131,13 +3131,13 @@ export default function App() {
                       <div className="text-3xl font-black text-slate-800">{packingLists.length}</div>
                       <p className="text-xs text-slate-500 mt-1 mb-4">Carton itemization & transit manifests</p>
                       <div className="flex gap-2 pt-3 border-t border-slate-100">
-                        <button 
+                        <button
                           onClick={() => { setAdminTab('add-packing'); setEditingPackingListId(null); setPackingListForm(initialPackingListForm); }}
                           className="flex-1 text-xs font-semibold bg-purple-50 hover:bg-purple-100 text-purple-700 py-1.5 rounded-lg transition-colors cursor-pointer text-center"
                         >
                           + Add List
                         </button>
-                        <button 
+                        <button
                           onClick={() => setAdminTab('list-packing')}
                           className="flex-1 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 py-1.5 rounded-lg transition-colors cursor-pointer text-center"
                         >
@@ -3156,7 +3156,7 @@ export default function App() {
                           <ClipboardList className="w-4 h-4 text-emerald-600" />
                           <span>Recent Surveys</span>
                         </h3>
-                        <button 
+                        <button
                           onClick={() => setAdminTab('list-survey')}
                           className="text-xs font-semibold text-blue-600 hover:text-blue-800 cursor-pointer"
                         >
@@ -3168,7 +3168,7 @@ export default function App() {
                         <div className="text-center py-8 text-slate-400 text-xs">
                           No surveys recorded yet. Click below to add one.
                           <div className="mt-3">
-                            <button 
+                            <button
                               onClick={() => { setAdminTab('add-survey'); setEditingSurveyId(null); setSurveyForm(initialSurveyForm); }}
                               className="text-xs font-semibold text-emerald-600 hover:underline cursor-pointer"
                             >
@@ -3185,10 +3185,10 @@ export default function App() {
                                   {s.partyName || 'Unnamed Customer'}
                                 </div>
                                 <div className="text-[11px] text-slate-500">
-                                  {s.fromCity || 'Origin'} &rarr; {s.toCity || 'Destination'} • {s.mobileNo || 'No phone'}
+                                  {s.fromCity || 'Origin'} &rarr; {s.toCity || 'Destination'} â€¢ {s.mobileNo || 'No phone'}
                                 </div>
                               </div>
-                              <button 
+                              <button
                                 onClick={() => setViewingSurvey(s)}
                                 className="text-xs font-semibold bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-3 py-1.5 rounded-lg transition-colors cursor-pointer flex items-center gap-1 shrink-0"
                               >
@@ -3208,7 +3208,7 @@ export default function App() {
                           <FileText className="w-4 h-4 text-amber-600" />
                           <span>Recent Quotations</span>
                         </h3>
-                        <button 
+                        <button
                           onClick={() => setAdminTab('list-quotation')}
                           className="text-xs font-semibold text-blue-600 hover:text-blue-800 cursor-pointer"
                         >
@@ -3220,7 +3220,7 @@ export default function App() {
                         <div className="text-center py-8 text-slate-400 text-xs">
                           No quotations recorded yet. Click below to add one.
                           <div className="mt-3">
-                            <button 
+                            <button
                               onClick={() => { setAdminTab('add-quotation'); setEditingQuotationId(null); setQuotationForm({ ...initialQuotationForm, quotationNo: getNextQuotationNumber() }); }}
                               className="text-xs font-semibold text-amber-600 hover:underline cursor-pointer"
                             >
@@ -3237,10 +3237,10 @@ export default function App() {
                                   {q.partyName || 'Unnamed Customer'}
                                 </div>
                                 <div className="text-[11px] text-slate-500">
-                                  {q.fromCity || 'Origin'} &rarr; {q.toCity || 'Destination'} • ₹{q.grandTotal || '0'}
+                                  {q.fromCity || 'Origin'} &rarr; {q.toCity || 'Destination'} â€¢ â‚¹{q.grandTotal || '0'}
                                 </div>
                               </div>
-                              <button 
+                              <button
                                 onClick={() => setViewingQuotation(q)}
                                 className="text-xs font-semibold bg-amber-50 hover:bg-amber-100 text-amber-700 px-3 py-1.5 rounded-lg transition-colors cursor-pointer flex items-center gap-1 shrink-0"
                               >
@@ -3265,12 +3265,12 @@ export default function App() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 text-xs text-slate-300">
                       <div>
                         <span className="font-semibold text-yellow-400 block mb-1">MAIN OPERATIONAL OFFICE</span>
-                        Plot No. 1491, Hanspal, Balianta Canal Road, Bhubaneswar, Odisha – 752101<br />
+                        Plot No. 1491, Hanspal, Balianta Canal Road, Bhubaneswar, Odisha â€“ 752101<br />
                         <span className="text-slate-400">Office: 8093017400</span>
                       </div>
                       <div>
                         <span className="font-semibold text-yellow-400 block mb-1">REGISTERED OFFICE</span>
-                        Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452<br />
+                        Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG â€“ 495452<br />
                         <span className="text-slate-400">Mobile: 8093017400</span>
                       </div>
                     </div>
@@ -3291,7 +3291,7 @@ export default function App() {
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <button 
+                      <button
                         type="button"
                         onClick={() => setAdminTab('list-survey')}
                         className="bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-200 px-4 py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs"
@@ -3310,7 +3310,7 @@ export default function App() {
                           <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />
                           <span className="font-semibold">{surveyNoWarning}</span>
                         </div>
-                        <button 
+                        <button
                           type="button"
                           onClick={() => {
                             const next = generateNextSurveyNo(surveys);
@@ -3329,7 +3329,7 @@ export default function App() {
                       <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-2xl p-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-2xs">
                         <div className="flex items-center gap-2 text-xs font-bold text-emerald-950">
                           <Sparkles className="w-4 h-4 text-emerald-600 shrink-0" />
-                          <span>⚡ Auto-fill Customer from Saved Record or Unique ID:</span>
+                          <span>âš¡ Auto-fill Customer from Saved Record or Unique ID:</span>
                         </div>
                         <select
                           onChange={(e) => {
@@ -3361,30 +3361,30 @@ export default function App() {
                               const trimmed = String(surveyForm.surveyNo || '').trim().toLowerCase();
                               if (!trimmed) return null;
                               const isDup = surveys.some(
-                                s => String(s.id) !== String(editingSurveyId) && 
+                                s => String(s.id) !== String(editingSurveyId) &&
                                      String(s.surveyNo || '').trim().toLowerCase() === trimmed
                               );
                               if (isDup) {
                                 return (
                                   <span className="text-[10px] font-bold text-red-600 bg-red-100 px-2 py-0.5 rounded-full">
-                                    ⚠️ Already Taken
+                                    âš ï¸ Already Taken
                                   </span>
                                 );
                               }
                               return (
                                 <span className="text-[10px] font-bold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full">
-                                  ✓ Unique Number
+                                  âœ“ Unique Number
                                 </span>
                               );
                             })()}
                           </div>
                           <div className="flex items-center gap-2">
-                            <input 
-                              type="text" 
+                            <input
+                              type="text"
                               list="upl-all-surveys-datalist"
-                              className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium" 
-                              value={surveyForm.surveyNo} 
-                              onChange={e => handleSurveyNoInputChange(e.target.value)} 
+                              className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium"
+                              value={surveyForm.surveyNo}
+                              onChange={e => handleSurveyNoInputChange(e.target.value)}
                               placeholder="e.g. 1042"
                             />
                             <button
@@ -3403,11 +3403,11 @@ export default function App() {
                         </div>
                         <div className="border border-slate-300 rounded-xl p-2 px-3 focus-within:border-emerald-500 transition-all bg-white relative">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Survey Date</label>
-                          <input 
-                            type="date" 
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent appearance-none font-medium" 
-                            value={surveyForm.surveyDate} 
-                            onChange={e => setSurveyForm({...surveyForm, surveyDate: e.target.value})} 
+                          <input
+                            type="date"
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent appearance-none font-medium"
+                            value={surveyForm.surveyDate}
+                            onChange={e => setSurveyForm({...surveyForm, surveyDate: e.target.value})}
                           />
                         </div>
                         <div className="border border-slate-300 rounded-xl p-2 px-3 focus-within:border-emerald-500 transition-all bg-white relative">
@@ -3415,17 +3415,17 @@ export default function App() {
                             <label className="block text-[11px] text-slate-500 font-medium">Party Name * (Auto-Completes)</label>
                             {customerProfiles.some(c => c.partyName && c.partyName.toLowerCase() === (surveyForm.partyName || '').trim().toLowerCase()) && (
                               <span className="text-[10px] font-bold text-teal-600 bg-teal-50 border border-teal-200 px-1.5 py-0.2 rounded-full">
-                                ✓ Synced Profile
+                                âœ“ Synced Profile
                               </span>
                             )}
                           </div>
-                          <input 
-                            type="text" 
+                          <input
+                            type="text"
                             list="upl-customer-parties-datalist"
                             placeholder="e.g. Rahul Sharma"
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium" 
-                            value={surveyForm.partyName} 
-                            onChange={e => handleSurveyPartyNameChange(e.target.value)} 
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium"
+                            value={surveyForm.partyName}
+                            onChange={e => handleSurveyPartyNameChange(e.target.value)}
                           />
                         </div>
                         <div className="border border-slate-300 rounded-xl p-2 px-3 focus-within:border-emerald-500 transition-all bg-white relative">
@@ -3433,17 +3433,17 @@ export default function App() {
                             <label className="block text-[11px] text-slate-500 font-medium">Client Mobile No. (Auto-Completes)</label>
                             {customerProfiles.some(c => c.mobileNo && c.mobileNo.replace(/\D/g, '') === (surveyForm.mobileNo || '').replace(/\D/g, '') && c.mobileNo.length >= 8) && (
                               <span className="text-[10px] font-bold text-teal-600 bg-teal-50 border border-teal-200 px-1.5 py-0.2 rounded-full">
-                                ✓ Recognized Contact
+                                âœ“ Recognized Contact
                               </span>
                             )}
                           </div>
-                          <input 
-                            type="tel" 
+                          <input
+                            type="tel"
                             list="upl-customer-mobiles-datalist"
                             placeholder="e.g. 8093017400"
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium" 
-                            value={surveyForm.mobileNo} 
-                            onChange={e => handleSurveyMobileChange(e.target.value)} 
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium"
+                            value={surveyForm.mobileNo}
+                            onChange={e => handleSurveyMobileChange(e.target.value)}
                           />
                         </div>
                       </div>
@@ -3476,18 +3476,18 @@ export default function App() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="border border-slate-300 rounded-xl p-2 px-3 focus-within:border-slate-600 transition-all bg-white">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Country</label>
-                          <input 
-                            type="text" 
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium" 
-                            value={surveyForm.fromCountry} 
-                            onChange={e => setSurveyForm({...surveyForm, fromCountry: e.target.value})} 
+                          <input
+                            type="text"
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium"
+                            value={surveyForm.fromCountry}
+                            onChange={e => setSurveyForm({...surveyForm, fromCountry: e.target.value})}
                           />
                         </div>
                         <div className="border border-slate-300 rounded-xl p-2 px-3 focus-within:border-slate-600 transition-all bg-white relative">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">State</label>
-                          <select 
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent appearance-none cursor-pointer font-medium" 
-                            value={surveyForm.fromState} 
+                          <select
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent appearance-none cursor-pointer font-medium"
+                            value={surveyForm.fromState}
                             onChange={e => setSurveyForm({...surveyForm, fromState: e.target.value})}
                           >
                             <option value="">Select State</option>
@@ -3498,36 +3498,36 @@ export default function App() {
                         </div>
                         <div className="border border-slate-300 rounded-xl p-2 px-3 focus-within:border-slate-600 transition-all bg-white">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">City</label>
-                          <input 
-                            type="text" 
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium" 
-                            value={surveyForm.fromCity} 
-                            onChange={e => setSurveyForm({...surveyForm, fromCity: e.target.value})} 
+                          <input
+                            type="text"
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium"
+                            value={surveyForm.fromCity}
+                            onChange={e => setSurveyForm({...surveyForm, fromCity: e.target.value})}
                           />
                         </div>
                         <div className="border border-slate-300 rounded-xl p-2 px-3 focus-within:border-slate-600 transition-all bg-white">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Area</label>
-                          <input 
-                            type="text" 
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium" 
-                            value={surveyForm.fromArea} 
-                            onChange={e => setSurveyForm({...surveyForm, fromArea: e.target.value})} 
+                          <input
+                            type="text"
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium"
+                            value={surveyForm.fromArea}
+                            onChange={e => setSurveyForm({...surveyForm, fromArea: e.target.value})}
                           />
                         </div>
                         <div className="border border-slate-300 rounded-xl p-2 px-3 focus-within:border-slate-600 transition-all bg-white">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Pin Code</label>
-                          <input 
-                            type="text" 
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium" 
-                            value={surveyForm.fromPinCode} 
-                            onChange={e => setSurveyForm({...surveyForm, fromPinCode: e.target.value})} 
+                          <input
+                            type="text"
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium"
+                            value={surveyForm.fromPinCode}
+                            onChange={e => setSurveyForm({...surveyForm, fromPinCode: e.target.value})}
                           />
                         </div>
                         <div className="border border-slate-300 rounded-xl p-2 px-3 focus-within:border-slate-600 transition-all bg-white relative">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">From Floor</label>
-                          <select 
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent appearance-none cursor-pointer font-medium" 
-                            value={surveyForm.fromFloor} 
+                          <select
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent appearance-none cursor-pointer font-medium"
+                            value={surveyForm.fromFloor}
                             onChange={e => setSurveyForm({...surveyForm, fromFloor: e.target.value})}
                           >
                             <option>Ground</option>
@@ -3542,9 +3542,9 @@ export default function App() {
                         </div>
                         <div className="border border-slate-300 rounded-xl p-2 px-3 focus-within:border-slate-600 transition-all bg-white relative">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Lift Available</label>
-                          <select 
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent appearance-none cursor-pointer font-medium" 
-                            value={surveyForm.fromLift} 
+                          <select
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent appearance-none cursor-pointer font-medium"
+                            value={surveyForm.fromLift}
                             onChange={e => setSurveyForm({...surveyForm, fromLift: e.target.value})}
                           >
                             <option>Not Required</option>
@@ -3563,18 +3563,18 @@ export default function App() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="border border-slate-300 rounded-xl p-2 px-3 focus-within:border-amber-500 transition-all bg-white">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Country</label>
-                          <input 
-                            type="text" 
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium" 
-                            value={surveyForm.toCountry} 
-                            onChange={e => setSurveyForm({...surveyForm, toCountry: e.target.value})} 
+                          <input
+                            type="text"
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium"
+                            value={surveyForm.toCountry}
+                            onChange={e => setSurveyForm({...surveyForm, toCountry: e.target.value})}
                           />
                         </div>
                         <div className="border border-slate-300 rounded-xl p-2 px-3 focus-within:border-amber-500 transition-all bg-white relative">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">State</label>
-                          <select 
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent appearance-none cursor-pointer font-medium" 
-                            value={surveyForm.toState} 
+                          <select
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent appearance-none cursor-pointer font-medium"
+                            value={surveyForm.toState}
                             onChange={e => setSurveyForm({...surveyForm, toState: e.target.value})}
                           >
                             <option value="">Select State</option>
@@ -3585,36 +3585,36 @@ export default function App() {
                         </div>
                         <div className="border border-slate-300 rounded-xl p-2 px-3 focus-within:border-amber-500 transition-all bg-white">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">City</label>
-                          <input 
-                            type="text" 
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium" 
-                            value={surveyForm.toCity} 
-                            onChange={e => setSurveyForm({...surveyForm, toCity: e.target.value})} 
+                          <input
+                            type="text"
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium"
+                            value={surveyForm.toCity}
+                            onChange={e => setSurveyForm({...surveyForm, toCity: e.target.value})}
                           />
                         </div>
                         <div className="border border-slate-300 rounded-xl p-2 px-3 focus-within:border-amber-500 transition-all bg-white">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Area</label>
-                          <input 
-                            type="text" 
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium" 
-                            value={surveyForm.toArea} 
-                            onChange={e => setSurveyForm({...surveyForm, toArea: e.target.value})} 
+                          <input
+                            type="text"
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium"
+                            value={surveyForm.toArea}
+                            onChange={e => setSurveyForm({...surveyForm, toArea: e.target.value})}
                           />
                         </div>
                         <div className="border border-slate-300 rounded-xl p-2 px-3 focus-within:border-amber-500 transition-all bg-white">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Pin Code</label>
-                          <input 
-                            type="text" 
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium" 
-                            value={surveyForm.toPinCode} 
-                            onChange={e => setSurveyForm({...surveyForm, toPinCode: e.target.value})} 
+                          <input
+                            type="text"
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium"
+                            value={surveyForm.toPinCode}
+                            onChange={e => setSurveyForm({...surveyForm, toPinCode: e.target.value})}
                           />
                         </div>
                         <div className="border border-slate-300 rounded-xl p-2 px-3 focus-within:border-amber-500 transition-all bg-white relative">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">To Floor</label>
-                          <select 
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent appearance-none cursor-pointer font-medium" 
-                            value={surveyForm.toFloor} 
+                          <select
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent appearance-none cursor-pointer font-medium"
+                            value={surveyForm.toFloor}
                             onChange={e => setSurveyForm({...surveyForm, toFloor: e.target.value})}
                           >
                             <option>Ground</option>
@@ -3629,9 +3629,9 @@ export default function App() {
                         </div>
                         <div className="border border-slate-300 rounded-xl p-2 px-3 focus-within:border-amber-500 transition-all bg-white relative">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Lift Available</label>
-                          <select 
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent appearance-none cursor-pointer font-medium" 
-                            value={surveyForm.toLift} 
+                          <select
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent appearance-none cursor-pointer font-medium"
+                            value={surveyForm.toLift}
                             onChange={e => setSurveyForm({...surveyForm, toLift: e.target.value})}
                           >
                             <option>Not Required</option>
@@ -3650,52 +3650,52 @@ export default function App() {
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="border border-slate-300 rounded-xl p-3 focus-within:border-sky-500 transition-all bg-white">
-                          <input 
-                            type="text" 
-                            placeholder="Item Name (सामान का नाम)" 
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent placeholder-slate-400 font-medium" 
-                            value={currentItem.name} 
-                            onChange={e => setCurrentItem({...currentItem, name: e.target.value})} 
+                          <input
+                            type="text"
+                            placeholder="Item Name (à¤¸à¤¾à¤®à¤¾à¤¨ à¤•à¤¾ à¤¨à¤¾à¤®)"
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent placeholder-slate-400 font-medium"
+                            value={currentItem.name}
+                            onChange={e => setCurrentItem({...currentItem, name: e.target.value})}
                             onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addItemToSurvey(); } }}
                           />
                         </div>
 
                         <div className="border border-slate-300 rounded-xl p-2 px-3 focus-within:border-sky-500 transition-all bg-white">
-                          <label className="block text-[11px] text-slate-500 font-medium leading-none mb-1">Quantity (संख्या)</label>
-                          <input 
-                            type="number" 
-                            min="1" 
-                            placeholder="Quantity (संख्या)" 
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium" 
-                            value={currentItem.qty} 
-                            onChange={e => setCurrentItem({...currentItem, qty: e.target.value})} 
+                          <label className="block text-[11px] text-slate-500 font-medium leading-none mb-1">Quantity (à¤¸à¤‚à¤–à¥à¤¯à¤¾)</label>
+                          <input
+                            type="number"
+                            min="1"
+                            placeholder="Quantity (à¤¸à¤‚à¤–à¥à¤¯à¤¾)"
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium"
+                            value={currentItem.qty}
+                            onChange={e => setCurrentItem({...currentItem, qty: e.target.value})}
                           />
                         </div>
 
                         <div className="border border-slate-300 rounded-xl p-3 focus-within:border-sky-500 transition-all bg-white">
-                          <input 
-                            type="text" 
-                            placeholder="Value (कीमत)" 
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent placeholder-slate-400 font-medium" 
-                            value={currentItem.value} 
-                            onChange={e => setCurrentItem({...currentItem, value: e.target.value})} 
+                          <input
+                            type="text"
+                            placeholder="Value (à¤•à¥€à¤®à¤¤)"
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent placeholder-slate-400 font-medium"
+                            value={currentItem.value}
+                            onChange={e => setCurrentItem({...currentItem, value: e.target.value})}
                           />
                         </div>
 
                         <div className="border border-slate-300 rounded-xl p-3 focus-within:border-sky-500 transition-all bg-white">
-                          <input 
-                            type="text" 
-                            placeholder="Remark" 
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent placeholder-slate-400 font-medium" 
-                            value={currentItem.remark} 
-                            onChange={e => setCurrentItem({...currentItem, remark: e.target.value})} 
+                          <input
+                            type="text"
+                            placeholder="Remark"
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent placeholder-slate-400 font-medium"
+                            value={currentItem.remark}
+                            onChange={e => setCurrentItem({...currentItem, remark: e.target.value})}
                           />
                         </div>
                       </div>
 
                       <div className="mt-5 flex justify-center">
-                        <button 
-                          type="button" 
+                        <button
+                          type="button"
                           onClick={addItemToSurvey}
                           className="border border-[#0088cc] text-[#0088cc] hover:bg-sky-50 px-6 py-2 rounded-full font-medium text-sm flex items-center justify-center gap-1.5 transition-colors shadow-xs cursor-pointer"
                         >
@@ -3722,9 +3722,9 @@ export default function App() {
                                   Remark: {item.remark || ''}
                                 </div>
                               </div>
-                              <button 
+                              <button
                                 type="button"
-                                onClick={() => removeItemFromSurvey(idx)} 
+                                onClick={() => removeItemFromSurvey(idx)}
                                 className="bg-[#f87171] hover:bg-red-500 text-white rounded-xl p-2.5 transition-colors shadow-xs shrink-0 cursor-pointer"
                                 title="Delete item"
                               >
@@ -3740,9 +3740,9 @@ export default function App() {
 
                   {/* Save Button */}
                   <div className="mt-8 text-center">
-                    <button 
+                    <button
                       type="button"
-                      onClick={handleSaveSurvey} 
+                      onClick={handleSaveSurvey}
                       className="bg-[#0088cc] hover:bg-sky-600 text-white px-10 py-2.5 rounded-lg text-sm font-semibold transition-colors shadow-sm cursor-pointer"
                     >
                       {editingSurveyId ? 'Update' : 'Save'}
@@ -3770,7 +3770,7 @@ export default function App() {
                   {/* Filter and Search Bar */}
                   <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 mb-6">
                     <div className="flex items-center gap-2.5">
-                      <button 
+                      <button
                         onClick={() => {
                           const next = generateNextSurveyNo(surveys);
                           setSurveyForm({ ...initialSurveyForm, id: Date.now(), surveyNo: next });
@@ -3782,7 +3782,7 @@ export default function App() {
                         <PlusCircle className="w-4 h-4 text-emerald-400" />
                         <span>Add Survey</span>
                       </button>
-                      <button 
+                      <button
                         onClick={() => setSurveySearchQuery('')}
                         className="bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 px-6 py-2 rounded-full font-semibold text-sm shadow-xs transition-colors cursor-pointer"
                       >
@@ -3791,14 +3791,14 @@ export default function App() {
                     </div>
 
                     <div className="flex items-center">
-                      <input 
-                        type="text" 
-                        placeholder="Search by Name, No, Mobile, City.." 
+                      <input
+                        type="text"
+                        placeholder="Search by Name, No, Mobile, City.."
                         value={surveySearchQuery}
                         onChange={(e) => setSurveySearchQuery(e.target.value)}
                         className="bg-white border border-slate-300 text-slate-800 text-sm px-4 py-2 rounded-l-md outline-none focus:border-[#0088cc] w-full sm:w-72"
                       />
-                      <button 
+                      <button
                         type="button"
                         onClick={() => {}}
                         className="bg-[#0088cc] hover:bg-[#0077b5] text-white px-5 py-2 rounded-r-md text-sm font-semibold transition-colors shrink-0 cursor-pointer shadow-xs"
@@ -3829,12 +3829,12 @@ export default function App() {
                             {surveys.length === 0 ? 'No Surveys Created Yet' : 'No Surveys Match Search'}
                           </h3>
                           <p className="text-slate-500 text-sm mt-1 max-w-sm mx-auto">
-                            {surveys.length === 0 
+                            {surveys.length === 0
                               ? 'Click below to create your first survey or load demo surveys for testing on localhost.'
                               : `No records found matching "${surveySearchQuery}". Clear your search or create a new survey.`}
                           </p>
                           <div className="mt-4 flex flex-wrap justify-center gap-3">
-                            <button 
+                            <button
                               onClick={() => {
                                 const next = generateNextSurveyNo(surveys);
                                 setSurveyForm({ ...initialSurveyForm, id: Date.now(), surveyNo: next });
@@ -3846,7 +3846,7 @@ export default function App() {
                               Create New Survey
                             </button>
                             {surveySearchQuery && (
-                              <button 
+                              <button
                                 onClick={() => setSurveySearchQuery('')}
                                 className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-5 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer"
                               >
@@ -3893,7 +3893,7 @@ export default function App() {
                                     <p className="font-medium text-slate-800 text-sm">{survey.fromCity || survey.fromArea || 'N/A'}</p>
                                   </div>
                                 </div>
-                                
+
                                 <div className="relative flex items-start gap-3">
                                   <div className="absolute -left-[27px] top-0 w-6 h-6 rounded-full bg-[#1e293b] flex items-center justify-center text-white ring-4 ring-white z-10 shadow-xs">
                                     <MapPin className="w-3.5 h-3.5" />
@@ -3935,8 +3935,8 @@ export default function App() {
                           {/* Card Footer Actions */}
                           <div className="border-t border-slate-100 p-4 flex flex-wrap justify-center items-center gap-4 sm:gap-6 bg-slate-50/70">
                             {/* Make Quotation */}
-                            <button 
-                              onClick={() => handleCreateQuotationFromSurvey(survey)} 
+                            <button
+                              onClick={() => handleCreateQuotationFromSurvey(survey)}
                               className="flex flex-col items-center gap-1.5 group cursor-pointer"
                               title="Generate Quotation with this survey details"
                             >
@@ -3947,8 +3947,8 @@ export default function App() {
                             </button>
 
                             {/* Make Packing List */}
-                            <button 
-                              onClick={() => handleCreatePackingListFromSurvey(survey)} 
+                            <button
+                              onClick={() => handleCreatePackingListFromSurvey(survey)}
                               className="flex flex-col items-center gap-1.5 group cursor-pointer"
                               title="Generate Packing List with surveyed items"
                             >
@@ -3958,8 +3958,8 @@ export default function App() {
                               <span className="text-[10px] font-bold text-teal-700 uppercase tracking-wide">+ Packing List</span>
                             </button>
 
-                            <button 
-                              onClick={() => setViewingSurvey(survey)} 
+                            <button
+                              onClick={() => setViewingSurvey(survey)}
                               className="flex flex-col items-center gap-1.5 group cursor-pointer"
                               title="View & Download Survey PDF"
                             >
@@ -3968,9 +3968,9 @@ export default function App() {
                               </div>
                               <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wide">PDF / Download</span>
                             </button>
-                            
-                            <button 
-                              onClick={() => handleShareSurvey(survey)} 
+
+                            <button
+                              onClick={() => handleShareSurvey(survey)}
                               className="flex flex-col items-center gap-1.5 group cursor-pointer"
                               title="Share Survey"
                             >
@@ -3979,9 +3979,9 @@ export default function App() {
                               </div>
                               <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wide">Share</span>
                             </button>
-                            
-                            <button 
-                              onClick={() => handleEditSurvey(survey)} 
+
+                            <button
+                              onClick={() => handleEditSurvey(survey)}
                               className="flex flex-col items-center gap-1.5 group cursor-pointer"
                               title="Edit Survey"
                             >
@@ -3990,13 +3990,13 @@ export default function App() {
                               </div>
                               <span className="text-[10px] font-bold text-cyan-600 uppercase tracking-wide">Edit</span>
                             </button>
-                            
-                            <button 
+
+                            <button
                               type="button"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleDeleteSurvey(survey);
-                              }} 
+                              }}
                               className="flex flex-col items-center gap-1.5 group cursor-pointer"
                               title="Delete Survey"
                             >
@@ -4037,7 +4037,7 @@ export default function App() {
                         <div>
                           <h4 className="font-bold text-amber-950 text-sm">Editing Quotation #{quotationForm.quotationNo}</h4>
                           <p className="text-xs text-amber-800">
-                            Customer: {quotationForm.partyName || 'Customer'} • You are updating an existing quotation. All charges, tax and route details are editable.
+                            Customer: {quotationForm.partyName || 'Customer'} â€¢ You are updating an existing quotation. All charges, tax and route details are editable.
                           </p>
                         </div>
                       </div>
@@ -4075,11 +4075,11 @@ export default function App() {
                           </div>
                         </div>
                       </div>
-                      
+
                       <div className="pt-3 grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
                         <div className="sm:col-span-7">
                           <label className="block text-[11px] font-semibold text-slate-700 mb-1">Choose Existing Survey:</label>
-                          <select 
+                          <select
                             className="w-full bg-white border border-emerald-300 rounded-xl px-3 py-2 text-xs sm:text-sm font-medium text-slate-800 outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer shadow-xs"
                             value={selectedSurveyForQuotationAutoFill}
                             onChange={(e) => {
@@ -4091,7 +4091,7 @@ export default function App() {
                             <option value="">-- Select Survey to Load Client & Route --</option>
                             {surveys.map((s) => (
                               <option key={s.id} value={String(s.surveyNo)}>
-                                Survey #{s.surveyNo} — {s.partyName} ({s.fromCity || 'From'} → {s.toCity || 'To'})
+                                Survey #{s.surveyNo} â€” {s.partyName} ({s.fromCity || 'From'} â†’ {s.toCity || 'To'})
                               </option>
                             ))}
                           </select>
@@ -4099,8 +4099,8 @@ export default function App() {
                         <div className="sm:col-span-5 flex gap-2 items-end">
                           <div className="grow">
                             <label className="block text-[11px] font-semibold text-slate-700 mb-1">Or Enter Survey No:</label>
-                            <input 
-                              type="text" 
+                            <input
+                              type="text"
                               placeholder="e.g. 1 or 2"
                               className="w-full bg-white border border-emerald-300 rounded-xl px-3 py-2 text-xs sm:text-sm font-medium text-slate-800 outline-none focus:ring-2 focus:ring-emerald-500 shadow-xs"
                               value={selectedSurveyForQuotationAutoFill}
@@ -4130,7 +4130,7 @@ export default function App() {
                               }}
                             />
                           </div>
-                          <button 
+                          <button
                             type="button"
                             onClick={() => applySurveyToQuotation(selectedSurveyForQuotationAutoFill)}
                             className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm px-4 py-2 rounded-xl transition-colors cursor-pointer shrink-0 shadow-xs flex items-center gap-1.5 h-[38px]"
@@ -4148,20 +4148,20 @@ export default function App() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="border border-slate-300 rounded-lg p-2 focus-within:border-green-500 focus-within:ring-1 focus-within:ring-green-500 transition-all bg-white">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Quot No. *</label>
-                          <input 
-                            type="text" 
+                          <input
+                            type="text"
                             value={quotationForm.quotationNo}
                             readOnly
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent" 
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent"
                           />
                         </div>
                         <div className="border border-slate-300 rounded-lg p-2 focus-within:border-green-500 focus-within:ring-1 focus-within:ring-green-500 transition-all bg-white relative">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Quotation Date *</label>
-                          <input 
-                            type="date" 
+                          <input
+                            type="date"
                             value={quotationForm.quotationDate}
                             onChange={(e) => setQuotationForm({ ...quotationForm, quotationDate: e.target.value })}
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent appearance-none" 
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent appearance-none"
                           />
                         </div>
                         <div className="border border-slate-300 rounded-lg p-2 focus-within:border-green-500 focus-within:ring-1 focus-within:ring-green-500 transition-all bg-white relative">
@@ -4169,17 +4169,17 @@ export default function App() {
                             <label className="block text-[11px] text-slate-500 font-medium">Party Name * (Auto-Completes)</label>
                             {customerProfiles.some(c => c.partyName && c.partyName.toLowerCase() === (quotationForm.partyName || '').trim().toLowerCase()) && (
                               <span className="text-[10px] font-bold text-teal-600 bg-teal-50 border border-teal-200 px-1.5 py-0.2 rounded-full">
-                                ✓ Synced Profile
+                                âœ“ Synced Profile
                               </span>
                             )}
                           </div>
-                          <input 
-                            type="text" 
+                          <input
+                            type="text"
                             list="upl-customer-parties-datalist"
                             value={quotationForm.partyName}
                             onChange={(e) => handleQuotationPartyNameChange(e.target.value)}
                             placeholder="Enter Customer Name"
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent" 
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent"
                           />
                         </div>
                         <div className="border border-slate-300 rounded-lg p-2 focus-within:border-green-500 focus-within:ring-1 focus-within:ring-green-500 transition-all bg-white relative">
@@ -4187,45 +4187,45 @@ export default function App() {
                             <label className="block text-[11px] text-slate-500 font-medium">Mobile No. (Auto-Completes)</label>
                             {customerProfiles.some(c => c.mobileNo && c.mobileNo.replace(/\D/g, '') === (quotationForm.mobileNo || '').replace(/\D/g, '') && c.mobileNo.length >= 8) && (
                               <span className="text-[10px] font-bold text-teal-600 bg-teal-50 border border-teal-200 px-1.5 py-0.2 rounded-full">
-                                ✓ Recognized Contact
+                                âœ“ Recognized Contact
                               </span>
                             )}
                           </div>
-                          <input 
-                            type="tel" 
+                          <input
+                            type="tel"
                             list="upl-customer-mobiles-datalist"
                             value={quotationForm.mobileNo}
                             onChange={(e) => handleQuotationMobileChange(e.target.value)}
                             placeholder="Enter 10-digit mobile number"
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent" 
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent"
                           />
                         </div>
                         <div className="border border-slate-300 rounded-lg p-2 focus-within:border-green-500 focus-within:ring-1 focus-within:ring-green-500 transition-all bg-white">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Email Address</label>
-                          <input 
-                            type="email" 
+                          <input
+                            type="email"
                             value={quotationForm.email}
                             onChange={(e) => setQuotationForm({ ...quotationForm, email: e.target.value })}
                             placeholder="Enter email address"
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent" 
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent"
                           />
                         </div>
                         <div className="border border-slate-300 rounded-lg p-2 focus-within:border-green-500 focus-within:ring-1 focus-within:ring-green-500 transition-all bg-white relative">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Packing Date</label>
-                          <input 
-                            type="date" 
+                          <input
+                            type="date"
                             value={quotationForm.packingDate}
                             onChange={(e) => setQuotationForm({ ...quotationForm, packingDate: e.target.value })}
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent appearance-none" 
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent appearance-none"
                           />
                         </div>
                         <div className="border border-slate-300 rounded-lg p-2 focus-within:border-green-500 focus-within:ring-1 focus-within:ring-green-500 transition-all bg-white relative">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Date of Delivery</label>
-                          <input 
-                            type="date" 
+                          <input
+                            type="date"
                             value={quotationForm.deliveryDate}
                             onChange={(e) => setQuotationForm({ ...quotationForm, deliveryDate: e.target.value })}
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent appearance-none" 
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent appearance-none"
                           />
                         </div>
                       </div>
@@ -4260,8 +4260,8 @@ export default function App() {
                         ].map((mType) => {
                           const isSelected = quotationForm.moveType.includes(mType);
                           return (
-                            <label 
-                              key={mType} 
+                            <label
+                              key={mType}
                               onClick={() => {
                                 const current = quotationForm.moveType;
                                 if (isSelected) {
@@ -4288,57 +4288,57 @@ export default function App() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="border border-slate-300 rounded-lg p-2 focus-within:border-slate-500 transition-all bg-white">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Country</label>
-                          <input 
-                            type="text" 
+                          <input
+                            type="text"
                             value={quotationForm.fromCountry}
                             onChange={(e) => setQuotationForm({ ...quotationForm, fromCountry: e.target.value })}
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent" 
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent"
                           />
                         </div>
                         <div className="border border-slate-300 rounded-lg p-2 focus-within:border-slate-500 transition-all bg-white relative">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">State</label>
-                          <input 
-                            type="text" 
+                          <input
+                            type="text"
                             list="upl-indian-states-datalist"
                             value={quotationForm.fromState}
                             onChange={(e) => setQuotationForm({ ...quotationForm, fromState: e.target.value })}
                             placeholder="Select or type State"
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent" 
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent"
                           />
                         </div>
                         <div className="border border-slate-300 rounded-lg p-2 focus-within:border-slate-500 transition-all bg-white">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">City</label>
-                          <input 
-                            type="text" 
+                          <input
+                            type="text"
                             value={quotationForm.fromCity}
                             onChange={(e) => setQuotationForm({ ...quotationForm, fromCity: e.target.value })}
                             placeholder="e.g. Vizianagaram"
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent" 
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent"
                           />
                         </div>
                         <div className="border border-slate-300 rounded-lg p-2 focus-within:border-slate-500 transition-all bg-white">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Area</label>
-                          <input 
-                            type="text" 
+                          <input
+                            type="text"
                             value={quotationForm.fromArea}
                             onChange={(e) => setQuotationForm({ ...quotationForm, fromArea: e.target.value })}
                             placeholder="Area / Locality"
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent" 
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent"
                           />
                         </div>
                         <div className="border border-slate-300 rounded-lg p-2 focus-within:border-slate-500 transition-all bg-white">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Pin Code</label>
-                          <input 
-                            type="text" 
+                          <input
+                            type="text"
                             value={quotationForm.fromPincode}
                             onChange={(e) => setQuotationForm({ ...quotationForm, fromPincode: e.target.value })}
                             placeholder="e.g. 535002"
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent" 
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent"
                           />
                         </div>
                         <div className="border border-slate-300 rounded-lg p-2 focus-within:border-slate-500 transition-all bg-white relative">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">From Floor</label>
-                          <select 
+                          <select
                             value={quotationForm.fromFloor}
                             onChange={(e) => setQuotationForm({ ...quotationForm, fromFloor: e.target.value })}
                             className="w-full outline-none text-slate-800 text-sm bg-transparent appearance-none cursor-pointer"
@@ -4354,7 +4354,7 @@ export default function App() {
                         </div>
                         <div className="border border-slate-300 rounded-lg p-2 focus-within:border-slate-500 transition-all bg-white relative">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Lift Available</label>
-                          <select 
+                          <select
                             value={quotationForm.fromLift}
                             onChange={(e) => setQuotationForm({ ...quotationForm, fromLift: e.target.value })}
                             className="w-full outline-none text-slate-800 text-sm bg-transparent appearance-none cursor-pointer"
@@ -4373,57 +4373,57 @@ export default function App() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="border border-slate-300 rounded-lg p-2 focus-within:border-orange-400 transition-all bg-white">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Country</label>
-                          <input 
-                            type="text" 
+                          <input
+                            type="text"
                             value={quotationForm.toCountry}
                             onChange={(e) => setQuotationForm({ ...quotationForm, toCountry: e.target.value })}
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent" 
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent"
                           />
                         </div>
                         <div className="border border-slate-300 rounded-lg p-2 focus-within:border-orange-400 transition-all bg-white relative">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">State</label>
-                          <input 
-                            type="text" 
+                          <input
+                            type="text"
                             list="upl-indian-states-datalist"
                             value={quotationForm.toState}
                             onChange={(e) => setQuotationForm({ ...quotationForm, toState: e.target.value })}
                             placeholder="Select or type State"
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent" 
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent"
                           />
                         </div>
                         <div className="border border-slate-300 rounded-lg p-2 focus-within:border-orange-400 transition-all bg-white">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">City</label>
-                          <input 
-                            type="text" 
+                          <input
+                            type="text"
                             value={quotationForm.toCity}
                             onChange={(e) => setQuotationForm({ ...quotationForm, toCity: e.target.value })}
                             placeholder="e.g. Nagpur"
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent" 
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent"
                           />
                         </div>
                         <div className="border border-slate-300 rounded-lg p-2 focus-within:border-orange-400 transition-all bg-white">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Area</label>
-                          <input 
-                            type="text" 
+                          <input
+                            type="text"
                             value={quotationForm.toArea}
                             onChange={(e) => setQuotationForm({ ...quotationForm, toArea: e.target.value })}
                             placeholder="Area / Locality"
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent" 
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent"
                           />
                         </div>
                         <div className="border border-slate-300 rounded-lg p-2 focus-within:border-orange-400 transition-all bg-white">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Pin Code</label>
-                          <input 
-                            type="text" 
+                          <input
+                            type="text"
                             value={quotationForm.toPincode}
                             onChange={(e) => setQuotationForm({ ...quotationForm, toPincode: e.target.value })}
                             placeholder="e.g. 440001"
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent" 
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent"
                           />
                         </div>
                         <div className="border border-slate-300 rounded-lg p-2 focus-within:border-orange-400 transition-all bg-white relative">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">To Floor</label>
-                          <select 
+                          <select
                             value={quotationForm.toFloor}
                             onChange={(e) => setQuotationForm({ ...quotationForm, toFloor: e.target.value })}
                             className="w-full outline-none text-slate-800 text-sm bg-transparent appearance-none cursor-pointer"
@@ -4439,7 +4439,7 @@ export default function App() {
                         </div>
                         <div className="border border-slate-300 rounded-lg p-2 focus-within:border-orange-400 transition-all bg-white relative">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Lift Available</label>
-                          <select 
+                          <select
                             value={quotationForm.toLift}
                             onChange={(e) => setQuotationForm({ ...quotationForm, toLift: e.target.value })}
                             className="w-full outline-none text-slate-800 text-sm bg-transparent appearance-none cursor-pointer"
@@ -4527,10 +4527,10 @@ export default function App() {
                               </div>
                               <div className="flex items-center justify-between gap-2">
                                 <div className="relative flex-1 flex items-center">
-                                  <span className="text-slate-400 text-xs font-bold mr-1.5 select-none">₹</span>
-                                  <input 
-                                    type="text" 
-                                    placeholder="Enter amount (e.g. 5000)" 
+                                  <span className="text-slate-400 text-xs font-bold mr-1.5 select-none">â‚¹</span>
+                                  <input
+                                    type="text"
+                                    placeholder="Enter amount (e.g. 5000)"
                                     value={parsed.displayAmount}
                                     onChange={handleAmountChange}
                                     className="w-full outline-none text-sm font-semibold bg-transparent placeholder-slate-400 text-slate-800"
@@ -4627,7 +4627,7 @@ export default function App() {
                                           }`}
                                           title={isCcIncluded ? 'Select Included to clear' : 'Select Included'}
                                         >
-                                          {isCcIncluded && <span>✓</span>} Included
+                                          {isCcIncluded && <span>âœ“</span>} Included
                                         </button>
                                         <button
                                           type="button"
@@ -4639,13 +4639,13 @@ export default function App() {
                                           }`}
                                           title={isCcExcluded ? 'Select Excluded to clear' : 'Select Excluded'}
                                         >
-                                          {isCcExcluded && <span>✕</span>} Excluded
+                                          {isCcExcluded && <span>âœ•</span>} Excluded
                                         </button>
                                       </div>
                                     </div>
                                     <div className="flex items-center gap-1.5">
                                       <div className="relative flex-1 flex items-center bg-white border border-slate-300 rounded-md px-2 focus-within:border-cyan-500">
-                                        <span className="text-slate-400 text-xs font-bold mr-1 select-none">₹</span>
+                                        <span className="text-slate-400 text-xs font-bold mr-1 select-none">â‚¹</span>
                                         <input
                                           type="text"
                                           placeholder="Enter amount"
@@ -4691,7 +4691,7 @@ export default function App() {
                                   readOnly
                                   className="w-full outline-none text-slate-800 text-sm font-bold bg-transparent"
                                 />
-                                <span className="text-[11px] text-slate-400 font-medium ml-1 shrink-0">₹ INR</span>
+                                <span className="text-[11px] text-slate-400 font-medium ml-1 shrink-0">â‚¹ INR</span>
                               </div>
                             </div>
                           </div>
@@ -4702,14 +4702,14 @@ export default function App() {
                     {/* GST/Insurance */}
                     <div className="border-2 border-slate-900 rounded-xl p-6 pt-8 relative bg-white shadow-sm">
                       <span className="absolute -top-3.5 left-4 bg-slate-900 text-white px-4 py-1 rounded-md text-sm font-medium shadow-sm">GST/Insurance</span>
-                      
+
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* 1. Insurance rate */}
                         <div className="border border-slate-300 rounded-lg p-3 focus-within:border-emerald-600 transition-all bg-white relative shadow-2xs">
                           <label className="block text-xs font-bold text-slate-900 uppercase tracking-wider mb-1.5">
                             Insurance %
                           </label>
-                          <select 
+                          <select
                             value={quotationForm.insurancePercent || '3%'}
                             onChange={(e) => setQuotationForm({ ...quotationForm, insurancePercent: e.target.value, insuranceStatus: 'Extra' })}
                             className="w-full outline-none text-slate-800 text-sm font-semibold bg-transparent appearance-none cursor-pointer py-1"
@@ -4736,12 +4736,12 @@ export default function App() {
                             </span>
                           </label>
                           <div className="flex items-center justify-between">
-                            <input 
-                              type="text" 
+                            <input
+                              type="text"
                               placeholder="0"
                               value={calculateQuotationTotals(quotationForm).insuranceNum > 0 ? String(calculateQuotationTotals(quotationForm).insuranceNum) : ''}
                               readOnly
-                              className="w-full outline-none text-slate-800 text-sm font-semibold bg-transparent placeholder-slate-400" 
+                              className="w-full outline-none text-slate-800 text-sm font-semibold bg-transparent placeholder-slate-400"
                             />
                             <div className="w-6 h-6 rounded-full bg-emerald-50 flex items-center justify-center border border-emerald-200 text-emerald-600 group-hover:bg-emerald-100 transition-colors flex-shrink-0 ml-1">
                               <Edit className="w-3 h-3" />
@@ -4757,7 +4757,7 @@ export default function App() {
                               GST Charge %
                             </label>
                           </div>
-                          <select 
+                          <select
                             value={quotationForm.gstPercent || '18%'}
                             onChange={(e) => setQuotationForm({ ...quotationForm, gstPercent: e.target.value, gstStatus: 'Extra' })}
                             className="w-full outline-none text-slate-800 text-sm font-semibold bg-transparent appearance-none cursor-pointer py-1"
@@ -4780,12 +4780,12 @@ export default function App() {
                             </span>
                           </label>
                           <div className="flex items-center justify-between">
-                            <input 
-                              type="text" 
+                            <input
+                              type="text"
                               placeholder="0"
                               value={calculateQuotationTotals(quotationForm).gstNum > 0 ? String(calculateQuotationTotals(quotationForm).gstNum) : ''}
                               readOnly
-                              className="w-full outline-none text-slate-800 text-sm font-semibold bg-transparent placeholder-slate-400" 
+                              className="w-full outline-none text-slate-800 text-sm font-semibold bg-transparent placeholder-slate-400"
                             />
                             <div className="w-6 h-6 rounded-full bg-purple-50 flex items-center justify-center border border-purple-200 text-purple-600 group-hover:bg-purple-100 transition-colors flex-shrink-0 ml-1">
                               <Edit className="w-3 h-3" />
@@ -4802,15 +4802,15 @@ export default function App() {
                             </span>
                           </label>
                           <div className="flex items-center justify-between">
-                            <input 
-                              type="text" 
-                              placeholder="Declared Goods Value" 
+                            <input
+                              type="text"
+                              placeholder="Declared Goods Value"
                               value={quotationForm.goodsValue || ''}
                               onChange={(e) => {
                                 const newGoodsVal = e.target.value;
                                 setQuotationForm({ ...quotationForm, goodsValue: newGoodsVal, insuranceStatus: 'Extra' });
                               }}
-                              className="w-full outline-none text-slate-800 text-sm font-semibold bg-transparent placeholder-slate-400" 
+                              className="w-full outline-none text-slate-800 text-sm font-semibold bg-transparent placeholder-slate-400"
                             />
                             <div className="w-6 h-6 rounded-full bg-slate-50 flex items-center justify-center border border-slate-200 text-slate-600 group-hover:bg-slate-100 transition-colors flex-shrink-0 ml-1">
                               <Edit className="w-3 h-3" />
@@ -4827,7 +4827,7 @@ export default function App() {
                             </span>
                             <span className="text-[10px] text-slate-400 font-medium lowercase">tax category</span>
                           </label>
-                          <select 
+                          <select
                             value={quotationForm.gstType || 'CGST/SGST'}
                             onChange={(e) => setQuotationForm({ ...quotationForm, gstType: e.target.value, gstStatus: 'Extra' })}
                             className="w-full outline-none text-slate-800 text-sm font-semibold bg-transparent appearance-none cursor-pointer py-1"
@@ -4847,22 +4847,22 @@ export default function App() {
                             <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs font-semibold text-slate-700">
                               <div>
                                 <span className="text-slate-500">Base Charges:</span>{' '}
-                                <strong className="text-slate-900 font-mono">₹ {formTotals.baseTotal.toLocaleString()}</strong>
+                                <strong className="text-slate-900 font-mono">â‚¹ {formTotals.baseTotal.toLocaleString()}</strong>
                               </div>
                               <div className="bg-blue-100/70 text-blue-950 px-2 py-0.5 rounded font-bold">
                                 <span>Sub Total:</span>{' '}
-                                <strong className="font-mono">₹ {formTotals.subTotal.toLocaleString()}</strong>
+                                <strong className="font-mono">â‚¹ {formTotals.subTotal.toLocaleString()}</strong>
                               </div>
                               {formTotals.insuranceNum > 0 && (
                                 <div className="text-emerald-700">
                                   <span>+ Ins ({formTotals.insPercent} Extra):</span>{' '}
-                                  <strong className="font-mono">₹ {formTotals.insuranceNum.toLocaleString()}</strong>
+                                  <strong className="font-mono">â‚¹ {formTotals.insuranceNum.toLocaleString()}</strong>
                                 </div>
                               )}
                               {formTotals.gstNum > 0 && (
                                 <div className="text-purple-700">
                                   <span>+ GST ({formTotals.gstPercent}):</span>{' '}
-                                  <strong className="font-mono">₹ {formTotals.gstNum.toLocaleString()}</strong>
+                                  <strong className="font-mono">â‚¹ {formTotals.gstNum.toLocaleString()}</strong>
                                 </div>
                               )}
                               {formTotals.gstStatus === 'Exempted' && (
@@ -4873,7 +4873,7 @@ export default function App() {
                               {formTotals.goodsVal > 0 && (
                                 <div className="text-amber-800 bg-amber-50 border border-amber-300 px-2 py-0.5 rounded text-xs font-bold flex items-center gap-1 shadow-2xs">
                                   <span>+ Goods Value:</span>{' '}
-                                  <strong className="font-mono">₹ {formTotals.goodsVal.toLocaleString()}</strong>
+                                  <strong className="font-mono">â‚¹ {formTotals.goodsVal.toLocaleString()}</strong>
                                 </div>
                               )}
                             </div>
@@ -4881,12 +4881,12 @@ export default function App() {
                               <div className="flex items-center gap-1.5">
                                 <span className="text-xs uppercase font-extrabold text-blue-900 tracking-wider">Grand Total:</span>
                                 <span className="text-base sm:text-lg font-black text-blue-950 font-mono bg-white px-2.5 py-0.5 rounded-lg border border-blue-300 shadow-2xs">
-                                  ₹ {formTotals.grandTotal.toLocaleString()}
+                                  â‚¹ {formTotals.grandTotal.toLocaleString()}
                                 </span>
                               </div>
                               {formTotals.advanceNum > 0 && (
                                 <div className="text-xs font-bold text-slate-700 bg-white px-2 py-0.5 rounded border border-slate-200">
-                                  Due: <span className="text-emerald-700 font-mono">₹ {formTotals.balanceDue.toLocaleString()}</span>
+                                  Due: <span className="text-emerald-700 font-mono">â‚¹ {formTotals.balanceDue.toLocaleString()}</span>
                                 </div>
                               )}
                             </div>
@@ -4911,7 +4911,7 @@ export default function App() {
                                   readOnly
                                   className="w-full outline-none text-blue-950 text-sm font-black bg-transparent"
                                 />
-                                <span className="text-[11px] text-slate-400 font-medium ml-1 shrink-0">₹ INR</span>
+                                <span className="text-[11px] text-slate-400 font-medium ml-1 shrink-0">â‚¹ INR</span>
                               </div>
                             </div>
                           </div>
@@ -4924,22 +4924,22 @@ export default function App() {
                       <span className="absolute -top-3.5 left-4 bg-green-400 text-white px-4 py-1 rounded-md text-sm font-medium shadow-sm">Other Details</span>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="border border-slate-300 rounded-lg p-3 focus-within:border-green-500 transition-all bg-white">
-                          <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Advance Payment (₹)</label>
-                          <input 
-                            type="text" 
+                          <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Advance Payment (â‚¹)</label>
+                          <input
+                            type="text"
                             placeholder="Enter advance amount"
                             value={quotationForm.advancePaid}
                             onChange={(e) => setQuotationForm({ ...quotationForm, advancePaid: e.target.value })}
-                            className="w-full outline-none text-slate-700 text-sm bg-transparent placeholder-slate-500" 
+                            className="w-full outline-none text-slate-700 text-sm bg-transparent placeholder-slate-500"
                           />
                         </div>
                         <div className="border border-slate-300 rounded-lg p-3 focus-within:border-green-500 transition-all bg-white">
-                          <input 
-                            type="text" 
-                            placeholder="Easy Access" 
+                          <input
+                            type="text"
+                            placeholder="Easy Access"
                             value={quotationForm.easyAccess}
                             onChange={(e) => setQuotationForm({ ...quotationForm, easyAccess: e.target.value })}
-                            className="w-full outline-none text-slate-700 text-sm bg-transparent placeholder-slate-500" 
+                            className="w-full outline-none text-slate-700 text-sm bg-transparent placeholder-slate-500"
                           />
                         </div>
                         {(() => {
@@ -4949,36 +4949,36 @@ export default function App() {
                               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm">
                                 <div className="text-slate-700">
                                   <span className="font-semibold">Grand Total:</span>{' '}
-                                  <span className="font-black text-blue-950">₹ {formTotals.grandTotal.toLocaleString()}</span>
+                                  <span className="font-black text-blue-950">â‚¹ {formTotals.grandTotal.toLocaleString()}</span>
                                 </div>
                                 <div className="text-slate-700">
                                   <span className="font-semibold">Advance Paid:</span>{' '}
-                                  <span className="font-black text-emerald-700">₹ {formTotals.advanceNum.toLocaleString()}</span>
+                                  <span className="font-black text-emerald-700">â‚¹ {formTotals.advanceNum.toLocaleString()}</span>
                                 </div>
                                 <div className="text-slate-700">
                                   <span className="font-semibold">Balance Due:</span>{' '}
-                                  <span className="font-black text-rose-700">₹ {formTotals.balanceDue.toLocaleString()}</span>
+                                  <span className="font-black text-rose-700">â‚¹ {formTotals.balanceDue.toLocaleString()}</span>
                                 </div>
                               </div>
                             </div>
                           );
                         })()}
                         <div className="border border-slate-300 rounded-lg p-3 focus-within:border-green-500 transition-all bg-white md:col-span-2">
-                          <input 
-                            type="text" 
-                            placeholder="Balcony Items" 
+                          <input
+                            type="text"
+                            placeholder="Balcony Items"
                             value={quotationForm.balconyItems}
                             onChange={(e) => setQuotationForm({ ...quotationForm, balconyItems: e.target.value })}
-                            className="w-full outline-none text-slate-700 text-sm bg-transparent placeholder-slate-500" 
+                            className="w-full outline-none text-slate-700 text-sm bg-transparent placeholder-slate-500"
                           />
                         </div>
                         <div className="border border-slate-300 rounded-lg p-3 focus-within:border-green-500 transition-all bg-white md:col-span-2">
-                          <input 
-                            type="text" 
-                            placeholder="Extra Info." 
+                          <input
+                            type="text"
+                            placeholder="Extra Info."
                             value={quotationForm.extraInfo}
                             onChange={(e) => setQuotationForm({ ...quotationForm, extraInfo: e.target.value })}
-                            className="w-full outline-none text-slate-700 text-sm bg-transparent placeholder-slate-500" 
+                            className="w-full outline-none text-slate-700 text-sm bg-transparent placeholder-slate-500"
                           />
                         </div>
                       </div>
@@ -4986,7 +4986,7 @@ export default function App() {
                   </div>
 
                   <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
-                    <button 
+                    <button
                       type="button"
                       onClick={handleSaveQuotation}
                       className="bg-[#0088cc] hover:bg-blue-600 text-white px-10 py-2.5 rounded text-sm font-bold transition-all shadow-md cursor-pointer flex items-center gap-2 active:scale-95"
@@ -4995,7 +4995,7 @@ export default function App() {
                       <span>{editingQuotationId ? `Update Quotation #${quotationForm.quotationNo}` : 'Save Quotation'}</span>
                     </button>
                     {editingQuotationId && (
-                      <button 
+                      <button
                         type="button"
                         onClick={() => {
                           setEditingQuotationId(null);
@@ -5024,7 +5024,7 @@ export default function App() {
                   {/* Filter and Search Bar matching Screenshot */}
                   <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 mb-6">
                     <div className="flex items-center gap-2.5">
-                      <button 
+                      <button
                         onClick={() => {
                           setAdminTab('add-quotation');
                           setEditingQuotationId(null);
@@ -5034,7 +5034,7 @@ export default function App() {
                       >
                         Add
                       </button>
-                      <button 
+                      <button
                         onClick={() => setQuotationSearchQuery('')}
                         className="bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 px-6 py-2 rounded-full font-semibold text-sm shadow-xs transition-colors cursor-pointer"
                       >
@@ -5043,14 +5043,14 @@ export default function App() {
                     </div>
 
                     <div className="flex items-center">
-                      <input 
-                        type="text" 
-                        placeholder="Search Here.." 
+                      <input
+                        type="text"
+                        placeholder="Search Here.."
                         value={quotationSearchQuery}
                         onChange={(e) => setQuotationSearchQuery(e.target.value)}
                         className="bg-white border border-slate-300 text-slate-800 text-sm px-4 py-2 rounded-l-md outline-none focus:border-[#0088cc] w-full sm:w-64"
                       />
-                      <button 
+                      <button
                         onClick={() => {}}
                         className="bg-[#0088cc] hover:bg-[#0077b5] text-white px-5 py-2 rounded-r-md text-sm font-semibold transition-colors shrink-0 cursor-pointer shadow-xs"
                       >
@@ -5082,8 +5082,8 @@ export default function App() {
                             </div>
                             <h3 className="text-lg font-bold text-slate-800 mb-1">No Quotations Found</h3>
                             <p className="text-sm text-slate-500 mb-6 max-w-sm mx-auto">
-                              {quotations.length === 0 
-                                ? "You have not added any quotations yet. Click below to create your first quotation." 
+                              {quotations.length === 0
+                                ? "You have not added any quotations yet. Click below to create your first quotation."
                                 : "No quotations matched your search keywords. Try a different term or clear the filter."}
                             </p>
                             <button
@@ -5102,7 +5102,7 @@ export default function App() {
                       }
 
                       return filteredQuotations.map((quotation, idx) => (
-                        <div 
+                        <div
                           key={quotation.id || idx}
                           className="bg-white rounded-2xl border border-slate-200 shadow-xs relative pt-6 pb-4 px-6 sm:px-8 overflow-visible"
                         >
@@ -5146,7 +5146,7 @@ export default function App() {
                               {/* Route with Connected Vertical Line */}
                               <div className="relative pl-7 space-y-4">
                                 <div className="absolute left-3 top-2.5 bottom-2.5 w-[2px] bg-[#0284c7]"></div>
-                                
+
                                 <div className="relative">
                                   <div className="absolute -left-7 top-0 w-6 h-6 rounded-full bg-[#0284c7] text-white flex items-center justify-center shadow-xs">
                                     <MapPin className="w-3.5 h-3.5" />
@@ -5174,7 +5174,7 @@ export default function App() {
                               {/* Amount */}
                               <div className="flex items-center gap-2.5">
                                 <div className="w-7 h-7 rounded-full bg-[#0284c7] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
-                                  ₹
+                                  â‚¹
                                 </div>
                                 <div className="text-xl sm:text-2xl font-black text-[#0f172a] tracking-tight">
                                   {quotation.grandTotal}
@@ -5212,7 +5212,7 @@ export default function App() {
                           {/* Bottom 5 Circular Action Buttons matching Screenshot */}
                           <div className="flex items-center justify-center gap-5 sm:gap-7 pt-4 border-t border-slate-100 mt-5">
                             {/* Open -> Opens Quotation PDF Modal */}
-                            <button 
+                            <button
                               onClick={() => setViewingQuotation(quotation)}
                               className="flex flex-col items-center gap-1 group cursor-pointer"
                               title="Open Quotation PDF"
@@ -5224,7 +5224,7 @@ export default function App() {
                             </button>
 
                             {/* Share */}
-                            <button 
+                            <button
                               onClick={() => handleShareQuotation(quotation)}
                               className="flex flex-col items-center gap-1 group cursor-pointer"
                               title="Share Quotation"
@@ -5236,7 +5236,7 @@ export default function App() {
                             </button>
 
                             {/* Edit */}
-                            <button 
+                            <button
                               onClick={() => handleEditQuotation(quotation)}
                               className="flex flex-col items-center gap-1 group cursor-pointer"
                               title="Edit Quotation"
@@ -5248,7 +5248,7 @@ export default function App() {
                             </button>
 
                             {/* Delete */}
-                            <button 
+                            <button
                               type="button"
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -5264,7 +5264,7 @@ export default function App() {
                             </button>
 
                             {/* Download PDF */}
-                            <button 
+                            <button
                               onClick={() => setViewingQuotation(quotation)}
                               className="flex flex-col items-center gap-1 group cursor-pointer"
                               title="View & Download Quotation PDF"
@@ -5276,11 +5276,11 @@ export default function App() {
                             </button>
 
                             {/* Create GST Bill / Tax Invoice */}
-                            <button 
+                            <button
                               type="button"
                               onClick={() => {
                                 setAdminTab('add-bill');
-                                setShareToast(`Opening Bill view — Select Quotation #${quotation.quotationNo} from auto-fill to import!`);
+                                setShareToast(`Opening Bill view â€” Select Quotation #${quotation.quotationNo} from auto-fill to import!`);
                                 setTimeout(() => setShareToast(null), 3500);
                               }}
                               className="flex flex-col items-center gap-1 group cursor-pointer"
@@ -5320,7 +5320,7 @@ export default function App() {
                   </div>
 
                   {/* Details from Quotation Bar matching Screenshot 1 */}
-                  <div 
+                  <div
                     onClick={() => setShowQuotationPickerForPacking(true)}
                     className="bg-[#e0f2fe] hover:bg-sky-200/80 border border-sky-300/80 rounded-xl p-3.5 px-5 flex items-center justify-between cursor-pointer transition-all shadow-2xs group"
                     title="Auto-fill details from an existing Quotation or Survey"
@@ -5358,11 +5358,11 @@ export default function App() {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="pt-3 grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
                       <div className="sm:col-span-7">
                         <label className="block text-[11px] font-semibold text-slate-700 mb-1">Select Survey:</label>
-                        <select 
+                        <select
                           className="w-full bg-white border border-teal-300 rounded-xl px-3 py-2 text-xs sm:text-sm font-medium text-slate-800 outline-none focus:ring-2 focus:ring-teal-500 cursor-pointer shadow-xs"
                           value={selectedSurveyForPackingAutoFill}
                           onChange={(e) => {
@@ -5374,7 +5374,7 @@ export default function App() {
                           <option value="">-- Select Survey to Import Client & Items --</option>
                           {surveys.map((s) => (
                             <option key={s.id} value={s.surveyNo || s.id}>
-                              Survey #{s.surveyNo} — {s.partyName} ({s.items?.length || 0} items)
+                              Survey #{s.surveyNo} â€” {s.partyName} ({s.items?.length || 0} items)
                             </option>
                           ))}
                         </select>
@@ -5382,8 +5382,8 @@ export default function App() {
                       <div className="sm:col-span-5 flex gap-2 items-end">
                         <div className="grow">
                           <label className="block text-[11px] font-semibold text-slate-700 mb-1">Or Type Survey No:</label>
-                          <input 
-                            type="text" 
+                          <input
+                            type="text"
                             placeholder="e.g. 1001 or 1042"
                             className="w-full bg-white border border-teal-300 rounded-xl px-3 py-2 text-xs sm:text-sm font-medium text-slate-800 outline-none focus:ring-2 focus:ring-teal-500 shadow-xs"
                             value={selectedSurveyForPackingAutoFill}
@@ -5396,7 +5396,7 @@ export default function App() {
                             }}
                           />
                         </div>
-                        <button 
+                        <button
                           type="button"
                           onClick={() => applySurveyToPackingList(selectedSurveyForPackingAutoFill, true)}
                           className="bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs sm:text-sm px-4 py-2 rounded-xl transition-colors cursor-pointer shrink-0 shadow-xs flex items-center gap-1.5 h-[38px]"
@@ -5418,23 +5418,23 @@ export default function App() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="border border-slate-300 rounded-xl p-2 px-3 focus-within:border-emerald-500 transition-all bg-white">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Packing List No. *</label>
-                          <input 
-                            type="text" 
+                          <input
+                            type="text"
                             required
                             placeholder="2"
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium" 
-                            value={packingListForm.packingListNo} 
-                            onChange={e => setPackingListForm({...packingListForm, packingListNo: e.target.value})} 
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium"
+                            value={packingListForm.packingListNo}
+                            onChange={e => setPackingListForm({...packingListForm, packingListNo: e.target.value})}
                           />
                         </div>
                         <div className="border border-slate-300 rounded-xl p-2 px-3 focus-within:border-emerald-500 transition-all bg-white">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Packing List Date *</label>
-                          <input 
-                            type="date" 
+                          <input
+                            type="date"
                             required
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent appearance-none font-medium" 
-                            value={packingListForm.packingListDate} 
-                            onChange={e => setPackingListForm({...packingListForm, packingListDate: e.target.value})} 
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent appearance-none font-medium"
+                            value={packingListForm.packingListDate}
+                            onChange={e => setPackingListForm({...packingListForm, packingListDate: e.target.value})}
                           />
                         </div>
                         <div className="border border-slate-300 rounded-xl p-2 px-3 focus-within:border-emerald-500 transition-all bg-white relative">
@@ -5442,18 +5442,18 @@ export default function App() {
                             <label className="block text-[11px] text-slate-500 font-medium">Party Name * (Auto-Completes)</label>
                             {customerProfiles.some(c => c.partyName && c.partyName.toLowerCase() === (packingListForm.partyName || '').trim().toLowerCase()) && (
                               <span className="text-[10px] font-bold text-teal-600 bg-teal-50 border border-teal-200 px-1.5 py-0.2 rounded-full">
-                                ✓ Synced Profile
+                                âœ“ Synced Profile
                               </span>
                             )}
                           </div>
-                          <input 
-                            type="text" 
+                          <input
+                            type="text"
                             required
                             list="upl-customer-parties-datalist"
-                            placeholder="Party Name *" 
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium" 
-                            value={packingListForm.partyName} 
-                            onChange={e => handlePackingListPartyNameChange(e.target.value)} 
+                            placeholder="Party Name *"
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium"
+                            value={packingListForm.partyName}
+                            onChange={e => handlePackingListPartyNameChange(e.target.value)}
                           />
                         </div>
                         <div className="border border-slate-300 rounded-xl p-2 px-3 focus-within:border-emerald-500 transition-all bg-white relative">
@@ -5461,17 +5461,17 @@ export default function App() {
                             <label className="block text-[11px] text-slate-500 font-medium">Client Mobile No. (Auto-Completes)</label>
                             {customerProfiles.some(c => c.mobileNo && c.mobileNo.replace(/\D/g, '') === (packingListForm.mobileNo || '').replace(/\D/g, '') && c.mobileNo.length >= 8) && (
                               <span className="text-[10px] font-bold text-teal-600 bg-teal-50 border border-teal-200 px-1.5 py-0.2 rounded-full">
-                                ✓ Recognized Contact
+                                âœ“ Recognized Contact
                               </span>
                             )}
                           </div>
-                          <input 
-                            type="tel" 
+                          <input
+                            type="tel"
                             list="upl-customer-mobiles-datalist"
-                            placeholder="Client Mobile No." 
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium" 
-                            value={packingListForm.mobileNo} 
-                            onChange={e => handlePackingListMobileChange(e.target.value)} 
+                            placeholder="Client Mobile No."
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium"
+                            value={packingListForm.mobileNo}
+                            onChange={e => handlePackingListMobileChange(e.target.value)}
                           />
                         </div>
                       </div>
@@ -5505,19 +5505,19 @@ export default function App() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="border border-slate-300 rounded-xl p-2 px-3 focus-within:border-slate-500 transition-all bg-white">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Country</label>
-                          <input 
-                            type="text" 
-                            placeholder="India" 
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium" 
-                            value={packingListForm.fromCountry || 'India'} 
-                            onChange={e => setPackingListForm({...packingListForm, fromCountry: e.target.value})} 
+                          <input
+                            type="text"
+                            placeholder="India"
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium"
+                            value={packingListForm.fromCountry || 'India'}
+                            onChange={e => setPackingListForm({...packingListForm, fromCountry: e.target.value})}
                           />
                         </div>
                         <div className="border border-slate-300 rounded-xl p-2 px-3 focus-within:border-slate-500 transition-all bg-white relative">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">State</label>
-                          <select 
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent appearance-none font-medium pr-6" 
-                            value={packingListForm.fromState || 'N/A'} 
+                          <select
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent appearance-none font-medium pr-6"
+                            value={packingListForm.fromState || 'N/A'}
                             onChange={e => setPackingListForm({...packingListForm, fromState: e.target.value})}
                           >
                             {INDIAN_STATES.map((st, i) => (
@@ -5528,39 +5528,39 @@ export default function App() {
                         </div>
                         <div className="border border-slate-300 rounded-xl p-2 px-3 focus-within:border-slate-500 transition-all bg-white">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">City</label>
-                          <input 
-                            type="text" 
-                            placeholder="City" 
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium" 
-                            value={packingListForm.fromCity} 
-                            onChange={e => setPackingListForm({...packingListForm, fromCity: e.target.value})} 
+                          <input
+                            type="text"
+                            placeholder="City"
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium"
+                            value={packingListForm.fromCity}
+                            onChange={e => setPackingListForm({...packingListForm, fromCity: e.target.value})}
                           />
                         </div>
                         <div className="border border-slate-300 rounded-xl p-2 px-3 focus-within:border-slate-500 transition-all bg-white">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Area</label>
-                          <input 
-                            type="text" 
-                            placeholder="Area" 
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium" 
-                            value={packingListForm.fromArea} 
-                            onChange={e => setPackingListForm({...packingListForm, fromArea: e.target.value})} 
+                          <input
+                            type="text"
+                            placeholder="Area"
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium"
+                            value={packingListForm.fromArea}
+                            onChange={e => setPackingListForm({...packingListForm, fromArea: e.target.value})}
                           />
                         </div>
                         <div className="border border-slate-300 rounded-xl p-2 px-3 focus-within:border-slate-500 transition-all bg-white">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Pin Code</label>
-                          <input 
-                            type="text" 
-                            placeholder="Pin Code" 
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium" 
-                            value={packingListForm.fromPincode} 
-                            onChange={e => setPackingListForm({...packingListForm, fromPincode: e.target.value})} 
+                          <input
+                            type="text"
+                            placeholder="Pin Code"
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium"
+                            value={packingListForm.fromPincode}
+                            onChange={e => setPackingListForm({...packingListForm, fromPincode: e.target.value})}
                           />
                         </div>
                         <div className="border border-slate-300 rounded-xl p-2 px-3 focus-within:border-slate-500 transition-all bg-white relative">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">From Floor</label>
-                          <select 
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent appearance-none font-medium pr-6" 
-                            value={packingListForm.fromFloor || 'Ground'} 
+                          <select
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent appearance-none font-medium pr-6"
+                            value={packingListForm.fromFloor || 'Ground'}
                             onChange={e => setPackingListForm({...packingListForm, fromFloor: e.target.value})}
                           >
                             {FLOOR_OPTIONS.map((fl, i) => (
@@ -5581,19 +5581,19 @@ export default function App() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="border border-slate-300 rounded-xl p-2 px-3 focus-within:border-orange-500 transition-all bg-white">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Country</label>
-                          <input 
-                            type="text" 
-                            placeholder="India" 
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium" 
-                            value={packingListForm.toCountry || 'India'} 
-                            onChange={e => setPackingListForm({...packingListForm, toCountry: e.target.value})} 
+                          <input
+                            type="text"
+                            placeholder="India"
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium"
+                            value={packingListForm.toCountry || 'India'}
+                            onChange={e => setPackingListForm({...packingListForm, toCountry: e.target.value})}
                           />
                         </div>
                         <div className="border border-slate-300 rounded-xl p-2 px-3 focus-within:border-orange-500 transition-all bg-white relative">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">State</label>
-                          <select 
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent appearance-none font-medium pr-6" 
-                            value={packingListForm.toState || 'N/A'} 
+                          <select
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent appearance-none font-medium pr-6"
+                            value={packingListForm.toState || 'N/A'}
                             onChange={e => setPackingListForm({...packingListForm, toState: e.target.value})}
                           >
                             {INDIAN_STATES.map((st, i) => (
@@ -5604,39 +5604,39 @@ export default function App() {
                         </div>
                         <div className="border border-slate-300 rounded-xl p-2 px-3 focus-within:border-orange-500 transition-all bg-white">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">City</label>
-                          <input 
-                            type="text" 
-                            placeholder="City" 
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium" 
-                            value={packingListForm.toCity} 
-                            onChange={e => setPackingListForm({...packingListForm, toCity: e.target.value})} 
+                          <input
+                            type="text"
+                            placeholder="City"
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium"
+                            value={packingListForm.toCity}
+                            onChange={e => setPackingListForm({...packingListForm, toCity: e.target.value})}
                           />
                         </div>
                         <div className="border border-slate-300 rounded-xl p-2 px-3 focus-within:border-orange-500 transition-all bg-white">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Area</label>
-                          <input 
-                            type="text" 
-                            placeholder="Area" 
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium" 
-                            value={packingListForm.toArea} 
-                            onChange={e => setPackingListForm({...packingListForm, toArea: e.target.value})} 
+                          <input
+                            type="text"
+                            placeholder="Area"
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium"
+                            value={packingListForm.toArea}
+                            onChange={e => setPackingListForm({...packingListForm, toArea: e.target.value})}
                           />
                         </div>
                         <div className="border border-slate-300 rounded-xl p-2 px-3 focus-within:border-orange-500 transition-all bg-white">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Pin Code</label>
-                          <input 
-                            type="text" 
-                            placeholder="Pin Code" 
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium" 
-                            value={packingListForm.toPincode} 
-                            onChange={e => setPackingListForm({...packingListForm, toPincode: e.target.value})} 
+                          <input
+                            type="text"
+                            placeholder="Pin Code"
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium"
+                            value={packingListForm.toPincode}
+                            onChange={e => setPackingListForm({...packingListForm, toPincode: e.target.value})}
                           />
                         </div>
                         <div className="border border-slate-300 rounded-xl p-2 px-3 focus-within:border-orange-500 transition-all bg-white relative">
                           <label className="block text-[11px] text-slate-500 font-medium mb-0.5">From Floor / To Floor</label>
-                          <select 
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent appearance-none font-medium pr-6" 
-                            value={packingListForm.toFloor || 'Ground'} 
+                          <select
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent appearance-none font-medium pr-6"
+                            value={packingListForm.toFloor || 'Ground'}
                             onChange={e => setPackingListForm({...packingListForm, toFloor: e.target.value})}
                           >
                             {FLOOR_OPTIONS.map((fl, i) => (
@@ -5659,13 +5659,13 @@ export default function App() {
                       <div className="space-y-4">
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-3">
                           <div className="md:col-span-4 border border-slate-300 rounded-xl p-2 px-3 focus-within:border-sky-500 transition-all bg-white">
-                            <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Item Name (सामान का नाम) *</label>
-                            <input 
-                              type="text" 
-                              placeholder="e.g. Sofa 3 Seater / Refrigerator" 
-                              className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium" 
-                              value={currentPackingItem.name} 
-                              onChange={e => setCurrentPackingItem({...currentPackingItem, name: e.target.value})} 
+                            <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Item Name (à¤¸à¤¾à¤®à¤¾à¤¨ à¤•à¤¾ à¤¨à¤¾à¤®) *</label>
+                            <input
+                              type="text"
+                              placeholder="e.g. Sofa 3 Seater / Refrigerator"
+                              className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium"
+                              value={currentPackingItem.name}
+                              onChange={e => setCurrentPackingItem({...currentPackingItem, name: e.target.value})}
                               onKeyDown={e => {
                                 if (e.key === 'Enter') {
                                   e.preventDefault();
@@ -5676,47 +5676,47 @@ export default function App() {
                           </div>
 
                           <div className="md:col-span-2 border border-slate-300 rounded-xl p-2 px-3 focus-within:border-sky-500 transition-all bg-white">
-                            <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Quantity (संख्या) *</label>
-                            <input 
-                              type="number" 
+                            <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Quantity (à¤¸à¤‚à¤–à¥à¤¯à¤¾) *</label>
+                            <input
+                              type="number"
                               min="1"
-                              placeholder="1" 
-                              className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium" 
-                              value={currentPackingItem.qty} 
-                              onChange={e => setCurrentPackingItem({...currentPackingItem, qty: e.target.value})} 
+                              placeholder="1"
+                              className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium"
+                              value={currentPackingItem.qty}
+                              onChange={e => setCurrentPackingItem({...currentPackingItem, qty: e.target.value})}
                             />
                           </div>
 
                           <div className="md:col-span-2 border border-slate-300 rounded-xl p-2 px-3 focus-within:border-sky-500 transition-all bg-white">
                             <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Box No. *</label>
-                            <input 
-                              type="text" 
-                              placeholder="1" 
-                              className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium" 
-                              value={currentPackingItem.boxNo} 
-                              onChange={e => setCurrentPackingItem({...currentPackingItem, boxNo: e.target.value})} 
+                            <input
+                              type="text"
+                              placeholder="1"
+                              className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium"
+                              value={currentPackingItem.boxNo}
+                              onChange={e => setCurrentPackingItem({...currentPackingItem, boxNo: e.target.value})}
                             />
                           </div>
 
                           <div className="md:col-span-2 border border-slate-300 rounded-xl p-2 px-3 focus-within:border-sky-500 transition-all bg-white">
-                            <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Value (कीमत) *</label>
-                            <input 
-                              type="text" 
-                              placeholder="₹" 
-                              className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium" 
-                              value={currentPackingItem.value} 
-                              onChange={e => setCurrentPackingItem({...currentPackingItem, value: e.target.value})} 
+                            <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Value (à¤•à¥€à¤®à¤¤) *</label>
+                            <input
+                              type="text"
+                              placeholder="â‚¹"
+                              className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium"
+                              value={currentPackingItem.value}
+                              onChange={e => setCurrentPackingItem({...currentPackingItem, value: e.target.value})}
                             />
                           </div>
 
                           <div className="md:col-span-2 border border-slate-300 rounded-xl p-2 px-3 focus-within:border-sky-500 transition-all bg-white">
                             <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Remark</label>
-                            <input 
-                              type="text" 
-                              placeholder="Good cond." 
-                              className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium" 
-                              value={currentPackingItem.remark} 
-                              onChange={e => setCurrentPackingItem({...currentPackingItem, remark: e.target.value})} 
+                            <input
+                              type="text"
+                              placeholder="Good cond."
+                              className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium"
+                              value={currentPackingItem.remark}
+                              onChange={e => setCurrentPackingItem({...currentPackingItem, remark: e.target.value})}
                             />
                           </div>
                         </div>
@@ -5783,9 +5783,9 @@ export default function App() {
                                   <tr>
                                     <th className="p-2.5 px-3 w-10 text-center">#</th>
                                     <th className="p-2.5 px-3 w-20 text-center">Box No.</th>
-                                    <th className="p-2.5 px-3">Item Name (सामान का नाम)</th>
+                                    <th className="p-2.5 px-3">Item Name (à¤¸à¤¾à¤®à¤¾à¤¨ à¤•à¤¾ à¤¨à¤¾à¤®)</th>
                                     <th className="p-2.5 px-3 w-16 text-center">Qty</th>
-                                    <th className="p-2.5 px-3 w-24 text-right">Value (₹)</th>
+                                    <th className="p-2.5 px-3 w-24 text-right">Value (â‚¹)</th>
                                     <th className="p-2.5 px-3">Remark</th>
                                     <th className="p-2.5 px-3 w-12 text-center">Action</th>
                                   </tr>
@@ -5800,7 +5800,7 @@ export default function App() {
                                       <td className="p-2.5 px-3 font-medium text-slate-800">{item.name}</td>
                                       <td className="p-2.5 px-3 text-center font-semibold">{item.qty || '1'}</td>
                                       <td className="p-2.5 px-3 text-right text-slate-700">
-                                        {item.value ? `₹${item.value}` : '-'}
+                                        {item.value ? `â‚¹${item.value}` : '-'}
                                       </td>
                                       <td className="p-2.5 px-3 text-slate-500">{item.remark || '-'}</td>
                                       <td className="p-2.5 px-3 text-center">
@@ -5829,7 +5829,7 @@ export default function App() {
 
                     {/* Bottom Centered Save Button matching Screenshot 3 */}
                     <div className="mt-8 text-center flex flex-col sm:flex-row justify-center items-center gap-4">
-                      <button 
+                      <button
                         type="submit"
                         className="w-full sm:w-auto bg-[#0284c7] hover:bg-sky-700 text-white px-12 py-3 rounded-xl font-bold text-sm shadow-md transition-all cursor-pointer active:scale-95"
                       >
@@ -5866,7 +5866,7 @@ export default function App() {
                   {/* Filter and Search Bar */}
                   <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 mb-6">
                     <div className="flex items-center gap-2.5">
-                      <button 
+                      <button
                         onClick={() => {
                           setAdminTab('add-packing');
                           setEditingPackingListId(null);
@@ -5877,7 +5877,7 @@ export default function App() {
                         <Plus className="w-4 h-4 text-sky-400" />
                         <span>Add</span>
                       </button>
-                      <button 
+                      <button
                         onClick={() => setPackingListSearchQuery('')}
                         className="bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 px-6 py-2 rounded-full font-semibold text-sm shadow-xs transition-colors cursor-pointer"
                       >
@@ -5886,16 +5886,16 @@ export default function App() {
                     </div>
 
                     <div className="relative w-full sm:w-72">
-                      <input 
-                        type="text" 
-                        placeholder="Search by party, phone, city..." 
+                      <input
+                        type="text"
+                        placeholder="Search by party, phone, city..."
                         value={packingListSearchQuery}
                         onChange={(e) => setPackingListSearchQuery(e.target.value)}
                         className="w-full bg-white border border-slate-300 rounded-full pl-9 pr-4 py-2 text-xs focus:ring-2 focus:ring-[#0284c7] focus:border-[#0284c7] outline-none shadow-2xs font-medium"
                       />
                       <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none" />
                       {packingListSearchQuery && (
-                        <button 
+                        <button
                           onClick={() => setPackingListSearchQuery('')}
                           className="absolute right-3 top-2 text-xs text-slate-400 hover:text-slate-600"
                         >
@@ -5948,8 +5948,8 @@ export default function App() {
                         const totalVal = pl.items?.reduce((s, it) => s + (parseFloat(String(it.value)) || 0), 0) || 0;
 
                         return (
-                          <div 
-                            key={pl.id} 
+                          <div
+                            key={pl.id}
                             className="bg-white rounded-2xl shadow-xs border border-slate-200 p-5 sm:p-6 hover:shadow-md transition-shadow relative"
                           >
                             {/* Card Top Row */}
@@ -5963,7 +5963,7 @@ export default function App() {
                                     {pl.partyName}
                                   </span>
                                   <span className="text-xs text-slate-500">
-                                    Packing List #{pl.packingListNo} • {pl.packingListDate}
+                                    Packing List #{pl.packingListNo} â€¢ {pl.packingListDate}
                                   </span>
                                 </div>
                               </div>
@@ -6033,7 +6033,7 @@ export default function App() {
                                   {totalVal > 0 && (
                                     <div className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 flex-1">
                                       <div className="text-[10px] text-slate-400 uppercase font-semibold">Value</div>
-                                      <div className="text-sm font-black text-emerald-700">₹{totalVal.toLocaleString('en-IN')}</div>
+                                      <div className="text-sm font-black text-emerald-700">â‚¹{totalVal.toLocaleString('en-IN')}</div>
                                     </div>
                                   )}
                                 </div>
@@ -6043,7 +6043,7 @@ export default function App() {
                             {/* Bottom 5 Circular Action Buttons */}
                             <div className="flex items-center justify-center gap-5 sm:gap-7 pt-4 border-t border-slate-100 mt-4">
                               {/* Open -> Opens Packing List PDF Modal */}
-                              <button 
+                              <button
                                 onClick={() => setViewingPackingList(pl)}
                                 className="flex flex-col items-center gap-1 group cursor-pointer"
                                 title="Open Packing List PDF"
@@ -6055,7 +6055,7 @@ export default function App() {
                               </button>
 
                               {/* Share */}
-                              <button 
+                              <button
                                 onClick={() => handleSharePackingList(pl)}
                                 className="flex flex-col items-center gap-1 group cursor-pointer"
                                 title="Share Packing List"
@@ -6067,7 +6067,7 @@ export default function App() {
                               </button>
 
                               {/* Edit */}
-                              <button 
+                              <button
                                 onClick={() => handleEditPackingList(pl)}
                                 className="flex flex-col items-center gap-1 group cursor-pointer"
                                 title="Edit Packing List"
@@ -6079,7 +6079,7 @@ export default function App() {
                               </button>
 
                               {/* Delete */}
-                              <button 
+                              <button
                                 type="button"
                                 onClick={(e) => {
                                   e.stopPropagation();
@@ -6095,7 +6095,7 @@ export default function App() {
                               </button>
 
                               {/* Download PDF */}
-                              <button 
+                              <button
                                 onClick={() => setViewingPackingList(pl)}
                                 className="flex flex-col items-center gap-1 group cursor-pointer"
                                 title="View & Download Packing List PDF"
@@ -6285,8 +6285,8 @@ export default function App() {
                     brandName: companyProfile.groupName || 'UrbanPro Packer & Logistics',
                     tagline: 'Pack Smart & Move Safe',
                     gstin: companyProfile.gstin || '',
-                    regAddress: companyProfile.regAddress || companyProfile.addressLine1 || 'Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452',
-                    branchAddress: companyProfile.addressLine2 || 'Plot No. 1491, Balianta Canal Road, Near Lenskart, Hanspal, Bhubaneswar, Odisha – 752101',
+                    regAddress: companyProfile.regAddress || companyProfile.addressLine1 || 'Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG â€“ 495452',
+                    branchAddress: companyProfile.addressLine2 || 'Plot No. 1491, Balianta Canal Road, Near Lenskart, Hanspal, Bhubaneswar, Odisha â€“ 752101',
                     phone1: companyProfile.mobilePrimary || '8093017400',
                     phone2: companyProfile.mobileSecondary || '8093017400',
                     email: companyProfile.email || 'urbanpro403@gmail.com',
@@ -6322,7 +6322,7 @@ export default function App() {
                 />
               )}
             </div>
-            <div 
+            <div
               onClick={() => setAdminTab(adminTab === 'add-survey' ? 'list-survey' : 'add-survey')}
               className="fixed bottom-6 right-6 w-12 h-12 bg-slate-900 hover:bg-slate-800 text-white rounded-full shadow-lg flex items-center justify-center cursor-pointer transition-transform hover:scale-105 z-30"
               title={adminTab === 'add-survey' ? "View All Surveys" : "Add Survey"}
@@ -6334,24 +6334,24 @@ export default function App() {
 
         {/* Mobile Bottom Navigation Bar for Phone Ergonomics */}
         <nav className="fixed bottom-0 left-0 right-0 z-30 bg-[#0f172a]/95 backdrop-blur-md border-t border-slate-800 px-1 py-1.5 flex items-center justify-around md:hidden shadow-2xl">
-          <button 
+          <button
             type="button"
-            onClick={() => handleTabSelect('dashboard')} 
+            onClick={() => handleTabSelect('dashboard')}
             className={`flex flex-col items-center py-1 px-2.5 rounded-xl text-[10px] font-medium transition-colors cursor-pointer ${adminTab === 'dashboard' ? 'text-sky-400 font-bold bg-sky-950/60' : 'text-slate-400 hover:text-slate-200'}`}
           >
             <LayoutDashboard className="w-5 h-5 mb-0.5" />
             <span>Home</span>
           </button>
-          <button 
+          <button
             type="button"
-            onClick={() => handleTabSelect('list-quotation')} 
+            onClick={() => handleTabSelect('list-quotation')}
             className={`flex flex-col items-center py-1 px-2.5 rounded-xl text-[10px] font-medium transition-colors relative cursor-pointer ${adminTab.includes('quotation') ? 'text-amber-400 font-bold bg-amber-950/60' : 'text-slate-400 hover:text-slate-200'}`}
           >
             <FileText className="w-5 h-5 mb-0.5" />
             <span>Quotes</span>
             {quotations.length > 0 && <span className="absolute top-0.5 right-1 w-3.5 h-3.5 bg-amber-500 text-slate-950 text-[8.5px] font-black rounded-full flex items-center justify-center">{quotations.length}</span>}
           </button>
-          <button 
+          <button
             type="button"
             onClick={() => handleTabSelect('list-bill')}
             className={`flex flex-col items-center py-1 px-2.5 rounded-xl text-[10px] font-medium transition-colors relative cursor-pointer ${adminTab.includes('bill') ? 'text-blue-400 font-bold bg-blue-950/60' : 'text-slate-400 hover:text-slate-200'}`}
@@ -6360,18 +6360,18 @@ export default function App() {
             <span>GST Bills</span>
             {bills.length > 0 && <span className="absolute top-0.5 right-1 w-3.5 h-3.5 bg-blue-500 text-white text-[8.5px] font-black rounded-full flex items-center justify-center">{bills.length}</span>}
           </button>
-          <button 
+          <button
             type="button"
-            onClick={() => handleTabSelect('list-bilty')} 
+            onClick={() => handleTabSelect('list-bilty')}
             className={`flex flex-col items-center py-1 px-2.5 rounded-xl text-[10px] font-medium transition-colors relative cursor-pointer ${adminTab.includes('bilty') ? 'text-emerald-400 font-bold bg-emerald-950/60' : 'text-slate-400 hover:text-slate-200'}`}
           >
             <Truck className="w-5 h-5 mb-0.5" />
             <span>Bilty</span>
             {bilties.length > 0 && <span className="absolute top-0.5 right-1 w-3.5 h-3.5 bg-emerald-500 text-white text-[8.5px] font-black rounded-full flex items-center justify-center">{bilties.length}</span>}
           </button>
-          <button 
+          <button
             type="button"
-            onClick={() => setSidebarOpen(true)} 
+            onClick={() => setSidebarOpen(true)}
             className="flex flex-col items-center py-1 px-2.5 rounded-xl text-[10px] font-medium text-slate-300 hover:text-white cursor-pointer"
           >
             <Menu className="w-5 h-5 mb-0.5 text-sky-400" />
@@ -6451,7 +6451,7 @@ export default function App() {
                 <span style={{ color: '#1e3a8a', fontWeight: 900 }}>Urban</span><span style={{ color: '#dc2626', fontWeight: 900 }}>Pro</span>
               </div>
               <div className="text-base sm:text-[18px] font-black tracking-[0.1em] uppercase whitespace-nowrap" style={{ color: '#1e3a8a' }}>
-                Packers & Logistics
+                Packer & Logistics
               </div>
             </div>
           </div>
@@ -6487,9 +6487,9 @@ export default function App() {
 
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            
+
             {/* Hero Text */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
@@ -6497,7 +6497,7 @@ export default function App() {
             >
               <div className="inline-flex items-center gap-2 bg-blue-800/60 backdrop-blur-sm border border-blue-600 rounded-full px-4 py-1.5 text-xs sm:text-sm font-semibold text-yellow-300">
                 <ShieldCheck className="w-4 h-4 text-yellow-400" />
-                “Pack Smart & Move Safe with Urban<span className="text-[#ff0800]">Pro</span>”
+                <span>Pack Smart &amp; Move Safe with Urban<span className="text-[#ff0800]">Pro</span></span>
               </div>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight">
                 <span className="block text-white">Your Trusted Partner</span>
@@ -6505,11 +6505,11 @@ export default function App() {
               <p className="text-base sm:text-lg text-blue-100 max-w-xl leading-relaxed">
                 <strong className="font-extrabold">
                   <span className="text-blue-200">Urban</span><span className="text-[#ff0800] font-bold">Pro</span>{' '}
-                  <span className="text-blue-200">Packers & Logistics</span>
+                  <span className="text-blue-200">Packer &amp; Logistics</span>
                 </strong>{' '}
                 provides professional and reliable Packer & Mover, Relocation, and Transportation services with Packing Material & Labour Supply for Households, Offices, Businesses, and Commercial Shifting requirements.
               </p>
-              
+
               <div className="flex flex-wrap gap-3 pt-2">
                 <a
                   href="https://wa.me/918093017400?text=Hi%20UrbanPro%20Packers%20%26%20Logistics%2C%20I%20would%20like%20to%20get%20a%20free%20quote%20for%20my%20relocation."
@@ -6545,7 +6545,7 @@ export default function App() {
             </motion.div>
 
             {/* Lead Form */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
@@ -6574,7 +6574,7 @@ export default function App() {
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/25 text-white font-extrabold text-xs uppercase tracking-wider">
-                          ✓ Sent Successfully
+                          âœ“ Sent Successfully
                         </span>
                         <button
                           type="button"
@@ -6589,13 +6589,13 @@ export default function App() {
                         Your Free Quote Was Sent Successfully!
                       </h4>
                       <p className="text-emerald-50 text-xs sm:text-sm mt-1 leading-relaxed">
-                        Your quotation inquiry has been sent to WhatsApp (+91 8093017400). Our team at <strong className="text-white"><span className="text-blue-200">Urban</span><span className="text-[#5b0f17] font-bold">Pro</span> <span className="text-blue-200">Packers &amp; Logistics</span></strong> will review your details and respond shortly!
+                        Your quotation inquiry has been sent to WhatsApp (+91 8093017400). Our team at <strong className="text-white"><span className="text-blue-200">Urban</span><span className="text-[#5b0f17] font-bold">Pro</span> <span className="text-blue-200">Packer &amp; Logistics</span></strong> will review your details and respond shortly!
                       </p>
 
                       {submittedQuoteDetails && (
                         <div className="mt-2.5 py-2 px-3 bg-black/20 rounded-lg text-xs space-y-1 text-emerald-100 border border-white/10">
-                          <div><span className="text-white font-semibold">Customer:</span> {submittedQuoteDetails.name} • <span className="text-white font-semibold">Phone:</span> {submittedQuoteDetails.phone}</div>
-                          <div><span className="text-white font-semibold">Route:</span> {submittedQuoteDetails.movingFrom} → {submittedQuoteDetails.movingTo}</div>
+                          <div><span className="text-white font-semibold">Customer:</span> {submittedQuoteDetails.name} â€¢ <span className="text-white font-semibold">Phone:</span> {submittedQuoteDetails.phone}</div>
+                          <div><span className="text-white font-semibold">Route:</span> {submittedQuoteDetails.movingFrom} â†’ {submittedQuoteDetails.movingTo}</div>
                           <div><span className="text-white font-semibold">Service:</span> {submittedQuoteDetails.item}</div>
                         </div>
                       )}
@@ -6624,12 +6624,12 @@ export default function App() {
                   </div>
                 </motion.div>
               )}
-              
+
               <form onSubmit={handleSubmit} className="space-y-3.5">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Name *</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     name="name"
                     required
                     value={formData.name}
@@ -6641,8 +6641,8 @@ export default function App() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Mobile Number *</label>
-                    <input 
-                      type="tel" 
+                    <input
+                      type="tel"
                       name="phone"
                       required
                       value={formData.phone}
@@ -6653,8 +6653,8 @@ export default function App() {
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Email</label>
-                    <input 
-                      type="email" 
+                    <input
+                      type="email"
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
@@ -6666,8 +6666,8 @@ export default function App() {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Moving From *</label>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       name="movingFrom"
                       required
                       value={formData.movingFrom}
@@ -6678,8 +6678,8 @@ export default function App() {
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Moving To *</label>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       name="movingTo"
                       required
                       value={formData.movingTo}
@@ -6692,8 +6692,8 @@ export default function App() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Moving Date *</label>
-                    <input 
-                      type="date" 
+                    <input
+                      type="date"
                       name="date"
                       required
                       value={formData.date}
@@ -6703,7 +6703,7 @@ export default function App() {
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Service Type Required *</label>
-                    <select 
+                    <select
                       name="item"
                       required
                       value={formData.item}
@@ -6718,13 +6718,13 @@ export default function App() {
                   </div>
                 </div>
                 {formData.item === 'Other' && (
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
                   >
                     <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Please Specify</label>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       name="otherItem"
                       required
                       value={formData.otherItem}
@@ -6747,8 +6747,8 @@ export default function App() {
                     <button type="button" onClick={addItemRow} className="text-xs font-bold text-blue-900 hover:text-blue-700">+ Add another item</button>
                   </div>
                 </div>
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   className="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-3.5 rounded-lg mt-1 transition-all flex items-center justify-center gap-2 group uppercase tracking-wider text-sm cursor-pointer shadow-md hover:scale-[1.01]"
                 >
                   <Send className="w-4 h-4" />
@@ -6771,9 +6771,8 @@ export default function App() {
             <h2 className="w-full text-4xl sm:text-5xl lg:text-6xl font-black text-blue-900 leading-tight">
               Complete Packing, Moving & Logistics Solutions
             </h2>
-            <div className="w-24 h-1 bg-red-600 mx-auto rounded"></div>
             <p className="text-slate-600 max-w-none mx-auto text-base sm:text-lg">
-              UrbanPro Packer & Logistics provides comprehensive, safe, and dependable shifting solutions tailored to your unique requirements across India.
+              <span className="text-blue-900">Urban</span><span className="text-[#ff0800] font-bold">Pro</span>{' '}<span className="text-blue-900">Packer &amp; Logistics</span> provides comprehensive, safe, and dependable shifting solutions tailored to your unique requirements across India.
             </p>
           </div>
 
@@ -6792,7 +6791,7 @@ export default function App() {
                 const Icon = service.icon;
                 const isExpanded = expandedService === globalIndex;
                 return (
-                  <motion.div 
+                  <motion.div
                     key={index}
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -6803,11 +6802,11 @@ export default function App() {
                     <div className="flex items-center justify-between mb-4">
                       <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center group-hover:bg-blue-900 transition-colors">
                         {service.title === 'Household Shifting' ? (
-                          <span className="text-3xl leading-none" role="img" aria-label="Household shifting">🏠📦</span>
+                          <span className="text-3xl leading-none" role="img" aria-label="Household shifting">🏠 📦</span>
                         ) : service.title === 'Office & Corporate Relocation' ? (
-                          <span className="text-3xl leading-none" role="img" aria-label="Office relocation">🏢💼</span>
+                          <span className="text-3xl leading-none" role="img" aria-label="Office relocation">🏢 💼</span>
                         ) : service.title === 'Commercial Shifting' ? (
-                          <span className="text-3xl leading-none" role="img" aria-label="Commercial shifting">🏬🚚</span>
+                          <span className="text-3xl leading-none" role="img" aria-label="Commercial shifting">🏬 🚚</span>
                         ) : (
                           <Icon className="w-7 h-7 text-blue-600 group-hover:text-yellow-400 transition-colors" />
                         )}
@@ -6817,9 +6816,9 @@ export default function App() {
                     <p className="text-slate-600 leading-relaxed mb-5 flex-grow text-xs sm:text-sm">
                       {service.desc}
                     </p>
-                    
+
                     <div className="mt-auto">
-                      <button 
+                      <button
                         type="button"
                         onClick={() => toggleService(globalIndex)}
                         className="flex items-center justify-between w-full text-blue-700 hover:text-blue-900 font-semibold py-2 border-t border-slate-100 group-hover:border-blue-100 transition-colors text-xs sm:text-sm cursor-pointer"
@@ -6827,8 +6826,8 @@ export default function App() {
                         <span>{isExpanded ? 'Hide Details' : 'View Details & Inclusions'}</span>
                         {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                       </button>
-                      
-                      <motion.div 
+
+                      <motion.div
                         initial={false}
                         animate={{ height: isExpanded ? 'auto' : 0, opacity: isExpanded ? 1 : 0 }}
                         className="overflow-hidden"
@@ -6855,9 +6854,6 @@ export default function App() {
           {/* Transportation & Other Services */}
           <div className="mb-14">
             <div className="flex items-center gap-3 mb-6 pb-3 border-b border-slate-200">
-              <div className="w-9 h-9 bg-blue-900 text-yellow-400 rounded-xl flex items-center justify-center font-bold text-sm">
-                ??
-              </div>
               <div>
                 <h3 className="text-xl sm:text-2xl font-bold text-blue-900">Transportation & Other Services</h3>
                 <p className="text-xs sm:text-sm text-slate-500">Vehicle shifting, packing material supply, and skilled labour support</p>
@@ -6869,7 +6865,7 @@ export default function App() {
                 const Icon = service.icon;
 
                 return (
-                  <motion.div 
+                  <motion.div
                     key={index}
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -6908,7 +6904,7 @@ export default function App() {
             </div>
           </div>
           <div className="mt-12 text-center">
-            <a 
+            <a
               href="#free-quote"
               className="inline-flex items-center gap-2 bg-blue-900 hover:bg-blue-950 text-white font-bold px-8 py-3.5 rounded-xl shadow-md transition-all text-sm uppercase tracking-wide cursor-pointer"
             >
@@ -6926,7 +6922,7 @@ export default function App() {
               ABOUT US
             </span>
             <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mt-3 mb-4">
-              <span className="text-[#1e3a8a]">Urban</span><span className="text-[#ff0800]">Pro</span> <span className="text-[#1e3a8a]">Packers & Logistics</span>
+              <span className="text-[#1e3a8a]">Urban</span><span className="text-[#ff0800]">Pro</span> <span className="text-[#1e3a8a]">Packer & Logistics</span>
             </h2>
           </div>
 
@@ -6939,16 +6935,16 @@ export default function App() {
               </div>
               <div>
                 <span className="text-xs font-bold text-yellow-400 uppercase tracking-widest">Company Background & Legacy</span>
-                <h3 className="text-2xl font-bold mt-1"><span className="text-blue-200">Urban</span><span className="text-[#ff0800] font-bold">Pro</span> <span className="text-blue-200">Packers & Logistics</span></h3>
+                <h3 className="text-2xl font-bold mt-1"><span className="text-blue-200">Urban</span><span className="text-[#ff0800] font-bold">Pro</span> <span className="text-blue-200">Packer &amp; Logistics</span></h3>
               </div>
             </div>
-            
+
             <p className="text-blue-100 text-base sm:text-lg leading-relaxed mb-6 font-normal">
-              <span className="text-blue-200">Urban</span><span className="text-[#ff0800] font-bold">Pro</span> <span className="text-blue-200">Packers & Logistics</span> was established in <strong>2009</strong> and has substantial experience in the transportation and logistics sector, undertaking a wide range of transportation-related work over the years.
+              <span className="text-blue-200">Urban</span><span className="text-[#ff0800] font-bold">Pro</span> <span className="text-blue-200">Packer &amp; Logistics</span> was established in <strong>2009</strong> and has substantial experience in the transportation and logistics sector, undertaking a wide range of transportation-related work over the years.
             </p>
 
             <p className="text-blue-100 text-base sm:text-lg leading-relaxed mb-6 font-normal">
-              <strong><span className="text-blue-200">Urban</span><span className="text-[#ff0800] font-bold">Pro</span> <span className="text-blue-200">Packers & Logistics</span></strong> provides professional Packer & Mover, relocation, transportation and logistics services across India.
+              <strong><span className="text-blue-200">Urban</span><span className="text-[#ff0800] font-bold">Pro</span> <span className="text-blue-200">Packer &amp; Logistics</span></strong> provides professional Packer & Mover, relocation, transportation and logistics services across India.
             </p>
 
             {/* State Tags */}
@@ -6986,7 +6982,7 @@ export default function App() {
                 Our objective is to make every move safe, organized and hassle-free through professional planning, responsible handling and dependable transportation solutions.
               </p>
               <p>
-                UrbanPro Packer & Logistics is committed to providing customer-focused services and building long-term relationships based on reliability, professionalism and responsible service.
+                <span className="text-blue-200">Urban</span><span className="text-[#ff0800] font-bold">Pro</span>{' '}<span className="text-blue-200">Packer &amp; Logistics</span> is committed to providing customer-focused services and building long-term relationships based on reliability, professionalism and responsible service.
               </p>
             </div>
 
@@ -7002,7 +6998,7 @@ export default function App() {
             </div>
 
             {isAboutExpanded && (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 className="pt-6 mt-6 border-t border-blue-800 space-y-4 text-xs sm:text-sm text-blue-200"
@@ -7050,12 +7046,11 @@ export default function App() {
               <span>Labour Supply</span>
             </span>
             <h2 className="text-3xl sm:text-4xl font-bold text-white">Everything You Need for a Smooth Move</h2>
-            <div className="w-20 h-1 bg-red-600 mx-auto rounded"></div>
             <p className="text-slate-300 text-base sm:text-lg">
               Need packing Material or Manpower for your shifting requirement?
             </p>
             <p className="text-slate-400 text-sm max-w-2xl mx-auto">
-              UrbanPro Packer & Logistics provides packing materials and skilled labour support for household, office, commercial and relocation work.
+              <span className="text-blue-200">Urban</span><span className="text-[#ff0800] font-bold">Pro</span>{' '}<span className="text-blue-200">Packer &amp; Logistics</span> provides packing materials and skilled labour support for household, office, commercial and relocation work.
             </p>
           </div>
 
@@ -7141,13 +7136,13 @@ export default function App() {
               Whether you require only packing material, only labour, or both, we can arrange support according to your requirement.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
-              <a 
+              <a
                 href="#quote"
                 className="bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-2.5 rounded-lg transition-colors text-xs uppercase tracking-wide cursor-pointer"
               >
                 [ Request Material & Labour Quote ]
               </a>
-              <a 
+              <a
                 href="tel:8093017400"
                 className="bg-yellow-400 hover:bg-yellow-500 text-blue-950 font-bold px-6 py-2.5 rounded-lg transition-colors text-xs uppercase tracking-wide cursor-pointer flex items-center gap-1.5"
               >
@@ -7163,10 +7158,9 @@ export default function App() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16 space-y-3">
             <span className="text-xs font-bold text-blue-900 uppercase tracking-widest bg-blue-50 px-3.5 py-1.5 rounded-full border border-blue-200">
-              WHY CHOOSE UrbanPro?
+              WHY CHOOSE Urban<span className="text-[#ff0800]">Pro</span> <span className="text-blue-900">Packer &amp; Logistics</span>?
             </span>
             <h2 className="text-3xl sm:text-4xl font-bold text-slate-900">Your Move. Our Responsibility.</h2>
-            <div className="w-20 h-1 bg-red-600 mx-auto rounded"></div>
             <p className="text-slate-600 max-w-2xl mx-auto text-base">
               We stand out with transparent service, deep industry legacy, and uncompromised safety standards for every client.
             </p>
@@ -7205,8 +7199,8 @@ export default function App() {
                 color: "red"
               }
             ].map((item, idx) => (
-              <div 
-                key={idx} 
+              <div
+                key={idx}
                 className="bg-slate-50 border border-slate-200/80 rounded-2xl p-6 hover:shadow-md hover:border-blue-300 transition-all flex flex-col justify-between"
               >
                 <div>
@@ -7226,13 +7220,12 @@ export default function App() {
       <section id="network" className="py-20 px-4 bg-slate-50 border-t border-slate-200">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-14 space-y-3">
-            <span className="text-xs font-bold text-red-600 uppercase tracking-widest bg-red-100 px-3.5 py-1.5 rounded-full border border-red-200">
+            <span className="inline-block text-2xl sm:text-3xl font-black text-[#ff0800] uppercase tracking-widest bg-red-100 px-6 py-2 rounded-full border border-red-200">
               OUR SERVICE NETWORK
             </span>
             <h2 className="text-3xl sm:text-4xl font-bold text-blue-900">Serving Major States Across India</h2>
-            <div className="w-20 h-1 bg-red-600 mx-auto rounded"></div>
             <p className="text-slate-700 text-base sm:text-lg font-medium">
-              UrbanPro Packer & Logistics provides services across major states in India:
+              <span className="text-blue-900">Urban</span><span className="text-[#ff0800] font-bold">Pro</span>{' '}<span className="text-blue-900">Packer &amp; Logistics</span> provides services across major states in India:
             </p>
           </div>
 
@@ -7260,7 +7253,7 @@ export default function App() {
               "Uttar Pradesh",
               "West Bengal"
             ].map((state, idx) => (
-              <div 
+              <div
                 key={idx}
                 className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-blue-500 hover:shadow-md transition-all flex flex-col justify-between group"
               >
@@ -7293,7 +7286,6 @@ export default function App() {
               HOW IT WORKS
             </span>
             <h2 className="text-3xl sm:text-4xl font-bold text-slate-900">Your Move in 4 Simple Steps</h2>
-            <div className="w-20 h-1 bg-red-600 mx-auto rounded"></div>
             <p className="text-slate-600 max-w-2xl mx-auto text-base">
               A straightforward and organized process designed to ensure a smooth shifting experience.
             </p>
@@ -7379,7 +7371,7 @@ export default function App() {
               <span className="text-xs font-bold text-blue-900 uppercase tracking-widest block mb-1">Long-Term Goal</span>
               <h3 className="text-2xl font-bold text-blue-900 mb-3">OUR VISION</h3>
               <p className="text-sm text-slate-700 leading-relaxed">
-                Our vision is to establish <span className="text-blue-900">Urban</span><span className="text-[#5b0f17] font-bold">Pro</span> <span className="text-blue-900">Packers & Logistics</span> as a trusted and recognized name in India's Packer & Mover and Logistics industry by continuously improving our services and building lasting relationships with our customers.
+                Our vision is to establish <span className="text-blue-900">Urban</span><span className="text-[#ff0800] font-bold">Pro</span> <span className="text-blue-900">Packer & Logistics</span> as a trusted and recognized name in India's Packer & Mover and Logistics industry by continuously improving our services and building lasting relationships with our customers.
               </p>
             </div>
           </div>
@@ -7397,7 +7389,7 @@ export default function App() {
                 "Customer Satisfaction",
                 "Timely Service"
               ].map((val, idx) => (
-                <span 
+                <span
                   key={idx}
                   className="bg-blue-800/80 border border-blue-600/80 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-blue-100 flex items-center gap-2 shadow-xs"
                 >
@@ -7418,7 +7410,6 @@ export default function App() {
               GET A FREE QUOTE
             </span>
             <h2 className="text-3xl sm:text-4xl font-bold text-slate-900">Planning a Move? Get Your Free Quote Today!</h2>
-            <div className="w-20 h-1 bg-red-600 mx-auto rounded"></div>
             <p className="text-slate-600 text-base max-w-2xl mx-auto">
               Tell us about your relocation, packing or transportation requirement. Our team will help you with a suitable solution.
             </p>
@@ -7434,28 +7425,28 @@ export default function App() {
             </div>
 
             {quoteSubmitted && (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-700 text-white shadow-lg border border-emerald-500"
               >
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 rounded-full bg-white text-emerald-700 flex items-center justify-center shrink-0 font-bold">
-                    ✓
+                    âœ“
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-xs uppercase tracking-wider font-extrabold bg-emerald-800/80 px-2.5 py-0.5 rounded-full border border-emerald-400/40">
-                        ✓ Sent Successfully
+                        âœ“ Sent Successfully
                       </span>
                     </div>
                     <h4 className="font-bold text-sm sm:text-base mt-1 text-white">Your Free Quote Was Sent Successfully!</h4>
                     <p className="text-xs text-emerald-100 mt-0.5 leading-relaxed">
-                      Thank you for contacting UrbanPro Packer & Logistics. Your quote enquiry has been forwarded.
+                      Thank you for contacting <span className="text-blue-900">Urban</span><span className="text-[#ff0800] font-bold">Pro</span>{' '}<span className="text-blue-900">Packer &amp; Logistics</span>. Your quote enquiry has been forwarded.
                     </p>
                     <div className="mt-3 flex items-center gap-2 flex-wrap">
                       {submittedQuoteDetails?.whatsappUrl && (
-                        <a 
+                        <a
                           href={submittedQuoteDetails.whatsappUrl}
                           target="_blank"
                           rel="noopener noreferrer"
@@ -7481,8 +7472,8 @@ export default function App() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Name *</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   name="name"
                   required
                   value={formData.name}
@@ -7495,8 +7486,8 @@ export default function App() {
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Mobile Number *</label>
-                  <input 
-                    type="tel" 
+                  <input
+                    type="tel"
                     name="phone"
                     required
                     value={formData.phone}
@@ -7507,8 +7498,8 @@ export default function App() {
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Email</label>
-                  <input 
-                    type="email" 
+                  <input
+                    type="email"
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
@@ -7521,8 +7512,8 @@ export default function App() {
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Moving From *</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     name="movingFrom"
                     required
                     value={formData.movingFrom}
@@ -7533,8 +7524,8 @@ export default function App() {
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Moving To *</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     name="movingTo"
                     required
                     value={formData.movingTo}
@@ -7548,8 +7539,8 @@ export default function App() {
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Moving Date *</label>
-                  <input 
-                    type="date" 
+                  <input
+                    type="date"
                     name="date"
                     required
                     value={formData.date}
@@ -7559,7 +7550,7 @@ export default function App() {
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Service Type Required *</label>
-                  <select 
+                  <select
                     name="item"
                     required
                     value={formData.item}
@@ -7575,13 +7566,13 @@ export default function App() {
               </div>
 
               {formData.item === 'Other' && (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                 >
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Please Specify</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     name="otherItem"
                     required
                     value={formData.otherItem}
@@ -7606,8 +7597,8 @@ export default function App() {
                 </div>
               </div>
 
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 className="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-4 rounded-xl mt-2 transition-all flex items-center justify-center gap-2 group uppercase tracking-wider text-sm cursor-pointer shadow-lg hover:shadow-blue-900/20 active:scale-95"
               >
                 <Send className="w-4 h-4" />
@@ -7627,19 +7618,19 @@ export default function App() {
           </span>
           <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight">Ready to Move?</h2>
           <p className="text-xl sm:text-2xl font-bold text-yellow-300">
-            Pack Smart & Move Safe with Urban<span className="text-[#ff0800]">Pro</span>
+            Pack Smart &amp; Move Safe with <span className="text-blue-200">Urban</span><span className="text-[#ff0800]">Pro</span>{' '}<span className="text-blue-200">Packer &amp; Logistics</span>
           </p>
           <p className="text-blue-100 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
             Professional Packer & Mover and Logistics Solutions for Local, Intercity, Domestic and Commercial Requirements.
           </p>
           <div className="pt-4 flex flex-wrap justify-center gap-4">
-            <a 
+            <a
               href="tel:8093017400"
               className="bg-red-600 hover:bg-red-700 text-white font-black px-8 py-4 rounded-xl shadow-xl hover:shadow-red-500/30 transition-all text-sm sm:text-base uppercase tracking-wider inline-flex items-center gap-2 cursor-pointer"
             >
               <Phone className="w-5 h-5" /> [ CALL NOW:- 8093017400 ]
             </a>
-            <a 
+            <a
               href="#free-quote"
               className="bg-yellow-400 hover:bg-yellow-500 text-blue-950 font-black px-8 py-4 rounded-xl shadow-xl transition-all text-sm sm:text-base uppercase tracking-wider inline-flex items-center gap-2 cursor-pointer"
             >
@@ -7660,16 +7651,16 @@ export default function App() {
               </span>
               <div className="mt-4 mb-2">
                 <div className="inline-flex items-center gap-3.5 bg-white px-5 sm:px-6 py-2.5 sm:py-3 rounded-2xl shadow-xl border border-slate-200">
-                  <img 
-                    src={activeAppLogo || '/urbanpro%20logo.jpeg'} 
-                    alt="UrbanPro Logo" 
-                    className="h-9 sm:h-11 w-auto object-contain shrink-0" 
+                  <img
+                    src={activeAppLogo || '/urbanpro%20logo.jpeg'}
+                    alt="UrbanPro Logo"
+                    className="h-9 sm:h-11 w-auto object-contain shrink-0"
                   />
                   <div className="leading-tight">
                     <h2 className="text-2xl sm:text-3xl font-black tracking-tight">
                       <span className="text-[#1e3a8a]">Urban</span>
-                      <span className="text-[#dc2626]">Pro</span>{' '}
-                      <span className="text-[#1e3a8a] font-extrabold">Packers & Logistics</span>
+                      <span className="text-[#ff0800]">Pro</span>{' '}
+                      <span className="text-[#1e3a8a] font-extrabold">Packer &amp; Logistics</span>
                     </h2>
                   </div>
                 </div>
@@ -7682,7 +7673,7 @@ export default function App() {
                 </a>
               </div>
             </div>
-            
+
             <div className="grid lg:grid-cols-12 gap-8 items-stretch">
               <div className="lg:col-span-7 space-y-6">
                 <div className="grid sm:grid-cols-2 gap-6">
@@ -7696,7 +7687,7 @@ export default function App() {
                         <h4 className="font-bold text-xs text-blue-200 uppercase tracking-wider">MAIN OPERATIONAL OFFICE:-</h4>
                       </div>
                       <p className="text-slate-200 text-xs sm:text-sm leading-relaxed mb-3">
-                        Plot No. 1491, Hanspal, Balianta Canal Road, Bhubaneswar, Odisha – 752101
+                        Plot No. 1491, Hanspal, Balianta Canal Road, Bhubaneswar, Odisha â€“ 752101
                       </p>
                       <div className="text-xs font-semibold text-slate-300 mb-3 flex items-center gap-1.5">
                         <Phone className="w-3.5 h-3.5 text-blue-300" /> Office: <a href="tel:8093017400" className="text-blue-100 hover:underline">8093017400</a>
@@ -7714,7 +7705,7 @@ export default function App() {
                         <h4 className="font-bold text-xs text-blue-200 uppercase tracking-wider">REG. OFFICE:-</h4>
                       </div>
                       <p className="text-slate-200 text-xs sm:text-sm leading-relaxed mb-2 font-medium">
-                        Dipka, Korba, Chhattisgarh – 495452
+                        Dipka, Korba, Chhattisgarh â€“ 495452
                       </p>
                       <div className="text-xs font-semibold text-slate-300 mb-1 flex items-center gap-1.5">
                         <Phone className="w-3.5 h-3.5 text-blue-300" /> Mobile: <a href="tel:8093017400" className="text-blue-100 hover:underline">8093017400</a>
@@ -7739,16 +7730,27 @@ export default function App() {
                 </div>
 
               </div>
-              
+
               {/* Map Preview */}
-              <div className="lg:col-span-5 w-full min-h-[300px] bg-blue-950 rounded-2xl overflow-hidden border border-blue-800 relative">
-                <iframe 
-                  src="https://maps.google.com/maps?q=20.3172609,85.8817964&t=&z=16&ie=UTF8&iwloc=&output=embed" 
-                  width="100%" 
-                  height="100%" 
-                  style={{ border: 0, pointerEvents: 'none' }} 
-                  allowFullScreen={true} 
-                  loading="lazy" 
+              <div
+                className="lg:col-span-5 w-full min-h-[300px] bg-blue-950 rounded-2xl overflow-hidden border border-blue-800 relative cursor-pointer"
+                role="link"
+                tabIndex={0}
+                onClick={() => window.open('https://www.google.com/maps/search/?api=1&query=Plot+No.+1491,+Hanspal,+Balianta+Canal+Road,+Bhubaneswar,+Odisha+752101', '_blank', 'noopener,noreferrer')}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    window.open('https://www.google.com/maps/search/?api=1&query=Plot+No.+1491,+Hanspal,+Balianta+Canal+Road,+Bhubaneswar,+Odisha+752101', '_blank', 'noopener,noreferrer');
+                  }
+                }}
+              >
+                <iframe
+                  src="https://maps.google.com/maps?q=Plot+No.+1491,+Hanspal,+Balianta+Canal+Road,+Bhubaneswar,+Odisha+752101&t=&z=16&ie=UTF8&iwloc=&output=embed"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0, pointerEvents: 'none' }}
+                  allowFullScreen={true}
+                  loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
                   title="UrbanPro Packer & Logistics Location"
                   className="absolute inset-0 grayscale group-hover:grayscale-0 transition-all duration-500"
@@ -7759,7 +7761,7 @@ export default function App() {
 
           <div className="border-t border-slate-800 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-slate-400 text-xs sm:text-sm">
             <div className="flex items-center gap-4">
-              <p>© {new Date().getFullYear()} UrbanPro Packer & Logistics. All rights reserved.</p>
+              <p>© {new Date().getFullYear()} <span className="text-blue-200">Urban</span><span className="text-[#ff0800] font-bold">Pro</span>{' '}<span className="text-blue-200">Packer &amp; Logistics</span>. All rights reserved.</p>
               <button onClick={() => setIsAdminView(true)} className="text-slate-400 hover:text-white transition-colors flex items-center gap-1 font-medium cursor-pointer">
                 <Lock className="w-3 h-3" /> Admin Login
               </button>
