@@ -6926,7 +6926,7 @@ export default function App() {
               ABOUT US
             </span>
             <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mt-3 mb-4">
-              <span className="text-[#1e3a8a]">Urban</span><span className="text-[#dc2626]">Pro</span> <span className="text-[#1e3a8a]">Packers & Logistics</span>
+              <span className="text-[#1e3a8a]">Urban</span><span className="text-[#ff0800]">Pro</span> <span className="text-[#1e3a8a]">Packers & Logistics</span>
             </h2>
           </div>
 
@@ -6939,16 +6939,16 @@ export default function App() {
               </div>
               <div>
                 <span className="text-xs font-bold text-yellow-400 uppercase tracking-widest">Company Background & Legacy</span>
-                <h3 className="text-2xl font-bold mt-1"><span className="text-blue-200">Urban</span><span className="text-[#5b0f17] font-bold">Pro</span> <span className="text-blue-200">Packers & Logistics</span></h3>
+                <h3 className="text-2xl font-bold mt-1"><span className="text-blue-200">Urban</span><span className="text-[#ff0800] font-bold">Pro</span> <span className="text-blue-200">Packers & Logistics</span></h3>
               </div>
             </div>
             
             <p className="text-blue-100 text-base sm:text-lg leading-relaxed mb-6 font-normal">
-              <span className="text-blue-200">Urban</span><span className="text-[#5b0f17] font-bold">Pro</span> <span className="text-blue-200">Packers & Logistics</span> was established in <strong>2009</strong> and has substantial experience in the transportation and logistics sector, undertaking a wide range of transportation-related work over the years.
+              <span className="text-blue-200">Urban</span><span className="text-[#ff0800] font-bold">Pro</span> <span className="text-blue-200">Packers & Logistics</span> was established in <strong>2009</strong> and has substantial experience in the transportation and logistics sector, undertaking a wide range of transportation-related work over the years.
             </p>
 
             <p className="text-blue-100 text-base sm:text-lg leading-relaxed mb-6 font-normal">
-              <strong><span className="text-blue-200">Urban</span><span className="text-[#5b0f17] font-bold">Pro</span> <span className="text-blue-200">Packers & Logistics</span></strong> provides professional Packer & Mover, relocation, transportation and logistics services across India.
+              <strong><span className="text-blue-200">Urban</span><span className="text-[#ff0800] font-bold">Pro</span> <span className="text-blue-200">Packers & Logistics</span></strong> provides professional Packer & Mover, relocation, transportation and logistics services across India.
             </p>
 
             {/* State Tags */}
