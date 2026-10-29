@@ -357,7 +357,7 @@ export default function App() {
 
     if (duplicate) {
       setSurveyNoWarning(`Survey No. "${finalSurveyNo}" already exists for ${duplicate.partyName || 'another customer'}. Every survey number must be unique.`);
-      setShareToast(`âš ï¸ Survey No. "${finalSurveyNo}" is already in use! Please choose a unique number.`);
+      setShareToast(`⚠️ Survey No. "${finalSurveyNo}" is already in use! Please choose a unique number.`);
       setTimeout(() => setShareToast(null), 4000);
       return;
     }
@@ -367,12 +367,12 @@ export default function App() {
     if (editingSurveyId) {
       updatedSurveys = surveys.map(s => String(s.id) === String(editingSurveyId) ? { ...surveyForm, surveyNo: finalSurveyNo, id: s.id } : s);
       setSurveys(updatedSurveys);
-      setShareToast(`âœ“ Survey #${finalSurveyNo} updated successfully!`);
+      setShareToast(`✓“ Survey #${finalSurveyNo} updated successfully!`);
     } else {
       const newSurvey = { ...surveyForm, surveyNo: finalSurveyNo, id: Date.now() };
       updatedSurveys = [newSurvey, ...surveys];
       setSurveys(updatedSurveys);
-      setShareToast(`âœ“ Survey #${newSurvey.surveyNo} created and saved successfully!`);
+      setShareToast(`✓“ Survey #${newSurvey.surveyNo} created and saved successfully!`);
     }
 
     // Direct synchronous save to localStorage
@@ -496,7 +496,7 @@ export default function App() {
     }));
 
     setSelectedSurveyForQuotationAutoFill(surveyNoOrId.trim());
-    setShareToast(`âœ“ Auto-filled details from Survey #${match.surveyNo} for ${match.partyName}`);
+    setShareToast(`✓“ Auto-filled details from Survey #${match.surveyNo} for ${match.partyName}`);
     setTimeout(() => setShareToast(null), 3500);
   };
 
@@ -548,7 +548,7 @@ export default function App() {
     }));
 
     setSelectedSurveyForPackingAutoFill(String(match.surveyNo));
-    setShareToast(`âœ“ Auto-filled details and ${match.items?.length || 0} items from Survey #${match.surveyNo} for ${match.partyName}`);
+    setShareToast(`✓“ Auto-filled details and ${match.items?.length || 0} items from Survey #${match.surveyNo} for ${match.partyName}`);
     setTimeout(() => setShareToast(null), 3500);
   };
 
@@ -615,7 +615,7 @@ export default function App() {
     });
     setSelectedSurveyForQuotationAutoFill(String(survey.surveyNo));
     setAdminTab('add-quotation');
-    setShareToast(`âœ“ Pre-loaded all customer & route info from Survey #${survey.surveyNo}`);
+    setShareToast(`✓“ Pre-loaded all customer & route info from Survey #${survey.surveyNo}`);
     setTimeout(() => setShareToast(null), 3500);
   };
 
@@ -655,7 +655,7 @@ export default function App() {
     });
     setSelectedSurveyForPackingAutoFill(String(survey.surveyNo));
     setAdminTab('add-packing');
-    setShareToast(`âœ“ Pre-loaded info & ${convertedItems.length} items from Survey #${survey.surveyNo}`);
+    setShareToast(`✓“ Pre-loaded info & ${convertedItems.length} items from Survey #${survey.surveyNo}`);
     setTimeout(() => setShareToast(null), 3500);
   };
 
@@ -872,7 +872,7 @@ export default function App() {
   };
 
   const handleShareQuotation = (quotation: any) => {
-    const text = `Quotation #${quotation.quotationNo} from UrbanPro Packer & Logistics for ${quotation.partyName} (â‚¹${quotation.grandTotal}): ${quotation.fromCity} to ${quotation.toCity}. Customer Care: 8093017400`;
+    const text = `Quotation #${quotation.quotationNo} from UrbanPro Packer & Logistics for ${quotation.partyName} (₹${quotation.grandTotal}): ${quotation.fromCity} to ${quotation.toCity}. Customer Care: 8093017400`;
     if (navigator.share) {
       navigator.share({
         title: `Quotation #${quotation.quotationNo} - UrbanPro Logistics`,
@@ -1463,7 +1463,7 @@ export default function App() {
   };
 
   const handleSharePackingList = (pl: any) => {
-    const text = `ðŸ“¦ UrbanPro Logistics - Packing List #${pl.packingListNo}\nParty: ${pl.partyName}\nMobile: ${pl.mobileNo}\nFrom: ${pl.fromCity} -> To: ${pl.toCity}\nTotal Items: ${pl.items?.length || 0}`;
+    const text = `📦 UrbanPro Logistics - Packing List #${pl.packingListNo}\nParty: ${pl.partyName}\nMobile: ${pl.mobileNo}\nFrom: ${pl.fromCity} -> To: ${pl.toCity}\nTotal Items: ${pl.items?.length || 0}`;
     if (navigator.share) {
       navigator.share({ title: `Packing List #${pl.packingListNo}`, text }).catch(() => {});
     } else if (navigator.clipboard) {
@@ -1494,10 +1494,10 @@ export default function App() {
           parsed.upiId = '';
         }
         if (!parsed.addressLine1) {
-          parsed.addressLine1 = 'Regd. Office: UrbanPro Packer & Logistics, Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG â€“ 495452';
+          parsed.addressLine1 = 'Regd. Office: UrbanPro Packer & Logistics, Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452';
         }
         if (!parsed.addressLine2) {
-          parsed.addressLine2 = 'Main Operational Office: Plot No. 1491, Hanspal, Balianta Canal Road, Near Lenskart, Bhubaneswar, Odisha â€“ 752101';
+          parsed.addressLine2 = 'Main Operational Office: Plot No. 1491, Hanspal, Balianta Canal Road, Near Lenskart, Bhubaneswar, Odisha – 752101';
         }
         return parsed;
       }
@@ -1506,9 +1506,9 @@ export default function App() {
       companyName: 'UrbanPro Packer & Logistics',
       groupName: 'UrbanPro Packer & Logistics',
       gstin: '',
-      regAddress: 'Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG â€“ 495452',
-      addressLine1: 'Regd. Office: UrbanPro Packer & Logistics, Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG â€“ 495452',
-      addressLine2: 'Main Operational Office: Plot No. 1491, Hanspal, Balianta Canal Road, Near Lenskart, Bhubaneswar, Odisha â€“ 752101',
+      regAddress: 'Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452',
+      addressLine1: 'Regd. Office: UrbanPro Packer & Logistics, Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452',
+      addressLine2: 'Main Operational Office: Plot No. 1491, Hanspal, Balianta Canal Road, Near Lenskart, Bhubaneswar, Odisha – 752101',
       mobilePrimary: '8093017400',
       mobileSecondary: '8093017400',
       email: 'urbanpro403@gmail.com',
@@ -1827,7 +1827,7 @@ export default function App() {
       });
       setEditingSurveyId(match.id);
       setSurveyNoWarning(null);
-      setShareToast(`âœ“ Existing Survey #${match.surveyNo} found! Auto-loaded details for "${match.partyName}"`);
+      setShareToast(`✓“ Existing Survey #${match.surveyNo} found! Auto-loaded details for "${match.partyName}"`);
       setTimeout(() => setShareToast(null), 3500);
     } else {
       setSurveyForm(prev => ({ ...prev, surveyNo: val }));
@@ -1839,7 +1839,7 @@ export default function App() {
     setSurveyForm(prev => {
       const match = findCustomerProfile(val);
       if (match) {
-        setShareToast(`âœ“ Auto-filled customer details for ${match.partyName}`);
+        setShareToast(`✓“ Auto-filled customer details for ${match.partyName}`);
         setTimeout(() => setShareToast(null), 3000);
         return {
           ...prev,
@@ -1869,7 +1869,7 @@ export default function App() {
       if (cleanDigits.length >= 10) {
         const match = findCustomerProfile(val);
         if (match) {
-          setShareToast(`âœ“ Auto-filled customer info for ${match.partyName}`);
+          setShareToast(`✓“ Auto-filled customer info for ${match.partyName}`);
           setTimeout(() => setShareToast(null), 3000);
           return {
             ...prev,
@@ -1903,7 +1903,7 @@ export default function App() {
     setQuotationForm(prev => {
       const match = findCustomerProfile(val);
       if (match) {
-        setShareToast(`âœ“ Auto-filled quotation details for ${match.partyName}`);
+        setShareToast(`✓“ Auto-filled quotation details for ${match.partyName}`);
         setTimeout(() => setShareToast(null), 3000);
         return {
           ...prev,
@@ -1939,7 +1939,7 @@ export default function App() {
       if (cleanDigits.length >= 10) {
         const match = findCustomerProfile(val);
         if (match) {
-          setShareToast(`âœ“ Auto-filled party & route for ${match.partyName}`);
+          setShareToast(`✓“ Auto-filled party & route for ${match.partyName}`);
           setTimeout(() => setShareToast(null), 3000);
           return {
             ...prev,
@@ -1986,7 +1986,7 @@ export default function App() {
             remark: it.remark || 'Standard Packing'
           }));
         }
-        setShareToast(`âœ“ Auto-filled packing list for ${match.partyName}`);
+        setShareToast(`✓“ Auto-filled packing list for ${match.partyName}`);
         setTimeout(() => setShareToast(null), 3000);
         return {
           ...prev,
@@ -2027,7 +2027,7 @@ export default function App() {
                 remark: item.remark || 'Standard Packing',
               }))
             : prev.items;
-          setShareToast(`âœ“ Auto-filled name & route for ${match.partyName}`);
+          setShareToast(`✓“ Auto-filled name & route for ${match.partyName}`);
           setTimeout(() => setShareToast(null), 3000);
           return {
             ...prev,
@@ -2505,7 +2505,7 @@ export default function App() {
                             </span>
                           </div>
                           <div className="text-xs text-slate-500 mt-0.5">
-                            {q.fromCity || 'Origin'} &rarr; {q.toCity || 'Destination'} â€¢ {q.mobileNo || 'No phone'}
+                            {q.fromCity || 'Origin'} &rarr; {q.toCity || 'Destination'} • {q.mobileNo || 'No phone'}
                           </div>
                         </div>
                         <button
@@ -2548,7 +2548,7 @@ export default function App() {
                             </span>
                           </div>
                           <div className="text-xs text-slate-500 mt-0.5">
-                            {s.fromCity || 'Origin'} &rarr; {s.toCity || 'Destination'} â€¢ {s.mobileNo || 'No phone'}
+                            {s.fromCity || 'Origin'} &rarr; {s.toCity || 'Destination'} • {s.mobileNo || 'No phone'}
                           </div>
                         </div>
                         <button
@@ -2990,12 +2990,12 @@ export default function App() {
             <datalist id="upl-customer-parties-datalist">
               {customerProfiles.map((c, i) => (
                 <option key={`dl-p-${i}`} value={c.partyName}>
-                  {c.mobileNo ? `${c.mobileNo} â€¢ ${c.source}` : c.source}
+                  {c.mobileNo ? `${c.mobileNo} • ${c.source}` : c.source}
                 </option>
               ))}
               {customerProfiles.flatMap((c, i) => (c.uniqueIds || []).map((id, j) => (
                 <option key={`dl-uid-${i}-${j}`} value={String(id)}>
-                  {c.partyName} ({c.mobileNo || 'No phone'}) â€¢ {c.source}
+                  {c.partyName} ({c.mobileNo || 'No phone'}) • {c.source}
                 </option>
               )))}
             </datalist>
@@ -3011,7 +3011,7 @@ export default function App() {
             <datalist id="upl-all-surveys-datalist">
               {surveys.map((s, i) => (
                 <option key={`dl-s-${i}`} value={s.surveyNo}>
-                  Survey #{s.surveyNo} â€” {s.partyName} ({s.fromCity || 'Origin'} â†’ {s.toCity || 'Dest'})
+                  Survey #{s.surveyNo} — {s.partyName} ({s.fromCity || 'Origin'} → {s.toCity || 'Dest'})
                 </option>
               ))}
             </datalist>
@@ -3042,7 +3042,7 @@ export default function App() {
                             <span className="text-slate-500 font-semibold text-base sm:text-lg">Dashboard</span>
                           </h1>
                           <p className="text-slate-500 text-xs sm:text-sm mt-1 font-medium">
-                            Pack Smart & Move Safe â€¢ Admin Management & Documentation Suite
+                            Pack Smart & Move Safe • Admin Management & Documentation Suite
                           </p>
                         </div>
                       </div>
@@ -3185,7 +3185,7 @@ export default function App() {
                                   {s.partyName || 'Unnamed Customer'}
                                 </div>
                                 <div className="text-[11px] text-slate-500">
-                                  {s.fromCity || 'Origin'} &rarr; {s.toCity || 'Destination'} â€¢ {s.mobileNo || 'No phone'}
+                                  {s.fromCity || 'Origin'} &rarr; {s.toCity || 'Destination'} • {s.mobileNo || 'No phone'}
                                 </div>
                               </div>
                               <button
@@ -3237,7 +3237,7 @@ export default function App() {
                                   {q.partyName || 'Unnamed Customer'}
                                 </div>
                                 <div className="text-[11px] text-slate-500">
-                                  {q.fromCity || 'Origin'} &rarr; {q.toCity || 'Destination'} â€¢ â‚¹{q.grandTotal || '0'}
+                                  {q.fromCity || 'Origin'} &rarr; {q.toCity || 'Destination'} • ₹{q.grandTotal || '0'}
                                 </div>
                               </div>
                               <button
@@ -3265,12 +3265,12 @@ export default function App() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 text-xs text-slate-300">
                       <div>
                         <span className="font-semibold text-yellow-400 block mb-1">MAIN OPERATIONAL OFFICE</span>
-                        Plot No. 1491, Hanspal, Balianta Canal Road, Bhubaneswar, Odisha â€“ 752101<br />
+                        Plot No. 1491, Hanspal, Balianta Canal Road, Bhubaneswar, Odisha – 752101<br />
                         <span className="text-slate-400">Office: 8093017400</span>
                       </div>
                       <div>
                         <span className="font-semibold text-yellow-400 block mb-1">REGISTERED OFFICE</span>
-                        Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG â€“ 495452<br />
+                        Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452<br />
                         <span className="text-slate-400">Mobile: 8093017400</span>
                       </div>
                     </div>
@@ -3329,7 +3329,7 @@ export default function App() {
                       <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-2xl p-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-2xs">
                         <div className="flex items-center gap-2 text-xs font-bold text-emerald-950">
                           <Sparkles className="w-4 h-4 text-emerald-600 shrink-0" />
-                          <span>âš¡ Auto-fill Customer from Saved Record or Unique ID:</span>
+                          <span>⚡ Auto-fill Customer from Saved Record or Unique ID:</span>
                         </div>
                         <select
                           onChange={(e) => {
@@ -3367,13 +3367,13 @@ export default function App() {
                               if (isDup) {
                                 return (
                                   <span className="text-[10px] font-bold text-red-600 bg-red-100 px-2 py-0.5 rounded-full">
-                                    âš ï¸ Already Taken
+                                    ⚠️ Already Taken
                                   </span>
                                 );
                               }
                               return (
                                 <span className="text-[10px] font-bold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full">
-                                  âœ“ Unique Number
+                                  ✓“ Unique Number
                                 </span>
                               );
                             })()}
@@ -3415,7 +3415,7 @@ export default function App() {
                             <label className="block text-[11px] text-slate-500 font-medium">Party Name * (Auto-Completes)</label>
                             {customerProfiles.some(c => c.partyName && c.partyName.toLowerCase() === (surveyForm.partyName || '').trim().toLowerCase()) && (
                               <span className="text-[10px] font-bold text-teal-600 bg-teal-50 border border-teal-200 px-1.5 py-0.2 rounded-full">
-                                âœ“ Synced Profile
+                                ✓“ Synced Profile
                               </span>
                             )}
                           </div>
@@ -3433,7 +3433,7 @@ export default function App() {
                             <label className="block text-[11px] text-slate-500 font-medium">Client Mobile No. (Auto-Completes)</label>
                             {customerProfiles.some(c => c.mobileNo && c.mobileNo.replace(/\D/g, '') === (surveyForm.mobileNo || '').replace(/\D/g, '') && c.mobileNo.length >= 8) && (
                               <span className="text-[10px] font-bold text-teal-600 bg-teal-50 border border-teal-200 px-1.5 py-0.2 rounded-full">
-                                âœ“ Recognized Contact
+                                ✓“ Recognized Contact
                               </span>
                             )}
                           </div>
@@ -4037,7 +4037,7 @@ export default function App() {
                         <div>
                           <h4 className="font-bold text-amber-950 text-sm">Editing Quotation #{quotationForm.quotationNo}</h4>
                           <p className="text-xs text-amber-800">
-                            Customer: {quotationForm.partyName || 'Customer'} â€¢ You are updating an existing quotation. All charges, tax and route details are editable.
+                            Customer: {quotationForm.partyName || 'Customer'} • You are updating an existing quotation. All charges, tax and route details are editable.
                           </p>
                         </div>
                       </div>
@@ -4091,7 +4091,7 @@ export default function App() {
                             <option value="">-- Select Survey to Load Client & Route --</option>
                             {surveys.map((s) => (
                               <option key={s.id} value={String(s.surveyNo)}>
-                                Survey #{s.surveyNo} â€” {s.partyName} ({s.fromCity || 'From'} â†’ {s.toCity || 'To'})
+                                Survey #{s.surveyNo} — {s.partyName} ({s.fromCity || 'From'} → {s.toCity || 'To'})
                               </option>
                             ))}
                           </select>
@@ -4169,7 +4169,7 @@ export default function App() {
                             <label className="block text-[11px] text-slate-500 font-medium">Party Name * (Auto-Completes)</label>
                             {customerProfiles.some(c => c.partyName && c.partyName.toLowerCase() === (quotationForm.partyName || '').trim().toLowerCase()) && (
                               <span className="text-[10px] font-bold text-teal-600 bg-teal-50 border border-teal-200 px-1.5 py-0.2 rounded-full">
-                                âœ“ Synced Profile
+                                ✓“ Synced Profile
                               </span>
                             )}
                           </div>
@@ -4187,7 +4187,7 @@ export default function App() {
                             <label className="block text-[11px] text-slate-500 font-medium">Mobile No. (Auto-Completes)</label>
                             {customerProfiles.some(c => c.mobileNo && c.mobileNo.replace(/\D/g, '') === (quotationForm.mobileNo || '').replace(/\D/g, '') && c.mobileNo.length >= 8) && (
                               <span className="text-[10px] font-bold text-teal-600 bg-teal-50 border border-teal-200 px-1.5 py-0.2 rounded-full">
-                                âœ“ Recognized Contact
+                                ✓“ Recognized Contact
                               </span>
                             )}
                           </div>
@@ -4527,7 +4527,7 @@ export default function App() {
                               </div>
                               <div className="flex items-center justify-between gap-2">
                                 <div className="relative flex-1 flex items-center">
-                                  <span className="text-slate-400 text-xs font-bold mr-1.5 select-none">â‚¹</span>
+                                  <span className="text-slate-400 text-xs font-bold mr-1.5 select-none">₹</span>
                                   <input
                                     type="text"
                                     placeholder="Enter amount (e.g. 5000)"
@@ -4627,7 +4627,7 @@ export default function App() {
                                           }`}
                                           title={isCcIncluded ? 'Select Included to clear' : 'Select Included'}
                                         >
-                                          {isCcIncluded && <span>âœ“</span>} Included
+                                          {isCcIncluded && <span>✓“</span>} Included
                                         </button>
                                         <button
                                           type="button"
@@ -4639,13 +4639,13 @@ export default function App() {
                                           }`}
                                           title={isCcExcluded ? 'Select Excluded to clear' : 'Select Excluded'}
                                         >
-                                          {isCcExcluded && <span>âœ•</span>} Excluded
+                                          {isCcExcluded && <span>✓•</span>} Excluded
                                         </button>
                                       </div>
                                     </div>
                                     <div className="flex items-center gap-1.5">
                                       <div className="relative flex-1 flex items-center bg-white border border-slate-300 rounded-md px-2 focus-within:border-cyan-500">
-                                        <span className="text-slate-400 text-xs font-bold mr-1 select-none">â‚¹</span>
+                                        <span className="text-slate-400 text-xs font-bold mr-1 select-none">₹</span>
                                         <input
                                           type="text"
                                           placeholder="Enter amount"
@@ -4691,7 +4691,7 @@ export default function App() {
                                   readOnly
                                   className="w-full outline-none text-slate-800 text-sm font-bold bg-transparent"
                                 />
-                                <span className="text-[11px] text-slate-400 font-medium ml-1 shrink-0">â‚¹ INR</span>
+                                <span className="text-[11px] text-slate-400 font-medium ml-1 shrink-0">₹ INR</span>
                               </div>
                             </div>
                           </div>
@@ -4847,22 +4847,22 @@ export default function App() {
                             <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs font-semibold text-slate-700">
                               <div>
                                 <span className="text-slate-500">Base Charges:</span>{' '}
-                                <strong className="text-slate-900 font-mono">â‚¹ {formTotals.baseTotal.toLocaleString()}</strong>
+                                <strong className="text-slate-900 font-mono">₹ {formTotals.baseTotal.toLocaleString()}</strong>
                               </div>
                               <div className="bg-blue-100/70 text-blue-950 px-2 py-0.5 rounded font-bold">
                                 <span>Sub Total:</span>{' '}
-                                <strong className="font-mono">â‚¹ {formTotals.subTotal.toLocaleString()}</strong>
+                                <strong className="font-mono">₹ {formTotals.subTotal.toLocaleString()}</strong>
                               </div>
                               {formTotals.insuranceNum > 0 && (
                                 <div className="text-emerald-700">
                                   <span>+ Ins ({formTotals.insPercent} Extra):</span>{' '}
-                                  <strong className="font-mono">â‚¹ {formTotals.insuranceNum.toLocaleString()}</strong>
+                                  <strong className="font-mono">₹ {formTotals.insuranceNum.toLocaleString()}</strong>
                                 </div>
                               )}
                               {formTotals.gstNum > 0 && (
                                 <div className="text-purple-700">
                                   <span>+ GST ({formTotals.gstPercent}):</span>{' '}
-                                  <strong className="font-mono">â‚¹ {formTotals.gstNum.toLocaleString()}</strong>
+                                  <strong className="font-mono">₹ {formTotals.gstNum.toLocaleString()}</strong>
                                 </div>
                               )}
                               {formTotals.gstStatus === 'Exempted' && (
@@ -4873,7 +4873,7 @@ export default function App() {
                               {formTotals.goodsVal > 0 && (
                                 <div className="text-amber-800 bg-amber-50 border border-amber-300 px-2 py-0.5 rounded text-xs font-bold flex items-center gap-1 shadow-2xs">
                                   <span>+ Goods Value:</span>{' '}
-                                  <strong className="font-mono">â‚¹ {formTotals.goodsVal.toLocaleString()}</strong>
+                                  <strong className="font-mono">₹ {formTotals.goodsVal.toLocaleString()}</strong>
                                 </div>
                               )}
                             </div>
@@ -4881,12 +4881,12 @@ export default function App() {
                               <div className="flex items-center gap-1.5">
                                 <span className="text-xs uppercase font-extrabold text-blue-900 tracking-wider">Grand Total:</span>
                                 <span className="text-base sm:text-lg font-black text-blue-950 font-mono bg-white px-2.5 py-0.5 rounded-lg border border-blue-300 shadow-2xs">
-                                  â‚¹ {formTotals.grandTotal.toLocaleString()}
+                                  ₹ {formTotals.grandTotal.toLocaleString()}
                                 </span>
                               </div>
                               {formTotals.advanceNum > 0 && (
                                 <div className="text-xs font-bold text-slate-700 bg-white px-2 py-0.5 rounded border border-slate-200">
-                                  Due: <span className="text-emerald-700 font-mono">â‚¹ {formTotals.balanceDue.toLocaleString()}</span>
+                                  Due: <span className="text-emerald-700 font-mono">₹ {formTotals.balanceDue.toLocaleString()}</span>
                                 </div>
                               )}
                             </div>
@@ -4911,7 +4911,7 @@ export default function App() {
                                   readOnly
                                   className="w-full outline-none text-blue-950 text-sm font-black bg-transparent"
                                 />
-                                <span className="text-[11px] text-slate-400 font-medium ml-1 shrink-0">â‚¹ INR</span>
+                                <span className="text-[11px] text-slate-400 font-medium ml-1 shrink-0">₹ INR</span>
                               </div>
                             </div>
                           </div>
@@ -4924,7 +4924,7 @@ export default function App() {
                       <span className="absolute -top-3.5 left-4 bg-green-400 text-white px-4 py-1 rounded-md text-sm font-medium shadow-sm">Other Details</span>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="border border-slate-300 rounded-lg p-3 focus-within:border-green-500 transition-all bg-white">
-                          <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Advance Payment (â‚¹)</label>
+                          <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Advance Payment (₹)</label>
                           <input
                             type="text"
                             placeholder="Enter advance amount"
@@ -4949,15 +4949,15 @@ export default function App() {
                               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm">
                                 <div className="text-slate-700">
                                   <span className="font-semibold">Grand Total:</span>{' '}
-                                  <span className="font-black text-blue-950">â‚¹ {formTotals.grandTotal.toLocaleString()}</span>
+                                  <span className="font-black text-blue-950">₹ {formTotals.grandTotal.toLocaleString()}</span>
                                 </div>
                                 <div className="text-slate-700">
                                   <span className="font-semibold">Advance Paid:</span>{' '}
-                                  <span className="font-black text-emerald-700">â‚¹ {formTotals.advanceNum.toLocaleString()}</span>
+                                  <span className="font-black text-emerald-700">₹ {formTotals.advanceNum.toLocaleString()}</span>
                                 </div>
                                 <div className="text-slate-700">
                                   <span className="font-semibold">Balance Due:</span>{' '}
-                                  <span className="font-black text-rose-700">â‚¹ {formTotals.balanceDue.toLocaleString()}</span>
+                                  <span className="font-black text-rose-700">₹ {formTotals.balanceDue.toLocaleString()}</span>
                                 </div>
                               </div>
                             </div>
@@ -5174,7 +5174,7 @@ export default function App() {
                               {/* Amount */}
                               <div className="flex items-center gap-2.5">
                                 <div className="w-7 h-7 rounded-full bg-[#0284c7] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
-                                  â‚¹
+                                  ₹
                                 </div>
                                 <div className="text-xl sm:text-2xl font-black text-[#0f172a] tracking-tight">
                                   {quotation.grandTotal}
@@ -5280,7 +5280,7 @@ export default function App() {
                               type="button"
                               onClick={() => {
                                 setAdminTab('add-bill');
-                                setShareToast(`Opening Bill view â€” Select Quotation #${quotation.quotationNo} from auto-fill to import!`);
+                                setShareToast(`Opening Bill view — Select Quotation #${quotation.quotationNo} from auto-fill to import!`);
                                 setTimeout(() => setShareToast(null), 3500);
                               }}
                               className="flex flex-col items-center gap-1 group cursor-pointer"
@@ -5374,7 +5374,7 @@ export default function App() {
                           <option value="">-- Select Survey to Import Client & Items --</option>
                           {surveys.map((s) => (
                             <option key={s.id} value={s.surveyNo || s.id}>
-                              Survey #{s.surveyNo} â€” {s.partyName} ({s.items?.length || 0} items)
+                              Survey #{s.surveyNo} — {s.partyName} ({s.items?.length || 0} items)
                             </option>
                           ))}
                         </select>
@@ -5442,7 +5442,7 @@ export default function App() {
                             <label className="block text-[11px] text-slate-500 font-medium">Party Name * (Auto-Completes)</label>
                             {customerProfiles.some(c => c.partyName && c.partyName.toLowerCase() === (packingListForm.partyName || '').trim().toLowerCase()) && (
                               <span className="text-[10px] font-bold text-teal-600 bg-teal-50 border border-teal-200 px-1.5 py-0.2 rounded-full">
-                                âœ“ Synced Profile
+                                ✓“ Synced Profile
                               </span>
                             )}
                           </div>
@@ -5461,7 +5461,7 @@ export default function App() {
                             <label className="block text-[11px] text-slate-500 font-medium">Client Mobile No. (Auto-Completes)</label>
                             {customerProfiles.some(c => c.mobileNo && c.mobileNo.replace(/\D/g, '') === (packingListForm.mobileNo || '').replace(/\D/g, '') && c.mobileNo.length >= 8) && (
                               <span className="text-[10px] font-bold text-teal-600 bg-teal-50 border border-teal-200 px-1.5 py-0.2 rounded-full">
-                                âœ“ Recognized Contact
+                                ✓“ Recognized Contact
                               </span>
                             )}
                           </div>
@@ -5702,7 +5702,7 @@ export default function App() {
                             <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Value (à¤•à¥€à¤®à¤¤) *</label>
                             <input
                               type="text"
-                              placeholder="â‚¹"
+                              placeholder="₹"
                               className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium"
                               value={currentPackingItem.value}
                               onChange={e => setCurrentPackingItem({...currentPackingItem, value: e.target.value})}
@@ -5785,7 +5785,7 @@ export default function App() {
                                     <th className="p-2.5 px-3 w-20 text-center">Box No.</th>
                                     <th className="p-2.5 px-3">Item Name (à¤¸à¤¾à¤®à¤¾à¤¨ à¤•à¤¾ à¤¨à¤¾à¤®)</th>
                                     <th className="p-2.5 px-3 w-16 text-center">Qty</th>
-                                    <th className="p-2.5 px-3 w-24 text-right">Value (â‚¹)</th>
+                                    <th className="p-2.5 px-3 w-24 text-right">Value (₹)</th>
                                     <th className="p-2.5 px-3">Remark</th>
                                     <th className="p-2.5 px-3 w-12 text-center">Action</th>
                                   </tr>
@@ -5800,7 +5800,7 @@ export default function App() {
                                       <td className="p-2.5 px-3 font-medium text-slate-800">{item.name}</td>
                                       <td className="p-2.5 px-3 text-center font-semibold">{item.qty || '1'}</td>
                                       <td className="p-2.5 px-3 text-right text-slate-700">
-                                        {item.value ? `â‚¹${item.value}` : '-'}
+                                        {item.value ? `₹${item.value}` : '-'}
                                       </td>
                                       <td className="p-2.5 px-3 text-slate-500">{item.remark || '-'}</td>
                                       <td className="p-2.5 px-3 text-center">
@@ -5963,7 +5963,7 @@ export default function App() {
                                     {pl.partyName}
                                   </span>
                                   <span className="text-xs text-slate-500">
-                                    Packing List #{pl.packingListNo} â€¢ {pl.packingListDate}
+                                    Packing List #{pl.packingListNo} • {pl.packingListDate}
                                   </span>
                                 </div>
                               </div>
@@ -6033,7 +6033,7 @@ export default function App() {
                                   {totalVal > 0 && (
                                     <div className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 flex-1">
                                       <div className="text-[10px] text-slate-400 uppercase font-semibold">Value</div>
-                                      <div className="text-sm font-black text-emerald-700">â‚¹{totalVal.toLocaleString('en-IN')}</div>
+                                      <div className="text-sm font-black text-emerald-700">₹{totalVal.toLocaleString('en-IN')}</div>
                                     </div>
                                   )}
                                 </div>
@@ -6285,8 +6285,8 @@ export default function App() {
                     brandName: companyProfile.groupName || 'UrbanPro Packer & Logistics',
                     tagline: 'Pack Smart & Move Safe',
                     gstin: companyProfile.gstin || '',
-                    regAddress: companyProfile.regAddress || companyProfile.addressLine1 || 'Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG â€“ 495452',
-                    branchAddress: companyProfile.addressLine2 || 'Plot No. 1491, Balianta Canal Road, Near Lenskart, Hanspal, Bhubaneswar, Odisha â€“ 752101',
+                    regAddress: companyProfile.regAddress || companyProfile.addressLine1 || 'Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452',
+                    branchAddress: companyProfile.addressLine2 || 'Plot No. 1491, Balianta Canal Road, Near Lenskart, Hanspal, Bhubaneswar, Odisha – 752101',
                     phone1: companyProfile.mobilePrimary || '8093017400',
                     phone2: companyProfile.mobileSecondary || '8093017400',
                     email: companyProfile.email || 'urbanpro403@gmail.com',
@@ -6574,7 +6574,7 @@ export default function App() {
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/25 text-white font-extrabold text-xs uppercase tracking-wider">
-                          âœ“ Sent Successfully
+                          ✓“ Sent Successfully
                         </span>
                         <button
                           type="button"
@@ -6594,8 +6594,8 @@ export default function App() {
 
                       {submittedQuoteDetails && (
                         <div className="mt-2.5 py-2 px-3 bg-black/20 rounded-lg text-xs space-y-1 text-emerald-100 border border-white/10">
-                          <div><span className="text-white font-semibold">Customer:</span> {submittedQuoteDetails.name} â€¢ <span className="text-white font-semibold">Phone:</span> {submittedQuoteDetails.phone}</div>
-                          <div><span className="text-white font-semibold">Route:</span> {submittedQuoteDetails.movingFrom} â†’ {submittedQuoteDetails.movingTo}</div>
+                          <div><span className="text-white font-semibold">Customer:</span> {submittedQuoteDetails.name} • <span className="text-white font-semibold">Phone:</span> {submittedQuoteDetails.phone}</div>
+                          <div><span className="text-white font-semibold">Route:</span> {submittedQuoteDetails.movingFrom} → {submittedQuoteDetails.movingTo}</div>
                           <div><span className="text-white font-semibold">Service:</span> {submittedQuoteDetails.item}</div>
                         </div>
                       )}
@@ -7432,12 +7432,12 @@ export default function App() {
               >
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 rounded-full bg-white text-emerald-700 flex items-center justify-center shrink-0 font-bold">
-                    âœ“
+                    ✓“
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-xs uppercase tracking-wider font-extrabold bg-emerald-800/80 px-2.5 py-0.5 rounded-full border border-emerald-400/40">
-                        âœ“ Sent Successfully
+                        ✓“ Sent Successfully
                       </span>
                     </div>
                     <h4 className="font-bold text-sm sm:text-base mt-1 text-white">Your Free Quote Was Sent Successfully!</h4>
@@ -7687,7 +7687,7 @@ export default function App() {
                         <h4 className="font-bold text-xs text-blue-200 uppercase tracking-wider">MAIN OPERATIONAL OFFICE:-</h4>
                       </div>
                       <p className="text-slate-200 text-xs sm:text-sm leading-relaxed mb-3">
-                        Plot No. 1491, Hanspal, Balianta Canal Road, Bhubaneswar, Odisha â€“ 752101
+                        Plot No. 1491, Hanspal, Balianta Canal Road, Bhubaneswar, Odisha – 752101
                       </p>
                       <div className="text-xs font-semibold text-slate-300 mb-3 flex items-center gap-1.5">
                         <Phone className="w-3.5 h-3.5 text-blue-300" /> Office: <a href="tel:8093017400" className="text-blue-100 hover:underline">8093017400</a>
@@ -7705,7 +7705,7 @@ export default function App() {
                         <h4 className="font-bold text-xs text-blue-200 uppercase tracking-wider">REG. OFFICE:-</h4>
                       </div>
                       <p className="text-slate-200 text-xs sm:text-sm leading-relaxed mb-2 font-medium">
-                        Dipka, Korba, Chhattisgarh â€“ 495452
+                        Dipka, Korba, Chhattisgarh – 495452
                       </p>
                       <div className="text-xs font-semibold text-slate-300 mb-1 flex items-center gap-1.5">
                         <Phone className="w-3.5 h-3.5 text-blue-300" /> Mobile: <a href="tel:8093017400" className="text-blue-100 hover:underline">8093017400</a>
