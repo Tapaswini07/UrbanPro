@@ -140,14 +140,8 @@ export default function App() {
   const [submittedQuoteDetails, setSubmittedQuoteDetails] = useState<SubmittedQuoteDetails | null>(readSubmittedQuoteDetails);
   const [showQuoteSubmitToast, setShowQuoteSubmitToast] = useState(() => Boolean(readSubmittedQuoteDetails()));
 
-  const [isAdminView, setIsAdminView] = useState(() => {
-    try {
-      const saved = localStorage.getItem('upl_is_admin_view');
-      if (saved !== null) return saved === 'true';
-    } catch (e) {}
-    return true;
-  });
-  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(true);
+  const [isAdminView, setIsAdminView] = useState(false);
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [adminPassword, setAdminPassword] = useState('');
   const [loginError, setLoginError] = useState('');
   const [adminTab, setAdminTab] = useState(() => {
@@ -160,10 +154,9 @@ export default function App() {
 
   useEffect(() => {
     try {
-      localStorage.setItem('upl_is_admin_view', String(isAdminView));
       localStorage.setItem('upl_admin_tab', adminTab);
     } catch (e) {}
-  }, [isAdminView, adminTab]);
+  }, [adminTab]);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [surveyMenuOpen, setSurveyMenuOpen] = useState(true);
   const ADMIN_PASSWORD = "owner123";
@@ -2057,10 +2050,25 @@ export default function App() {
     e.preventDefault();
     if (adminPassword === ADMIN_PASSWORD) {
       setIsAdminAuthenticated(true);
+      setAdminPassword('');
       setLoginError('');
     } else {
       setLoginError('Incorrect password');
     }
+  };
+
+  const openAdminPortal = () => {
+    setIsAdminAuthenticated(false);
+    setAdminPassword('');
+    setLoginError('');
+    setIsAdminView(true);
+  };
+
+  const closeAdminPortal = () => {
+    setIsAdminAuthenticated(false);
+    setAdminPassword('');
+    setLoginError('');
+    setIsAdminView(false);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -2616,7 +2624,7 @@ export default function App() {
               </button>
             </form>
             <div className="mt-6 text-center">
-              <button onClick={() => setIsAdminView(false)} className="text-slate-500 hover:text-slate-700 text-sm">
+              <button onClick={closeAdminPortal} className="text-slate-500 hover:text-slate-700 text-sm">
                 &larr; Back to Website
               </button>
             </div>
@@ -2663,7 +2671,7 @@ export default function App() {
 
           <div className="flex items-center gap-2 sm:gap-4">
             <button
-              onClick={() => setIsAdminView(false)}
+              onClick={closeAdminPortal}
               className="text-xs text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 px-2.5 sm:px-3.5 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 border border-slate-700 shadow-xs cursor-pointer"
               title="View Public Website"
             >
@@ -6469,7 +6477,7 @@ export default function App() {
           <div className="flex shrink-0 items-center gap-2">
             <button
               type="button"
-              onClick={() => setIsAdminView(true)}
+              onClick={openAdminPortal}
               className="bg-slate-900 hover:bg-slate-800 text-white px-2.5 py-2 rounded font-semibold text-[11px] transition-colors shadow-sm flex items-center gap-1 cursor-pointer whitespace-nowrap"
               title="Open Admin & Inventory Management"
             >
@@ -7739,16 +7747,16 @@ export default function App() {
                 className="lg:col-span-5 w-full min-h-[300px] bg-blue-950 rounded-2xl overflow-hidden border border-blue-800 relative cursor-pointer"
                 role="link"
                 tabIndex={0}
-                onClick={() => window.open('https://www.google.com/maps/search/?api=1&query=Plot+No.+1491,+Hanspal,+Balianta+Canal+Road,+Bhubaneswar,+Odisha+752101', '_blank', 'noopener,noreferrer')}
+                onClick={() => window.open('https://share.google/w7rVmUX3DOhRYLyPH', '_blank', 'noopener,noreferrer')}
                 onKeyDown={(event) => {
                   if (event.key === 'Enter' || event.key === ' ') {
                     event.preventDefault();
-                    window.open('https://www.google.com/maps/search/?api=1&query=Plot+No.+1491,+Hanspal,+Balianta+Canal+Road,+Bhubaneswar,+Odisha+752101', '_blank', 'noopener,noreferrer');
+                    window.open('https://share.google/w7rVmUX3DOhRYLyPH', '_blank', 'noopener,noreferrer');
                   }
                 }}
               >
                 <iframe
-                  src="https://maps.google.com/maps?q=Plot+No.+1491,+Hanspal,+Balianta+Canal+Road,+Bhubaneswar,+Odisha+752101&t=&z=16&ie=UTF8&iwloc=&output=embed"
+                  src="https://www.google.com/maps?q=Plot+1491,+Hanspal,+Balianta+Canal+Road,+Bhubaneswar,+Odisha+752101&z=16&output=embed"
                   width="100%"
                   height="100%"
                   style={{ border: 0, pointerEvents: 'none' }}
@@ -7765,7 +7773,7 @@ export default function App() {
           <div className="border-t border-slate-800 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-slate-400 text-xs sm:text-sm">
             <div className="flex items-center gap-4">
               <p>© {new Date().getFullYear()} <span className="text-blue-200">Urban</span><span className="text-[#ff0800] font-bold">Pro</span>{' '}<span className="text-blue-200">Packer &amp; Logistics</span>. All rights reserved.</p>
-              <button onClick={() => setIsAdminView(true)} className="text-slate-400 hover:text-white transition-colors flex items-center gap-1 font-medium cursor-pointer">
+              <button onClick={openAdminPortal} className="text-slate-400 hover:text-white transition-colors flex items-center gap-1 font-medium cursor-pointer">
                 <Lock className="w-3 h-3" /> Admin Login
               </button>
             </div>
