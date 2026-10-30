@@ -2109,13 +2109,16 @@ export default function App() {
     setIsSubmittingQuote(true);
     setQuoteSubmissionError('');
     try {
-      const response = await fetch('https://formsubmit.co/ajax/urbanpro403@gmail.com', {
+      const response = await fetch('https://api.web3forms.com/submit', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
         body: JSON.stringify({
+          access_key: '638845fc-e318-4be3-b03c-e2cd84b82846',
+          from_name: 'UrbanPro Website',
+          subject: 'New quote request from UrbanPro website',
           name: formData.name,
           phone: formData.phone,
           email: formData.email || 'Not provided',
@@ -2125,12 +2128,10 @@ export default function App() {
           movingFrom: formData.movingFrom,
           movingTo: formData.movingTo,
           message,
-          _subject: 'New quote request from UrbanPro website',
-          _template: 'table',
-          _captcha: false,
         }),
       });
-      if (!response.ok) throw new Error('Email service rejected the request');
+      const result = await response.json().catch(() => null);
+      if (!response.ok || !result?.success) throw new Error(result?.message || 'Email service rejected the request');
 
       setSubmittedQuoteDetails(submittedDetails);
       try {
