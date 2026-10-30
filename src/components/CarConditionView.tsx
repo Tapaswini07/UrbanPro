@@ -7,6 +7,7 @@ import { shareDocument } from '../utils/shareUtils';
 import { INDIAN_STATES } from '../utils/indianStates';
 import { findCustomerProfileByMobile } from '../utils/customerLookup';
 import { RecordLookup } from './RecordLookup';
+import { getNextAvailableDocumentNumber } from '../utils/documentNumbering';
 
 export interface CarConditionData {
   id: string;
@@ -153,7 +154,7 @@ export const CarConditionView: React.FC<Props> = ({ carConditions, onSave, onDel
 
   const initialForm: CarConditionData = {
     id: `cc-${Date.now()}`,
-    conditionNo: `${carConditions.length + 1}`,
+    conditionNo: ``,
     conditionDate: new Date().toISOString().split('T')[0],
     biltyNo: '',
     partyName: '',
@@ -285,7 +286,7 @@ export const CarConditionView: React.FC<Props> = ({ carConditions, onSave, onDel
               setForm({
                 ...initialForm,
                 id: `cc-${Date.now()}`,
-                conditionNo: `${carConditions.length + 1}`
+                conditionNo: ``
               });
               setViewMode('form');
             }}

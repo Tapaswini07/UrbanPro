@@ -80,6 +80,7 @@ import { UPL_LOGO_BASE64 } from './assets/logoBase64';
 import { PRAKASH_SIGNATURE_BASE64 } from './assets/signatureBase64';
 import { INDIAN_STATES, getStateCodeByName } from './utils/indianStates';
 import { findCustomerProfileByMobile } from './utils/customerLookup';
+import { getNextAvailableDocumentNumber } from './utils/documentNumbering';
 export { INDIAN_STATES, getStateCodeByName };
 
 export const FLOOR_OPTIONS = [
@@ -630,7 +631,7 @@ export default function App() {
     setPackingListForm({
       ...initialPackingListForm,
       id: `pl-${Date.now()}`,
-      packingListNo: String(packingLists.length + 1),
+      packingListNo: getNextAvailableDocumentNumber(packingLists, 'packingListNo'),
       packingListDate: survey.packingDate || survey.surveyDate || new Date().toISOString().split('T')[0],
       partyName: survey.partyName || '',
       mobileNo: survey.mobileNo || '',
@@ -735,13 +736,8 @@ export default function App() {
     return [];
   });
 
-  const getNextQuotationNumber = (records = quotations) => {
-    const highestQuotationNumber = records.reduce((highest, quotation) => {
-      const quotationNumber = Number.parseInt(String(quotation.quotationNo || ''), 10);
-      return Number.isFinite(quotationNumber) ? Math.max(highest, quotationNumber) : highest;
-    }, 0);
-    return String(highestQuotationNumber + 1);
-  };
+  const getNextQuotationNumber = (records = quotations) =>
+    getNextAvailableDocumentNumber(records, 'quotationNo');
 
   useEffect(() => {
     try {
@@ -1099,7 +1095,7 @@ export default function App() {
           },
         ]
       : packingListForm.items;
-    const nextListNo = String(packingLists.length + 2);
+    const nextListNo = getNextAvailableDocumentNumber(packingLists, 'packingListNo');
     const updated: PackingListData = {
       ...packingListForm,
       id: editingPackingListId ? editingPackingListId : Date.now().toString(),
@@ -1121,7 +1117,7 @@ export default function App() {
     setTimeout(() => setShareToast(null), 3000);
     setPackingListForm({
       ...initialPackingListForm,
-      packingListNo: String(packingLists.length + 2),
+      packingListNo: getNextAvailableDocumentNumber(packingLists, 'packingListNo'),
       items: [],
     });
     setEditingPackingListId(null);
@@ -1222,7 +1218,7 @@ export default function App() {
     }
     setTimeout(() => setShareToast(null), 3000);
     setBiltyForm({
-      biltyNo: `LR-${101 + bilties.length + 1}`,
+      biltyNo: `LR-${101 + Number(getNextAvailableDocumentNumber(bilties, 'biltyNo'))}`,
       biltyDate: new Date().toISOString().split('T')[0],
       consignorName: '', consignorMobile: '', consignorAddress: '',
       consigneeName: '', consigneeMobile: '', consigneeAddress: '',
@@ -5885,7 +5881,7 @@ export default function App() {
                       <button
                         type="button"
                         onClick={() => {
-                          setPackingListForm({ ...initialPackingListForm, packingListNo: String(packingLists.length + 2), items: [] });
+                          setPackingListForm({ ...initialPackingListForm, packingListNo: getNextAvailableDocumentNumber(packingLists, 'packingListNo'), items: [] });
                           setEditingPackingListId(null);
                         }}
                         className="text-xs text-slate-500 hover:text-slate-700 underline cursor-pointer"
@@ -5917,7 +5913,7 @@ export default function App() {
                         onClick={() => {
                           setAdminTab('add-packing');
                           setEditingPackingListId(null);
-                          setPackingListForm({ ...initialPackingListForm, packingListNo: String(packingLists.length + 1), items: [] });
+                          setPackingListForm({ ...initialPackingListForm, packingListNo: getNextAvailableDocumentNumber(packingLists, 'packingListNo'), items: [] });
                         }}
                         className="bg-[#0f172a] hover:bg-slate-800 text-white px-7 py-2 rounded-full font-bold text-sm shadow-xs transition-all cursor-pointer active:scale-95 flex items-center gap-1.5"
                       >
@@ -5979,7 +5975,7 @@ export default function App() {
                               onClick={() => {
                                 setAdminTab('add-packing');
                                 setEditingPackingListId(null);
-                                setPackingListForm({ ...initialPackingListForm, packingListNo: String(packingLists.length + 1), items: [] });
+                                setPackingListForm({ ...initialPackingListForm, packingListNo: getNextAvailableDocumentNumber(packingLists, 'packingListNo'), items: [] });
                               }}
                               className="mt-4 bg-[#0284c7] hover:bg-sky-700 text-white px-5 py-2 rounded-xl text-xs font-semibold shadow-xs"
                             >

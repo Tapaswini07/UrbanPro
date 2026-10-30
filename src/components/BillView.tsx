@@ -35,6 +35,7 @@ import { INDIAN_STATES, getStateCodeByName } from '../utils/indianStates';
 import { calculateQuotationTotals, parseChargeDetails } from '../utils/quotationCalculations';
 import { findCustomerProfileByMobile } from '../utils/customerLookup';
 import { RecordLookup } from './RecordLookup';
+import { getNextAvailableDocumentNumber } from '../utils/documentNumbering';
 
 type BillChargeKey =
   | 'freightAmount'
@@ -231,7 +232,7 @@ export const BillView: React.FC<Props> = ({
 
   const initialForm: BillData = {
     id: `bill-${Date.now()}`,
-    billNo: `${bills.length + 1}`,
+    billNo: `${getNextAvailableDocumentNumber(bills, 'billNo')}`,
     date: new Date().toISOString().split('T')[0],
     billDate: new Date().toISOString().split('T')[0],
     lrBiltyNo: '',
@@ -314,7 +315,7 @@ export const BillView: React.FC<Props> = ({
   useEffect(() => {
     setViewMode(initialViewMode);
     if (initialViewMode === 'form') {
-      setForm({ ...initialForm, id: `bill-${Date.now()}`, billNo: `${bills.length + 1}` });
+      setForm({ ...initialForm, id: `bill-${Date.now()}`, billNo: `` });
       setSelectedRecord(null);
     }
   }, [initialViewMode]);
@@ -498,7 +499,7 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
               setForm({
                 ...initialForm,
                 id: `bill-${Date.now()}`,
-                billNo: `${bills.length + 1}`
+                billNo: ``
               });
               setViewMode('form');
             }}
@@ -561,7 +562,7 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
           <button
             type="button"
             onClick={() => {
-              setForm({ ...initialForm, id: `bill-${Date.now()}`, billNo: `${bills.length + 1}` });
+              setForm({ ...initialForm, id: `bill-${Date.now()}`, billNo: `` });
             }}
             className="bg-white border border-amber-300 hover:bg-amber-100 text-amber-900 font-bold px-4 py-1.5 rounded-xl text-xs shadow-2xs transition-colors cursor-pointer self-start sm:self-auto"
           >
@@ -1596,7 +1597,7 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
               <button
                 type="button"
                 onClick={() => {
-                  setForm({ ...initialForm, id: `bill-${Date.now()}`, billNo: `${bills.length + 1}` });
+                  setForm({ ...initialForm, id: `bill-${Date.now()}`, billNo: `` });
                   setViewMode('list');
                 }}
                 className="bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold px-6 py-3 rounded-xl text-sm transition-colors cursor-pointer"

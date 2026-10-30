@@ -8,6 +8,7 @@ import { shareDocument } from '../utils/shareUtils';
 import { INDIAN_STATES, getStateCodeByName } from '../utils/indianStates';
 import { findCustomerProfileByMobile } from '../utils/customerLookup';
 import { RecordLookup } from './RecordLookup';
+import { getNextAvailableDocumentNumber } from '../utils/documentNumbering';
 
 export interface BiltyData {
   id: string;
@@ -153,7 +154,7 @@ export const BiltyView: React.FC<Props> = ({
 
   const initialForm: BiltyData = {
     id: `bilty-${Date.now()}`,
-    biltyNo: `${bilties.length + 2}`,
+    biltyNo: ``,
     biltyDate: new Date().toISOString().split('T')[0],
     goodsDeliveryDate: '',
     vehicleNo: '',
@@ -1103,7 +1104,7 @@ export const BiltyView: React.FC<Props> = ({
                   setForm({
                     ...initialForm,
                     id: `bilty-${Date.now()}`,
-                    biltyNo: `${bilties.length + 1}`
+                    biltyNo: ``
                   });
                   setViewMode('form');
                 }}

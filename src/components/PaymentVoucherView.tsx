@@ -6,6 +6,7 @@ import { downloadPdfFromElement, openElementInPrintWindow } from '../utils/pdfEx
 import { shareDocument } from '../utils/shareUtils';
 import { findCustomerProfileByMobile } from '../utils/customerLookup';
 import { RecordLookup } from './RecordLookup';
+import { getNextAvailableDocumentNumber } from '../utils/documentNumbering';
 
 export interface PaymentVoucherData {
   id: string;
@@ -122,7 +123,7 @@ export const PaymentVoucherView: React.FC<Props> = ({ vouchers, initialViewMode 
 
   const initialForm: PaymentVoucherData = {
     id: `pv-${Date.now()}`,
-    voucherNo: `${vouchers.length + 1}`,
+    voucherNo: ``,
     date: new Date().toISOString().split('T')[0],
     receiverName: '',
     receiverMobile: '',
@@ -143,7 +144,7 @@ export const PaymentVoucherView: React.FC<Props> = ({ vouchers, initialViewMode 
       setForm({
         ...initialForm,
         id: `pv-${Date.now()}`,
-        voucherNo: `${vouchers.length + 1}`,
+        voucherNo: ``,
         amount: 0,
         payFor: '',
       });
@@ -179,7 +180,7 @@ export const PaymentVoucherView: React.FC<Props> = ({ vouchers, initialViewMode 
             onClick={() => {
               setForm({
                 id: `pv-${Date.now()}`,
-                voucherNo: `${vouchers.length + 1}`,
+                voucherNo: ``,
                 date: new Date().toISOString().split('T')[0],
                 receiverName: '',
                 receiverMobile: '',
@@ -392,7 +393,7 @@ export const PaymentVoucherView: React.FC<Props> = ({ vouchers, initialViewMode 
               onClick={() => {
                 setForm({
                   id: `pv-${Date.now()}`,
-                  voucherNo: `${vouchers.length + 1}`,
+                  voucherNo: ``,
                   date: new Date().toISOString().split('T')[0],
                   receiverName: '',
                   receiverMobile: '',
