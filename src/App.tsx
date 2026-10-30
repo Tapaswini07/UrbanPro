@@ -6611,7 +6611,7 @@ export default function App() {
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/25 text-white font-extrabold text-xs uppercase tracking-wider">
-                          ✓“ Sent Successfully
+                          Submitted Successfully
                         </span>
                         <button
                           type="button"
@@ -6623,7 +6623,7 @@ export default function App() {
                         </button>
                       </div>
                       <h4 className="font-bold text-lg text-white mt-1.5 leading-snug">
-                        Your Free Quote Was Sent Successfully!
+                        Your Free Quote Was Submitted Successfully!
                       </h4>
                       <p className="text-emerald-50 text-xs sm:text-sm mt-1 leading-relaxed">
                         Your quotation enquiry has been submitted successfully. Our team at <strong className="text-white"><span className="text-blue-200">Urban</span><span className="text-[#5b0f17] font-bold">Pro</span> <span className="text-blue-200">Packer &amp; Logistics</span></strong> will review your details and contact you shortly!
@@ -7460,15 +7460,15 @@ export default function App() {
               >
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 rounded-full bg-white text-emerald-700 flex items-center justify-center shrink-0 font-bold">
-                    ✓“
+                    ✓
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-xs uppercase tracking-wider font-extrabold bg-emerald-800/80 px-2.5 py-0.5 rounded-full border border-emerald-400/40">
-                        ✓“ Sent Successfully
+                        Submitted Successfully
                       </span>
                     </div>
-                    <h4 className="font-bold text-sm sm:text-base mt-1 text-white">Your Free Quote Was Sent Successfully!</h4>
+                    <h4 className="font-bold text-sm sm:text-base mt-1 text-white">Your Free Quote Was Submitted Successfully!</h4>
                     <p className="text-xs text-emerald-100 mt-0.5 leading-relaxed">
                       Thank you for contacting <span className="text-blue-900">Urban</span><span className="text-[#ff0800] font-bold">Pro</span>{' '}<span className="text-blue-900">Packer &amp; Logistics</span>. Your quote enquiry has been forwarded.
                     </p>
