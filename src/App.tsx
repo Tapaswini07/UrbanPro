@@ -2099,8 +2099,6 @@ export default function App() {
     const whatsappNumber = "918093017400";
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
 
-    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
-
     const submittedDetails: SubmittedQuoteDetails = {
       name: formData.name,
       phone: formData.phone,
@@ -2115,6 +2113,21 @@ export default function App() {
     } catch (error) {
       console.error('Failed to save enquiry confirmation for return to the page', error);
     }
+    try {
+      const savedRequests = JSON.parse(localStorage.getItem('upl_quote_requests') || '[]');
+      const requests = Array.isArray(savedRequests) ? savedRequests : [];
+      localStorage.setItem('upl_quote_requests', JSON.stringify([
+        ...requests,
+        {
+          ...submittedDetails,
+          message,
+          submittedAt: new Date().toISOString(),
+        },
+      ].slice(-200)));
+    } catch (error) {
+      console.error('Failed to save quote request', error);
+    }
+    setQuoteSubmitted(true);
     setShowQuoteSubmitToast(true);
 
     // Clear the form
@@ -6405,19 +6418,9 @@ export default function App() {
           <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" />
           <span className="flex-1">
             {submittedQuoteDetails?.name
-              ? `Thank you, ${submittedQuoteDetails.name}! Your enquiry is prepared. This confirmation will remain here when you return from WhatsApp. Tap Send there to deliver it to UrbanPro.`
-              : 'Your enquiry is prepared for WhatsApp. This confirmation will remain here when you return. Tap Send there to deliver it to UrbanPro.'}
+              ? `Thank you, ${submittedQuoteDetails.name}! Your enquiry has been submitted successfully. Our team will contact you shortly.`
+              : 'Your enquiry has been submitted successfully. Our team will contact you shortly.'}
           </span>
-          {submittedQuoteDetails?.whatsappUrl && (
-            <a
-              href={submittedQuoteDetails.whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="shrink-0 rounded-lg bg-white px-3 py-1.5 text-xs font-bold text-emerald-800 hover:bg-emerald-50"
-            >
-              Open WhatsApp
-            </a>
-          )}
           <button
             type="button"
             onClick={() => {
@@ -6598,7 +6601,7 @@ export default function App() {
                         Your Free Quote Was Sent Successfully!
                       </h4>
                       <p className="text-emerald-50 text-xs sm:text-sm mt-1 leading-relaxed">
-                        Your quotation inquiry has been sent to WhatsApp (+91 8093017400). Our team at <strong className="text-white"><span className="text-blue-200">Urban</span><span className="text-[#5b0f17] font-bold">Pro</span> <span className="text-blue-200">Packer &amp; Logistics</span></strong> will review your details and respond shortly!
+                        Your quotation enquiry has been submitted successfully. Our team at <strong className="text-white"><span className="text-blue-200">Urban</span><span className="text-[#5b0f17] font-bold">Pro</span> <span className="text-blue-200">Packer &amp; Logistics</span></strong> will review your details and contact you shortly!
                       </p>
 
                       {submittedQuoteDetails && (
@@ -6610,17 +6613,6 @@ export default function App() {
                       )}
 
                       <div className="mt-3 flex flex-wrap items-center gap-2.5">
-                        {submittedQuoteDetails?.whatsappUrl && (
-                          <a
-                            href={submittedQuoteDetails.whatsappUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 text-xs font-bold bg-white text-emerald-800 hover:bg-emerald-50 px-3.5 py-2 rounded-lg shadow-sm transition-all"
-                          >
-                            <WhatsAppIcon className="w-4 h-4 fill-[#25D366] text-[#25D366]" />
-                            Re-open WhatsApp
-                          </a>
-                        )}
                         <button
                           type="button"
                           onClick={() => setQuoteSubmitted(false)}
@@ -7454,17 +7446,6 @@ export default function App() {
                       Thank you for contacting <span className="text-blue-900">Urban</span><span className="text-[#ff0800] font-bold">Pro</span>{' '}<span className="text-blue-900">Packer &amp; Logistics</span>. Your quote enquiry has been forwarded.
                     </p>
                     <div className="mt-3 flex items-center gap-2 flex-wrap">
-                      {submittedQuoteDetails?.whatsappUrl && (
-                        <a
-                          href={submittedQuoteDetails.whatsappUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 text-xs font-bold bg-white text-emerald-800 hover:bg-emerald-50 px-3.5 py-2 rounded-lg shadow-sm transition-all"
-                        >
-                          <WhatsAppIcon className="w-4 h-4 fill-[#25D366] text-[#25D366]" />
-                          Re-open WhatsApp
-                        </a>
-                      )}
                       <button
                         type="button"
                         onClick={() => setQuoteSubmitted(false)}
