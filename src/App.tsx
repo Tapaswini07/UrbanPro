@@ -2098,16 +2098,13 @@ export default function App() {
       `Moving From: ${formData.movingFrom}`,
       `Moving To: ${formData.movingTo}`,
     ].join('\n');
-    const whatsappNumber = "918093017400";
-    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
-
     const submittedDetails: SubmittedQuoteDetails = {
       name: formData.name,
       phone: formData.phone,
       movingFrom: formData.movingFrom,
       movingTo: formData.movingTo,
       item: finalItem,
-      whatsappUrl,
+      whatsappUrl: '',
     };
     setIsSubmittingQuote(true);
     setQuoteSubmissionError('');
