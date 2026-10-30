@@ -137,6 +137,8 @@ export default function App() {
   const [isAboutExpanded, setIsAboutExpanded] = useState(false);
   const [showAllServicesModal, setShowAllServicesModal] = useState(false);
   const [quoteSubmitted, setQuoteSubmitted] = useState(false);
+  const [isSubmittingQuote, setIsSubmittingQuote] = useState(false);
+  const [quoteSubmissionError, setQuoteSubmissionError] = useState('');
   const [submittedQuoteDetails, setSubmittedQuoteDetails] = useState<SubmittedQuoteDetails | null>(readSubmittedQuoteDetails);
   const [showQuoteSubmitToast, setShowQuoteSubmitToast] = useState(() => Boolean(readSubmittedQuoteDetails()));
 
@@ -2075,7 +2077,7 @@ export default function App() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Prepare the enquiry for the admin's WhatsApp.
@@ -2107,30 +2109,55 @@ export default function App() {
       item: finalItem,
       whatsappUrl,
     };
-    setSubmittedQuoteDetails(submittedDetails);
+    setIsSubmittingQuote(true);
+    setQuoteSubmissionError('');
     try {
-      window.sessionStorage.setItem('upl_pending_quote_confirmation', JSON.stringify(submittedDetails));
-    } catch (error) {
-      console.error('Failed to save enquiry confirmation for return to the page', error);
-    }
-    try {
-      const savedRequests = JSON.parse(localStorage.getItem('upl_quote_requests') || '[]');
-      const requests = Array.isArray(savedRequests) ? savedRequests : [];
-      localStorage.setItem('upl_quote_requests', JSON.stringify([
-        ...requests,
-        {
-          ...submittedDetails,
-          message,
-          submittedAt: new Date().toISOString(),
+      const response = await fetch('https://formsubmit.co/ajax/urbanpro403@gmail.com', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
-      ].slice(-200)));
-    } catch (error) {
-      console.error('Failed to save quote request', error);
-    }
-    setQuoteSubmitted(true);
-    setShowQuoteSubmitToast(true);
+        body: JSON.stringify({
+          name: formData.name,
+          phone: formData.phone,
+          email: formData.email || 'Not provided',
+          movingDate: formData.date,
+          serviceType: finalItem,
+          items: itemListText || 'Not provided',
+          movingFrom: formData.movingFrom,
+          movingTo: formData.movingTo,
+          message,
+          _subject: 'New quote request from UrbanPro website',
+          _template: 'table',
+          _captcha: false,
+        }),
+      });
+      if (!response.ok) throw new Error('Email service rejected the request');
 
-    // Clear the form
+      setSubmittedQuoteDetails(submittedDetails);
+      try {
+        window.sessionStorage.setItem('upl_pending_quote_confirmation', JSON.stringify(submittedDetails));
+        const savedRequests = JSON.parse(localStorage.getItem('upl_quote_requests') || '[]');
+        const requests = Array.isArray(savedRequests) ? savedRequests : [];
+        localStorage.setItem('upl_quote_requests', JSON.stringify([
+          ...requests,
+          { ...submittedDetails, message, submittedAt: new Date().toISOString() },
+        ].slice(-200)));
+      } catch (error) {
+        console.error('Failed to save quote request locally', error);
+      }
+      setQuoteSubmitted(true);
+      setShowQuoteSubmitToast(true);
+      setFormData({ name: '', phone: '', email: '', date: '', item: '', otherItem: '', movingFrom: '', movingTo: '', itemRows: [{ name: '', value: '' }] });
+    } catch (error) {
+      console.error('Failed to submit quote request by email', error);
+      setQuoteSubmissionError('Your request could not be sent. Please try again.');
+    } finally {
+      setIsSubmittingQuote(false);
+    }
+
+
     setFormData({ name: '', phone: '', email: '', date: '', item: '', otherItem: '', movingFrom: '', movingTo: '', itemRows: [{ name: '', value: '' }] });
   };
 
@@ -6748,12 +6775,14 @@ export default function App() {
                     <button type="button" onClick={addItemRow} className="text-xs font-bold text-blue-900 hover:text-blue-700">+ Add another item</button>
                   </div>
                 </div>
+                {quoteSubmissionError && <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm font-semibold text-red-700">{quoteSubmissionError}</p>}
                 <button
                   type="submit"
-                  className="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-3.5 rounded-lg mt-1 transition-all flex items-center justify-center gap-2 group uppercase tracking-wider text-sm cursor-pointer shadow-md hover:scale-[1.01]"
+                  disabled={isSubmittingQuote}
+                  className="w-full bg-blue-900 hover:bg-blue-800 disabled:bg-slate-400 text-white font-bold py-3.5 rounded-lg mt-1 transition-all flex items-center justify-center gap-2 group uppercase tracking-wider text-sm cursor-pointer shadow-md hover:scale-[1.01] disabled:cursor-not-allowed disabled:scale-100"
                 >
                   <Send className="w-4 h-4" />
-                  <span>Submit</span>
+                  <span>{isSubmittingQuote ? 'Submitting...' : 'Submit'}</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </button>
               </form>
@@ -7587,12 +7616,14 @@ export default function App() {
                 </div>
               </div>
 
+              {quoteSubmissionError && <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm font-semibold text-red-700">{quoteSubmissionError}</p>}
               <button
                 type="submit"
-                className="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-4 rounded-xl mt-2 transition-all flex items-center justify-center gap-2 group uppercase tracking-wider text-sm cursor-pointer shadow-lg hover:shadow-blue-900/20 active:scale-95"
+                disabled={isSubmittingQuote}
+                className="w-full bg-blue-900 hover:bg-blue-800 disabled:bg-slate-400 text-white font-bold py-4 rounded-xl mt-2 transition-all flex items-center justify-center gap-2 group uppercase tracking-wider text-sm cursor-pointer shadow-lg hover:shadow-blue-900/20 active:scale-95 disabled:cursor-not-allowed disabled:scale-100"
               >
                 <Send className="w-4 h-4" />
-                <span>Submit</span>
+                <span>{isSubmittingQuote ? 'Submitting...' : 'Submit'}</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
             </form>
