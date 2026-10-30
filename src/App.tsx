@@ -962,7 +962,7 @@ export default function App() {
 
   const handleAddItemToPackingList = () => {
     if (!currentPackingItem.name.trim()) {
-      alert('Please enter Item Name (à¤¸à¤¾à¤®à¤¾à¤¨ à¤•à¤¾ à¤¨à¤¾à¤®) before adding this row.');
+      alert('Please enter the item name before adding this row.');
       return;
     }
     if (!String(currentPackingItem.value).trim()) {
@@ -3699,7 +3699,7 @@ export default function App() {
                         <div className="border border-slate-300 rounded-xl p-3 focus-within:border-sky-500 transition-all bg-white">
                           <input
                             type="text"
-                            placeholder="Item Name (à¤¸à¤¾à¤®à¤¾à¤¨ à¤•à¤¾ à¤¨à¤¾à¤®)"
+                            placeholder="Item Name (सामान का नाम)"
                             className="w-full outline-none text-slate-800 text-sm bg-transparent placeholder-slate-400 font-medium"
                             value={currentItem.name}
                             onChange={e => setCurrentItem({...currentItem, name: e.target.value})}
@@ -3708,11 +3708,11 @@ export default function App() {
                         </div>
 
                         <div className="border border-slate-300 rounded-xl p-2 px-3 focus-within:border-sky-500 transition-all bg-white">
-                          <label className="block text-[11px] text-slate-500 font-medium leading-none mb-1">Quantity (à¤¸à¤‚à¤–à¥à¤¯à¤¾)</label>
+                          <label className="block text-[11px] text-slate-500 font-medium leading-none mb-1">Quantity (संख्या)</label>
                           <input
                             type="number"
                             min="1"
-                            placeholder="Quantity (à¤¸à¤‚à¤–à¥à¤¯à¤¾)"
+                            placeholder="Quantity (संख्या)"
                             className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium"
                             value={currentItem.qty}
                             onChange={e => setCurrentItem({...currentItem, qty: e.target.value})}
@@ -3722,7 +3722,7 @@ export default function App() {
                         <div className="border border-slate-300 rounded-xl p-3 focus-within:border-sky-500 transition-all bg-white">
                           <input
                             type="text"
-                            placeholder="Value (à¤•à¥€à¤®à¤¤)"
+                            placeholder="Value (कीमत)"
                             className="w-full outline-none text-slate-800 text-sm bg-transparent placeholder-slate-400 font-medium"
                             value={currentItem.value}
                             onChange={e => setCurrentItem({...currentItem, value: e.target.value})}
@@ -5706,7 +5706,7 @@ export default function App() {
                       <div className="space-y-4">
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-3">
                           <div className="md:col-span-4 border border-slate-300 rounded-xl p-2 px-3 focus-within:border-sky-500 transition-all bg-white">
-                            <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Item Name (à¤¸à¤¾à¤®à¤¾à¤¨ à¤•à¤¾ à¤¨à¤¾à¤®) *</label>
+                            <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Item Name (सामान का नाम) *</label>
                             <input
                               type="text"
                               placeholder="e.g. Sofa 3 Seater / Refrigerator"
@@ -5723,7 +5723,7 @@ export default function App() {
                           </div>
 
                           <div className="md:col-span-2 border border-slate-300 rounded-xl p-2 px-3 focus-within:border-sky-500 transition-all bg-white">
-                            <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Quantity (à¤¸à¤‚à¤–à¥à¤¯à¤¾) *</label>
+                            <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Quantity (संख्या) *</label>
                             <input
                               type="number"
                               min="1"
@@ -5746,7 +5746,7 @@ export default function App() {
                           </div>
 
                           <div className="md:col-span-2 border border-slate-300 rounded-xl p-2 px-3 focus-within:border-sky-500 transition-all bg-white">
-                            <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Value (à¤•à¥€à¤®à¤¤) *</label>
+                            <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Value (कीमत) *</label>
                             <input
                               type="text"
                               placeholder="₹"
@@ -5830,7 +5830,7 @@ export default function App() {
                                   <tr>
                                     <th className="p-2.5 px-3 w-10 text-center">#</th>
                                     <th className="p-2.5 px-3 w-20 text-center">Box No.</th>
-                                    <th className="p-2.5 px-3">Item Name (à¤¸à¤¾à¤®à¤¾à¤¨ à¤•à¤¾ à¤¨à¤¾à¤®)</th>
+                                    <th className="p-2.5 px-3">Item Name (सामान का नाम)</th>
                                     <th className="p-2.5 px-3 w-16 text-center">Qty</th>
                                     <th className="p-2.5 px-3 w-24 text-right">Value (₹)</th>
                                     <th className="p-2.5 px-3">Remark</th>
