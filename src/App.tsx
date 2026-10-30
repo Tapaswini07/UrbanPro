@@ -2681,9 +2681,7 @@ export default function App() {
 
             <button
               onClick={() => {
-                setIsAdminAuthenticated(false);
-                setIsAdminView(false);
-                setAdminPassword('');
+                closeAdminPortal();
                 setAdminTab('dashboard');
               }}
               className="text-xs text-red-200 hover:text-white bg-red-950/40 hover:bg-red-900/60 border border-red-800/50 px-2.5 sm:px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer"
