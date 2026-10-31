@@ -154,7 +154,7 @@ export const BiltyView: React.FC<Props> = ({
 
   const initialForm: BiltyData = {
     id: `bilty-${Date.now()}`,
-    biltyNo: ``,
+    biltyNo: getNextAvailableDocumentNumber(bilties, 'biltyNo'),
     biltyDate: new Date().toISOString().split('T')[0],
     goodsDeliveryDate: '',
     vehicleNo: '',
@@ -1104,7 +1104,7 @@ export const BiltyView: React.FC<Props> = ({
                   setForm({
                     ...initialForm,
                     id: `bilty-${Date.now()}`,
-                    biltyNo: ``
+                    biltyNo: getNextAvailableDocumentNumber(bilties, 'biltyNo')
                   });
                   setViewMode('form');
                 }}

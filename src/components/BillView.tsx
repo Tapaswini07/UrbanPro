@@ -315,7 +315,7 @@ export const BillView: React.FC<Props> = ({
   useEffect(() => {
     setViewMode(initialViewMode);
     if (initialViewMode === 'form') {
-      setForm({ ...initialForm, id: `bill-${Date.now()}`, billNo: `` });
+      setForm({ ...initialForm, id: `bill-${Date.now()}`, billNo: getNextAvailableDocumentNumber(bills, 'billNo') });
       setSelectedRecord(null);
     }
   }, [initialViewMode]);
@@ -499,7 +499,7 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
               setForm({
                 ...initialForm,
                 id: `bill-${Date.now()}`,
-                billNo: ``
+                billNo: getNextAvailableDocumentNumber(bills, 'billNo')
               });
               setViewMode('form');
             }}
@@ -562,7 +562,7 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
           <button
             type="button"
             onClick={() => {
-              setForm({ ...initialForm, id: `bill-${Date.now()}`, billNo: `` });
+              setForm({ ...initialForm, id: `bill-${Date.now()}`, billNo: getNextAvailableDocumentNumber(bills, 'billNo') });
             }}
             className="bg-white border border-amber-300 hover:bg-amber-100 text-amber-900 font-bold px-4 py-1.5 rounded-xl text-xs shadow-2xs transition-colors cursor-pointer self-start sm:self-auto"
           >
@@ -1597,7 +1597,7 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
               <button
                 type="button"
                 onClick={() => {
-                  setForm({ ...initialForm, id: `bill-${Date.now()}`, billNo: `` });
+                  setForm({ ...initialForm, id: `bill-${Date.now()}`, billNo: getNextAvailableDocumentNumber(bills, 'billNo') });
                   setViewMode('list');
                 }}
                 className="bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold px-6 py-3 rounded-xl text-sm transition-colors cursor-pointer"

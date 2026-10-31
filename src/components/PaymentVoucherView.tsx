@@ -123,7 +123,7 @@ export const PaymentVoucherView: React.FC<Props> = ({ vouchers, initialViewMode 
 
   const initialForm: PaymentVoucherData = {
     id: `pv-${Date.now()}`,
-    voucherNo: ``,
+    voucherNo: getNextAvailableDocumentNumber(vouchers, 'voucherNo'),
     date: new Date().toISOString().split('T')[0],
     receiverName: '',
     receiverMobile: '',
@@ -144,7 +144,7 @@ export const PaymentVoucherView: React.FC<Props> = ({ vouchers, initialViewMode 
       setForm({
         ...initialForm,
         id: `pv-${Date.now()}`,
-        voucherNo: ``,
+        voucherNo: getNextAvailableDocumentNumber(vouchers, 'voucherNo'),
         amount: 0,
         payFor: '',
       });
@@ -180,7 +180,7 @@ export const PaymentVoucherView: React.FC<Props> = ({ vouchers, initialViewMode 
             onClick={() => {
               setForm({
                 id: `pv-${Date.now()}`,
-                voucherNo: ``,
+                voucherNo: getNextAvailableDocumentNumber(vouchers, 'voucherNo'),
                 date: new Date().toISOString().split('T')[0],
                 receiverName: '',
                 receiverMobile: '',
@@ -393,7 +393,7 @@ export const PaymentVoucherView: React.FC<Props> = ({ vouchers, initialViewMode 
               onClick={() => {
                 setForm({
                   id: `pv-${Date.now()}`,
-                  voucherNo: ``,
+                  voucherNo: getNextAvailableDocumentNumber(vouchers, 'voucherNo'),
                   date: new Date().toISOString().split('T')[0],
                   receiverName: '',
                   receiverMobile: '',

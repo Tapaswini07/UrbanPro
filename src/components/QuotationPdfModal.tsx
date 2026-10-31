@@ -27,6 +27,7 @@ import { shareDocument } from '../utils/shareUtils';
 import { calculateQuotationTotals, parseChargeNumber, parseChargeDetails, formatChargeValue } from '../utils/quotationCalculations';
 import { UPL_LOGO_BASE64 } from '../assets/logoBase64';
 import { PRAKASH_SIGNATURE_BASE64 } from '../assets/signatureBase64';
+import { findCustomerProfileByMobile } from '../utils/customerLookup';
 
 export interface QuotationData {
   id: string | number;
@@ -92,6 +93,7 @@ interface QuotationPdfModalProps {
   globalSignature?: { text: string; image?: string };
   companyLogo?: string;
   companyProfile?: any;
+  customerProfiles?: any[];
 }
 
 export function numberToIndianWords(num: number): string {
@@ -141,7 +143,8 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
   onSave,
   globalSignature,
   companyLogo,
-  companyProfile
+  companyProfile,
+  customerProfiles = []
 }) => {
   const [quotation, setQuotation] = useState<QuotationData | null>(initialQuotation);
   const [showQuickEdit, setShowQuickEdit] = useState(false);
@@ -652,7 +655,33 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
                   <input
                     type="text"
                     value={quotation.mobileNo || ''}
-                    onChange={(e) => setQuotation({ ...quotation, mobileNo: e.target.value })}
+                    onChange={(e) => {
+                      const mobileNo = e.target.value;
+                      const match = findCustomerProfileByMobile(customerProfiles, mobileNo);
+                      setQuotation(prev => prev ? {
+                        ...prev,
+                        mobileNo,
+                        partyName: match?.partyName || prev.partyName,
+                        email: match?.email || prev.email,
+                        packingDate: match?.packingDate || prev.packingDate,
+                        deliveryDate: match?.deliveryDate || prev.deliveryDate,
+                        moveType: match?.moveType || prev.moveType,
+                        fromCity: match?.fromCity || prev.fromCity,
+                        fromState: match?.fromState || prev.fromState,
+                        fromCountry: match?.fromCountry || prev.fromCountry,
+                        fromArea: match?.fromArea || prev.fromArea,
+                        fromPincode: match?.fromPinCode || match?.fromPincode || prev.fromPincode,
+                        fromFloor: match?.fromFloor || prev.fromFloor,
+                        fromLift: match?.fromLift || prev.fromLift,
+                        toCity: match?.toCity || prev.toCity,
+                        toState: match?.toState || prev.toState,
+                        toCountry: match?.toCountry || prev.toCountry,
+                        toArea: match?.toArea || prev.toArea,
+                        toPincode: match?.toPinCode || match?.toPincode || prev.toPincode,
+                        toFloor: match?.toFloor || prev.toFloor,
+                        toLift: match?.toLift || prev.toLift,
+                      } : prev);
+                    }}
                     className="w-full bg-slate-50 border border-slate-300 rounded px-2 py-1 text-slate-800 font-semibold outline-none focus:border-sky-500"
                   />
                 </div>

@@ -120,7 +120,7 @@ export const MoneyReceiptView: React.FC<Props> = ({
 
   const initialForm: MoneyReceiptData = {
     id: `mr-${Date.now()}`,
-    receiptNo: ``,
+    receiptNo: getNextAvailableDocumentNumber(moneyReceipts, 'receiptNo'),
     date: new Date().toISOString().split('T')[0],
     receiptAgainst: 'Quotation',
     quotationBillNo: 'Q-1001',
@@ -143,7 +143,7 @@ export const MoneyReceiptView: React.FC<Props> = ({
   useEffect(() => {
     setViewMode(initialViewMode);
     if (initialViewMode === 'form') {
-      setForm({ ...initialForm, id: `mr-${Date.now()}`, receiptNo: `` });
+      setForm({ ...initialForm, id: `mr-${Date.now()}`, receiptNo: getNextAvailableDocumentNumber(moneyReceipts, 'receiptNo') });
       setSelectedRecord(null);
     }
   }, [initialViewMode]);
@@ -206,7 +206,7 @@ export const MoneyReceiptView: React.FC<Props> = ({
         <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={() => { setForm({ ...initialForm, id: `mr-${Date.now()}`, receiptNo: `` }); setViewMode('form'); }}
+            onClick={() => { setForm({ ...initialForm, id: `mr-${Date.now()}`, receiptNo: getNextAvailableDocumentNumber(moneyReceipts, 'receiptNo') }); setViewMode('form'); }}
             className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-colors cursor-pointer ${viewMode === 'form' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-800 text-slate-300 hover:text-white'}`}
           >
             <Plus className="w-3.5 h-3.5 inline mr-1" /> Add Money Receipt

@@ -1110,16 +1110,17 @@ export default function App() {
       setPackingLists(packingLists.map(pl => (String(pl.id) === String(editingPackingListId) ? updated : pl)));
       setShareToast(`Packing List #${updated.packingListNo} updated successfully!`);
     } else {
-      setPackingLists([updated, ...packingLists]);
+      const updatedPackingLists = [updated, ...packingLists];
+      setPackingLists(updatedPackingLists);
+      setPackingListForm({
+        ...initialPackingListForm,
+        packingListNo: getNextAvailableDocumentNumber(updatedPackingLists, 'packingListNo'),
+        items: [],
+      });
       setShareToast(`Packing List #${updated.packingListNo} saved successfully!`);
     }
 
     setTimeout(() => setShareToast(null), 3000);
-    setPackingListForm({
-      ...initialPackingListForm,
-      packingListNo: getNextAvailableDocumentNumber(packingLists, 'packingListNo'),
-      items: [],
-    });
     setEditingPackingListId(null);
     setAdminTab('list-packing');
   };
@@ -2435,6 +2436,7 @@ export default function App() {
         globalSignature={globalSignature}
         companyLogo={activeAppLogo}
         companyProfile={companyProfile}
+        customerProfiles={customerProfiles}
       />
 
       {/* Packing List PDF Preview Modal */}

@@ -154,7 +154,7 @@ export const CarConditionView: React.FC<Props> = ({ carConditions, onSave, onDel
 
   const initialForm: CarConditionData = {
     id: `cc-${Date.now()}`,
-    conditionNo: ``,
+    conditionNo: getNextAvailableDocumentNumber(carConditions, 'conditionNo'),
     conditionDate: new Date().toISOString().split('T')[0],
     biltyNo: '',
     partyName: '',
@@ -286,7 +286,7 @@ export const CarConditionView: React.FC<Props> = ({ carConditions, onSave, onDel
               setForm({
                 ...initialForm,
                 id: `cc-${Date.now()}`,
-                conditionNo: ``
+                conditionNo: getNextAvailableDocumentNumber(carConditions, 'conditionNo')
               });
               setViewMode('form');
             }}

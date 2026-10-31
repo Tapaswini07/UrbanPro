@@ -162,7 +162,7 @@ export const BikeConditionView: React.FC<Props> = ({
 
   const initialForm: BikeConditionData = {
     id: `bc-${Date.now()}`,
-    conditionNo: ``,
+    conditionNo: getNextAvailableDocumentNumber(bikeConditions, 'conditionNo'),
     conditionDate: new Date().toISOString().split('T')[0],
     biltyNo: '',
     partyName: '',
@@ -289,7 +289,7 @@ export const BikeConditionView: React.FC<Props> = ({
               setForm({
                 ...initialForm,
                 id: `bc-${Date.now()}`,
-                conditionNo: ``
+                conditionNo: getNextAvailableDocumentNumber(bikeConditions, 'conditionNo')
               });
               setViewMode('form');
             }}
