@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { motion } from 'motion/react';
 import {
   Home,
@@ -81,6 +81,7 @@ import { PRAKASH_SIGNATURE_BASE64 } from './assets/signatureBase64';
 import { INDIAN_STATES, getStateCodeByName } from './utils/indianStates';
 import { findCustomerProfileByMobile } from './utils/customerLookup';
 import { getNextAvailableDocumentNumber } from './utils/documentNumbering';
+import { readSharedValue, writeSharedValue } from './utils/sharedStorage';
 export { INDIAN_STATES, getStateCodeByName };
 
 export const FLOOR_OPTIONS = [
@@ -122,6 +123,7 @@ const readSubmittedQuoteDetails = (): SubmittedQuoteDetails | null => {
 };
 
 export default function App() {
+  const sharedHydrated = useRef(false);
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -280,6 +282,7 @@ export default function App() {
   useEffect(() => {
     try {
       localStorage.setItem('upl_surveys', JSON.stringify(surveys));
+      if (sharedHydrated.current) writeSharedValue('upl_surveys', surveys);
     } catch (e) {
       console.error(e);
     }
@@ -318,6 +321,7 @@ export default function App() {
   useEffect(() => {
     try {
       localStorage.setItem('upl_global_signature', JSON.stringify(globalSignature));
+      if (sharedHydrated.current) writeSharedValue('upl_global_signature', globalSignature);
     } catch (e) {
       console.error(e);
     }
@@ -742,6 +746,7 @@ export default function App() {
   useEffect(() => {
     try {
       localStorage.setItem('upl_quotations', JSON.stringify(quotations));
+      if (sharedHydrated.current) writeSharedValue('upl_quotations', quotations);
     } catch (e) {
       console.error(e);
     }
@@ -951,6 +956,7 @@ export default function App() {
   useEffect(() => {
     try {
       localStorage.setItem('upl_packing_lists', JSON.stringify(packingLists));
+      if (sharedHydrated.current) writeSharedValue('upl_packing_lists', packingLists);
     } catch (e) {
       console.error(e);
     }
@@ -1176,6 +1182,7 @@ export default function App() {
 
   useEffect(() => {
     try { localStorage.setItem('upl_bilties', JSON.stringify(bilties)); } catch (e) { console.error(e); }
+    if (sharedHydrated.current) writeSharedValue('upl_bilties', bilties);
   }, [bilties]);
 
   const [biltyForm, setBiltyForm] = useState({
@@ -1242,6 +1249,7 @@ export default function App() {
 
   useEffect(() => {
     try { localStorage.setItem('upl_car_conditions', JSON.stringify(carConditions)); } catch (e) { console.error(e); }
+    if (sharedHydrated.current) writeSharedValue('upl_car_conditions', carConditions);
   }, [carConditions]);
 
   const [carForm, setCarForm] = useState({
@@ -1296,6 +1304,7 @@ export default function App() {
 
   useEffect(() => {
     try { localStorage.setItem('upl_bike_conditions', JSON.stringify(bikeConditions)); } catch (e) { console.error(e); }
+    if (sharedHydrated.current) writeSharedValue('upl_bike_conditions', bikeConditions);
   }, [bikeConditions]);
 
   const [bikeForm, setBikeForm] = useState({
@@ -1342,6 +1351,7 @@ export default function App() {
 
   useEffect(() => {
     try { localStorage.setItem('upl_bills', JSON.stringify(bills)); } catch (e) { console.error(e); }
+    if (sharedHydrated.current) writeSharedValue('upl_bills', bills);
   }, [bills]);
 
   const [billForm, setBillForm] = useState({
@@ -1387,6 +1397,7 @@ export default function App() {
 
   useEffect(() => {
     try { localStorage.setItem('upl_money_receipts', JSON.stringify(moneyReceipts)); } catch (e) { console.error(e); }
+    if (sharedHydrated.current) writeSharedValue('upl_money_receipts', moneyReceipts);
   }, [moneyReceipts]);
 
   const [receiptForm, setReceiptForm] = useState({
@@ -1427,6 +1438,7 @@ export default function App() {
 
   useEffect(() => {
     try { localStorage.setItem('upl_vouchers', JSON.stringify(vouchers)); } catch (e) { console.error(e); }
+    if (sharedHydrated.current) writeSharedValue('upl_vouchers', vouchers);
   }, [vouchers]);
 
   const [voucherForm, setVoucherForm] = useState({
@@ -1517,6 +1529,7 @@ export default function App() {
   useEffect(() => {
     try {
       localStorage.setItem('upl_company_profile', JSON.stringify(companyProfile));
+      if (sharedHydrated.current) writeSharedValue('upl_company_profile', companyProfile);
     } catch (e) {
       console.error(e);
     }
@@ -2095,16 +2108,18 @@ export default function App() {
       `Moving From: ${formData.movingFrom}`,
       `Moving To: ${formData.movingTo}`,
     ].join('\n');
+    const whatsappUrl = `https://wa.me/918093017400?text=${encodeURIComponent(message)}`;
     const submittedDetails: SubmittedQuoteDetails = {
       name: formData.name,
       phone: formData.phone,
       movingFrom: formData.movingFrom,
       movingTo: formData.movingTo,
       item: finalItem,
-      whatsappUrl: '',
+      whatsappUrl,
     };
     setIsSubmittingQuote(true);
     setQuoteSubmissionError('');
+    const whatsappWindow = window.open('', '_blank');
     try {
       const response = await fetch('https://api.web3forms.com/submit', {
         method: 'POST',
@@ -2131,6 +2146,11 @@ export default function App() {
       if (!response.ok || !result?.success) throw new Error(result?.message || 'Email service rejected the request');
 
       setSubmittedQuoteDetails(submittedDetails);
+      if (whatsappWindow && !whatsappWindow.closed) {
+        whatsappWindow.location.href = whatsappUrl;
+      } else {
+        window.location.assign(whatsappUrl);
+      }
       try {
         window.sessionStorage.setItem('upl_pending_quote_confirmation', JSON.stringify(submittedDetails));
         const savedRequests = JSON.parse(localStorage.getItem('upl_quote_requests') || '[]');
@@ -2146,6 +2166,9 @@ export default function App() {
       setShowQuoteSubmitToast(true);
       setFormData({ name: '', phone: '', email: '', date: '', item: '', otherItem: '', movingFrom: '', movingTo: '', itemRows: [{ name: '', value: '' }] });
     } catch (error) {
+      if (whatsappWindow && !whatsappWindow.closed) {
+        whatsappWindow.close();
+      }
       console.error('Failed to submit quote request by email', error);
       setQuoteSubmissionError('Your request could not be sent. Please try again.');
     } finally {
@@ -2633,6 +2656,39 @@ export default function App() {
 
   if (isAdminView) {
     if (!isAdminAuthenticated) {
+      // Keep browser data in sync with the shared portal server.
+      useEffect(() => {
+        const syncSharedData = async () => {
+          const recordTypes: Array<[string, (value: any) => void]> = [
+            ['upl_surveys', setSurveys],
+            ['upl_quotations', setQuotations],
+            ['upl_packing_lists', setPackingLists],
+            ['upl_bilties', setBilties],
+            ['upl_car_conditions', setCarConditions],
+            ['upl_bike_conditions', setBikeConditions],
+            ['upl_bills', setBills],
+            ['upl_money_receipts', setMoneyReceipts],
+            ['upl_vouchers', setVouchers],
+            ['upl_global_signature', setGlobalSignature],
+            ['upl_company_profile', setCompanyProfile],
+          ];
+
+          await Promise.all(recordTypes.map(async ([key, setter]) => {
+            try {
+              const sharedValue = await readSharedValue(key);
+              if (sharedValue !== null) setter(sharedValue);
+            } catch (error) {
+              console.error(`Failed to sync shared data: ${key}`, error);
+            }
+          }));
+          sharedHydrated.current = true;
+        };
+
+        syncSharedData();
+        const interval = window.setInterval(syncSharedData, 5000);
+        return () => window.clearInterval(interval);
+      }, []);
+
       return (
         <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
           <div className="bg-white p-8 rounded-xl shadow-lg max-w-md w-full border border-slate-100">
