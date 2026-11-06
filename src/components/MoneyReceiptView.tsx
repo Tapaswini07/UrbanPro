@@ -79,6 +79,28 @@ export const MoneyReceiptView: React.FC<Props> = ({
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
 
+  const getProfileLocation = (profile: any, direction: 'from' | 'to'): string => {
+    const prefix = direction === 'from' ? 'from' : 'to';
+    const address = profile[`${prefix}Address`];
+    if (address) return String(address);
+    return [
+      profile[`${prefix}Area`],
+      profile[`${prefix}City`],
+      profile[`${prefix}State`],
+      profile[`${prefix}Country`],
+    ].filter(Boolean).join(', ');
+  };
+
+  const applyCustomerProfile = (profile: any) => {
+    setForm(prev => ({
+      ...prev,
+      partyName: profile.partyName || prev.partyName,
+      mobileNo: profile.mobileNo || prev.mobileNo,
+      relocateFrom: getProfileLocation(profile, 'from') || prev.relocateFrom,
+      relocateTo: getProfileLocation(profile, 'to') || prev.relocateTo,
+    }));
+  };
+
   const handleDownloadReceiptPdf = async (recData?: MoneyReceiptData) => {
     const rec = recData || selectedRecord;
     if (!rec) return;
@@ -131,8 +153,8 @@ export const MoneyReceiptView: React.FC<Props> = ({
     relocateTo: '',
     branchCity: 'Bhubaneswar',
     paymentType: 'Token Money',
-    amount: 5000,
-    amountInWords: 'Five Thousand Rupees Only',
+    amount: 0,
+    amountInWords: 'Zero Rupees Only',
     paymentMode: 'Cash',
     paymentRefNo: '',
     additionalInfo: ''
@@ -296,13 +318,7 @@ export const MoneyReceiptView: React.FC<Props> = ({
             {customerProfiles.length > 0 && (
               <RecordLookup
                 profiles={customerProfiles}
-                onSelect={(profile) => setForm(prev => ({
-                  ...prev,
-                  partyName: profile.partyName || prev.partyName,
-                  mobileNo: profile.mobileNo || prev.mobileNo,
-                  relocateFrom: profile.fromCity || prev.relocateFrom,
-                  relocateTo: profile.toCity || prev.relocateTo,
-                }))}
+                onSelect={applyCustomerProfile}
               />
             )}
 
@@ -333,8 +349,8 @@ export const MoneyReceiptView: React.FC<Props> = ({
                       mobileNo,
                       ...(match ? {
                         partyName: match.partyName || prev.partyName,
-                        relocateFrom: match.fromCity || prev.relocateFrom,
-                        relocateTo: match.toCity || prev.relocateTo,
+                        relocateFrom: getProfileLocation(match, 'from') || prev.relocateFrom,
+                        relocateTo: getProfileLocation(match, 'to') || prev.relocateTo,
                       } : {}),
                     }));
                   }}
@@ -403,7 +419,7 @@ export const MoneyReceiptView: React.FC<Props> = ({
                 <input
                   type="number"
                   required
-                  value={form.amount}
+                  value={form.amount === 0 ? '' : form.amount}
                   onChange={e => handleAmountChange(parseFloat(e.target.value) || 0)}
                   className="w-full outline-none text-slate-800 text-sm font-bold bg-transparent"
                 />

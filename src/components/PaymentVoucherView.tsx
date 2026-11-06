@@ -217,6 +217,10 @@ export const PaymentVoucherView: React.FC<Props> = ({ vouchers, initialViewMode 
                 ...prev,
                 receiverName: profile.partyName || prev.receiverName,
                 receiverMobile: profile.mobileNo || prev.receiverMobile,
+                remark: [
+                  profile.fromAddress || [profile.fromArea, profile.fromCity, profile.fromState].filter(Boolean).join(', '),
+                  profile.toAddress || [profile.toArea, profile.toCity, profile.toState].filter(Boolean).join(', '),
+                ].filter(Boolean).join(' → ') || prev.remark,
               }))}
             />
           )}
