@@ -2654,41 +2654,42 @@ export default function App() {
     </>
   );
 
+  useEffect(() => {
+    if (!isAdminView) return;
+
+    const syncSharedData = async () => {
+      const recordTypes: Array<[string, (value: any) => void]> = [
+        ['upl_surveys', setSurveys],
+        ['upl_quotations', setQuotations],
+        ['upl_packing_lists', setPackingLists],
+        ['upl_bilties', setBilties],
+        ['upl_car_conditions', setCarConditions],
+        ['upl_bike_conditions', setBikeConditions],
+        ['upl_bills', setBills],
+        ['upl_money_receipts', setMoneyReceipts],
+        ['upl_vouchers', setVouchers],
+        ['upl_global_signature', setGlobalSignature],
+        ['upl_company_profile', setCompanyProfile],
+      ];
+
+      await Promise.all(recordTypes.map(async ([key, setter]) => {
+        try {
+          const sharedValue = await readSharedValue(key);
+          if (sharedValue !== null) setter(sharedValue);
+        } catch (error) {
+          console.error(`Failed to sync shared data: ${key}`, error);
+        }
+      }));
+      sharedHydrated.current = true;
+    };
+
+    syncSharedData();
+    const interval = window.setInterval(syncSharedData, 5000);
+    return () => window.clearInterval(interval);
+  }, [isAdminView]);
+
   if (isAdminView) {
     if (!isAdminAuthenticated) {
-      // Keep browser data in sync with the shared portal server.
-      useEffect(() => {
-        const syncSharedData = async () => {
-          const recordTypes: Array<[string, (value: any) => void]> = [
-            ['upl_surveys', setSurveys],
-            ['upl_quotations', setQuotations],
-            ['upl_packing_lists', setPackingLists],
-            ['upl_bilties', setBilties],
-            ['upl_car_conditions', setCarConditions],
-            ['upl_bike_conditions', setBikeConditions],
-            ['upl_bills', setBills],
-            ['upl_money_receipts', setMoneyReceipts],
-            ['upl_vouchers', setVouchers],
-            ['upl_global_signature', setGlobalSignature],
-            ['upl_company_profile', setCompanyProfile],
-          ];
-
-          await Promise.all(recordTypes.map(async ([key, setter]) => {
-            try {
-              const sharedValue = await readSharedValue(key);
-              if (sharedValue !== null) setter(sharedValue);
-            } catch (error) {
-              console.error(`Failed to sync shared data: ${key}`, error);
-            }
-          }));
-          sharedHydrated.current = true;
-        };
-
-        syncSharedData();
-        const interval = window.setInterval(syncSharedData, 5000);
-        return () => window.clearInterval(interval);
-      }, []);
-
       return (
         <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
           <div className="bg-white p-8 rounded-xl shadow-lg max-w-md w-full border border-slate-100">
