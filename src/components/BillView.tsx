@@ -144,6 +144,7 @@ export interface BillData {
   // Service/Insurance/GST
   serviceChargePercent: number;
   serviceCharge: number;
+  advancePaid: number;
   insurancePercent: number;
   goodsValue: number;
   insuranceCharges: number;
@@ -317,6 +318,7 @@ export const BillView: React.FC<Props> = ({
 
     serviceChargePercent: 0,
     serviceCharge: 0,
+    advancePaid: 0,
     insurancePercent: 3,
     goodsValue: 0,
     insuranceCharges: 0,
@@ -381,6 +383,7 @@ export const BillView: React.FC<Props> = ({
     gstPercent: `${f.gstRate || 0}%`,
     gstType: f.gstType,
     gstStatus: f.gstType === 'Exempted' || f.gstRate === 0 ? 'Exempted' : 'Extra',
+    advancePaid: f.advancePaid,
   });
 
   const calcInsuranceAmt = (f: BillData) => calculateBillTotals(f).insuranceNum;
@@ -526,6 +529,7 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
       gstType: quot.gstType || 'CGST/SGST',
       gstRate: parseFloat(String(quot.gstPercent || '18').replace(/[^0-9.]/g, '')) || 0,
       gstCharge: totals.gstNum,
+      advancePaid: parseFloat(String(quot.advancePaid || '0').replace(/[^0-9.]/g, '')) || 0,
     }));
   };
 
@@ -1664,6 +1668,58 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
             </div>
           </div>
 
+          {/* Other Details */}
+          <div className="border-2 border-green-400 rounded-2xl p-6 pt-8 relative bg-white shadow-xs">
+            <span className="absolute -top-3.5 left-4 bg-green-400 text-white px-4 py-1 rounded-md text-sm font-medium shadow-sm">
+              Other Details
+            </span>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="border border-slate-300 rounded-lg p-3 bg-white">
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Advance Payment (₹)</label>
+                <input
+                  type="number"
+                  min="0"
+                  value={form.advancePaid || ''}
+                  onChange={e => setForm({ ...form, advancePaid: parseFloat(e.target.value) || 0 })}
+                  placeholder="Enter advance amount"
+                  className="w-full outline-none font-medium text-slate-800 text-sm"
+                />
+              </div>
+              <div className="border border-slate-300 rounded-lg p-3 bg-white">
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Easy Access</label>
+                <input
+                  type="text"
+                  value={form.easyAccess ?? ''}
+                  onChange={e => setForm({ ...form, easyAccess: e.target.value })}
+                  className="w-full outline-none font-medium text-slate-800 text-sm"
+                />
+              </div>
+              <div className="md:col-span-2 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm font-semibold">
+                <span>Grand Total: ₹{calcGrandTotal(form).toLocaleString()}</span>
+                <span>Advance Paid: ₹{calculateBillTotals(form).advanceNum.toLocaleString()}</span>
+                <span>Balance Due: ₹{calculateBillTotals(form).balanceDue.toLocaleString()}</span>
+              </div>
+              <div className="border border-slate-300 rounded-lg p-3 bg-white md:col-span-2">
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Balcony Items</label>
+                <input
+                  type="text"
+                  value={form.balconyItems ?? ''}
+                  onChange={e => setForm({ ...form, balconyItems: e.target.value })}
+                  className="w-full outline-none font-medium text-slate-800 text-sm"
+                />
+              </div>
+              <div className="border border-slate-300 rounded-lg p-3 bg-white md:col-span-2">
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Extra Info.</label>
+                <input
+                  type="text"
+                  value={form.extraInfo ?? ''}
+                  onChange={e => setForm({ ...form, extraInfo: e.target.value })}
+                  className="w-full outline-none font-medium text-slate-800 text-sm"
+                />
+              </div>
+            </div>
+          </div>
+
           {/* Bottom Save Button (Sky Blue `#0284c7`) matching screenshot */}
           <div className="flex justify-center items-center gap-3 pt-4">
             <button
@@ -2094,6 +2150,7 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                 <div className="border-t border-[#1e3a8a] p-2 text-[11px]">
                   <div className="font-bold underline">Total amount in words:</div>
                   <div className="font-bold capitalize">{numberToWordsIndian(calcGrandTotal(selectedRecord))}</div>
+                  <div className="mt-1"><span className="font-bold">Advance Paid:</span> ₹{calculateBillTotals(selectedRecord).advanceNum.toLocaleString()} <span className="font-bold ml-3">Balance Due:</span> ₹{calculateBillTotals(selectedRecord).balanceDue.toLocaleString()}</div>
                 </div>
 
               </div>
