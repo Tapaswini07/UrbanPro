@@ -306,62 +306,6 @@ export const MoneyReceiptView: React.FC<Props> = ({
               />
             )}
 
-            {customerProfiles.length > 0 && (
-              <div className="pt-1 pb-2 border-b border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-                <div className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-500">
-                  <Sparkles className="w-3.5 h-3.5 text-sky-600" />
-                  <span>⚡ Auto-fill Customer from Saved Record or Unique ID:</span>
-                </div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <select
-                    onChange={(e) => {
-                      if (!e.target.value) return;
-                      const cp = customerProfiles.find(c =>
-                        c.partyName === e.target.value ||
-                        (c.uniqueIds && c.uniqueIds.includes(e.target.value))
-                      );
-                      if (cp) {
-                        setForm(prev => ({
-                          ...prev,
-                          partyName: cp.partyName || cp.name || '',
-                          mobileNo: cp.mobileNo || cp.phone || '',
-                          relocateFrom: cp.relocateFrom || cp.fromCity || prev.relocateFrom,
-                          relocateTo: cp.relocateTo || cp.toCity || prev.relocateTo
-                        }));
-                      }
-                    }}
-                    defaultValue=""
-                    className="bg-white border border-sky-300 text-slate-800 text-xs rounded-xl px-2.5 py-1 font-medium outline-none focus:ring-2 focus:ring-sky-500 cursor-pointer"
-                  >
-                    <option value="">-- Choose Saved Customer / ID --</option>
-                    {customerProfiles.map((cp, idx) => (
-                      <option key={idx} value={cp.partyName}>
-                        {cp.partyName} {cp.mobileNo ? `(${cp.mobileNo})` : ''} - {cp.source || 'Saved Profile'}
-                      </option>
-                    ))}
-                  </select>
-                  <div className="flex flex-wrap gap-1.5 max-h-20 overflow-y-auto">
-                  {customerProfiles.slice(0, 3).map((cp, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => setForm(prev => ({
-                        ...prev,
-                        partyName: cp.partyName || cp.name || '',
-                        mobileNo: cp.mobileNo || cp.phone || '',
-                        relocateFrom: cp.relocateFrom || cp.fromCity || prev.relocateFrom,
-                        relocateTo: cp.relocateTo || cp.toCity || prev.relocateTo
-                      }))}
-                      className="px-2.5 py-1 bg-slate-100 hover:bg-sky-50 text-slate-700 hover:text-sky-800 border rounded-lg text-xs font-medium cursor-pointer"
-                    >
-                      {cp.partyName || cp.name}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
               <div className="border border-slate-300 rounded-xl p-2.5 px-3 bg-white focus-within:ring-2 focus-within:ring-sky-500">
                 <label className="block text-[11px] text-slate-500 font-bold mb-0.5">Party Name *</label>

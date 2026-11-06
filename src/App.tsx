@@ -81,7 +81,7 @@ import { PRAKASH_SIGNATURE_BASE64 } from './assets/signatureBase64';
 import { INDIAN_STATES, getStateCodeByName } from './utils/indianStates';
 import { findCustomerProfileByMobile } from './utils/customerLookup';
 import { getNextAvailableDocumentNumber } from './utils/documentNumbering';
-import { readSharedValue, writeSharedValue } from './utils/sharedStorage';
+import { writeSharedValue } from './utils/sharedStorage';
 export { INDIAN_STATES, getStateCodeByName };
 
 export const FLOOR_OPTIONS = [
@@ -293,7 +293,6 @@ export default function App() {
   const [viewingSurvey, setViewingSurvey] = useState<any | null>(null);
   const [surveyToDelete, setSurveyToDelete] = useState<any | null>(null);
   const [surveyNoWarning, setSurveyNoWarning] = useState<string | null>(null);
-  const [selectedSurveyForQuotationAutoFill, setSelectedSurveyForQuotationAutoFill] = useState('');
   const [selectedSurveyForPackingAutoFill, setSelectedSurveyForPackingAutoFill] = useState('');
   const [carConditionViewMode, setCarConditionViewMode] = useState<'form' | 'list'>('form');
   const [bikeConditionViewMode, setBikeConditionViewMode] = useState<'form' | 'list'>('form');
@@ -495,7 +494,6 @@ export default function App() {
       extraInfo: match.extraInfo || surveyItemsSummary || prev.extraInfo || '',
     }));
 
-    setSelectedSurveyForQuotationAutoFill(surveyNoOrId.trim());
     setShareToast(`✓“ Auto-filled details from Survey #${match.surveyNo} for ${match.partyName}`);
     setTimeout(() => setShareToast(null), 3500);
   };
@@ -569,7 +567,6 @@ export default function App() {
         gstType: linkedQuotation.gstType || 'CGST/SGST',
       });
       setEditingQuotationId(linkedQuotation.id);
-      setSelectedSurveyForQuotationAutoFill(String(survey.surveyNo));
       setAdminTab('add-quotation');
       return;
     }
@@ -613,7 +610,6 @@ export default function App() {
       goodsValue: surveyGoodsValue > 0 ? String(surveyGoodsValue) : '',
       extraInfo: survey.extraInfo || surveyItemsSummary || '',
     });
-    setSelectedSurveyForQuotationAutoFill(String(survey.surveyNo));
     setAdminTab('add-quotation');
     setShareToast(`✓“ Pre-loaded all customer & route info from Survey #${survey.surveyNo}`);
     setTimeout(() => setShareToast(null), 3500);
@@ -774,12 +770,8 @@ export default function App() {
         return;
       }
 
-      const matchingSurvey = surveys.find(
-        survey => String(survey.surveyNo || '').trim() === nextQuotationNo
-      );
-      if (matchingSurvey) applySurveyToQuotation(String(matchingSurvey.surveyNo));
     }
-  }, [adminTab, editingQuotationId, quotations, quotationForm.quotationNo, quotationForm.partyName, surveys]);
+  }, [adminTab, editingQuotationId, quotations, quotationForm.quotationNo, quotationForm.partyName]);
 
   const handleSaveQuotation = () => {
     if (!quotationForm.partyName.trim()) {
@@ -2654,40 +2646,6 @@ export default function App() {
     </>
   );
 
-  useEffect(() => {
-    if (!isAdminView) return;
-
-    const syncSharedData = async () => {
-      const recordTypes: Array<[string, (value: any) => void]> = [
-        ['upl_surveys', setSurveys],
-        ['upl_quotations', setQuotations],
-        ['upl_packing_lists', setPackingLists],
-        ['upl_bilties', setBilties],
-        ['upl_car_conditions', setCarConditions],
-        ['upl_bike_conditions', setBikeConditions],
-        ['upl_bills', setBills],
-        ['upl_money_receipts', setMoneyReceipts],
-        ['upl_vouchers', setVouchers],
-        ['upl_global_signature', setGlobalSignature],
-        ['upl_company_profile', setCompanyProfile],
-      ];
-
-      await Promise.all(recordTypes.map(async ([key, setter]) => {
-        try {
-          const sharedValue = await readSharedValue(key);
-          if (sharedValue !== null) setter(sharedValue);
-        } catch (error) {
-          console.error(`Failed to sync shared data: ${key}`, error);
-        }
-      }));
-      sharedHydrated.current = true;
-    };
-
-    syncSharedData();
-    const interval = window.setInterval(syncSharedData, 5000);
-    return () => window.clearInterval(interval);
-  }, [isAdminView]);
-
   if (isAdminView) {
     if (!isAdminAuthenticated) {
       return (
@@ -3426,30 +3384,6 @@ export default function App() {
                       </div>
                     )}
 
-                    {/* Quick Customer & Unique ID Autofill Selector */}
-                    {customerProfiles.length > 0 && (
-                      <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-2xl p-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-2xs">
-                        <div className="flex items-center gap-2 text-xs font-bold text-emerald-950">
-                          <Sparkles className="w-4 h-4 text-emerald-600 shrink-0" />
-                          <span>⚡ Auto-fill Customer from Saved Record or Unique ID:</span>
-                        </div>
-                        <select
-                          onChange={(e) => {
-                            if (e.target.value) handleSurveyPartyNameChange(e.target.value);
-                          }}
-                          defaultValue=""
-                          className="bg-white border border-emerald-300 text-slate-800 text-xs rounded-xl px-3 py-1.5 font-medium outline-none focus:ring-2 focus:ring-emerald-500 max-w-full sm:max-w-md cursor-pointer"
-                        >
-                          <option value="">-- Select Customer or Unique ID to Auto-fill --</option>
-                          {customerProfiles.map((cp, idx) => (
-                            <option key={idx} value={cp.partyName}>
-                              {cp.partyName} {cp.mobileNo ? `(${cp.mobileNo})` : ''} - {cp.source}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    )}
-
                     {/* Survey Details Section */}
                     <div className="border border-slate-200 border-l-4 border-l-[#22c55e] rounded-2xl p-6 pt-8 relative bg-white shadow-xs">
                       <span className="absolute -top-3.5 left-4 bg-[#22c55e] text-white px-4 py-1 rounded-md text-xs font-semibold shadow-xs">
@@ -4157,93 +4091,6 @@ export default function App() {
                   )}
 
                   <div className="space-y-8">
-                    {/* Auto-Fill from Survey Banner & Selector */}
-                    <div className="bg-linear-to-r from-emerald-50 via-teal-50 to-blue-50 border-2 border-emerald-300 rounded-2xl p-5 shadow-xs">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-emerald-200/70">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-xs">
-                            <FileText className="w-5 h-5" />
-                          </div>
-                          <div>
-                            <h4 className="font-bold text-slate-900 text-sm flex items-center gap-2">
-                              Auto-Fill from Survey Record
-                              <span className="text-[10px] bg-emerald-600 text-white px-2.5 py-0.5 rounded-full uppercase tracking-wider font-semibold">
-                                Instant Sync
-                              </span>
-                            </h4>
-                            <p className="text-xs text-slate-600 mt-0.5">
-                              Select or type any Survey No. to auto-fill Party Name, Phone, Email, Origin & Destination address details automatically.
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="pt-3 grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
-                        <div className="sm:col-span-7">
-                          <label className="block text-[11px] font-semibold text-slate-700 mb-1">Choose Existing Survey:</label>
-                          <select
-                            className="w-full bg-white border border-emerald-300 rounded-xl px-3 py-2 text-xs sm:text-sm font-medium text-slate-800 outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer shadow-xs"
-                            value={selectedSurveyForQuotationAutoFill}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              setSelectedSurveyForQuotationAutoFill(val);
-                              if (val) applySurveyToQuotation(val);
-                            }}
-                          >
-                            <option value="">-- Select Survey to Load Client & Route --</option>
-                            {surveys.map((s) => (
-                              <option key={s.id} value={String(s.surveyNo)}>
-                                Survey #{s.surveyNo} — {s.partyName} ({s.fromCity || 'From'} → {s.toCity || 'To'})
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                        <div className="sm:col-span-5 flex gap-2 items-end">
-                          <div className="grow">
-                            <label className="block text-[11px] font-semibold text-slate-700 mb-1">Or Enter Survey No:</label>
-                            <input
-                              type="text"
-                              placeholder="e.g. 1 or 2"
-                              className="w-full bg-white border border-emerald-300 rounded-xl px-3 py-2 text-xs sm:text-sm font-medium text-slate-800 outline-none focus:ring-2 focus:ring-emerald-500 shadow-xs"
-                              value={selectedSurveyForQuotationAutoFill}
-                              onChange={(e) => {
-                                const value = e.target.value;
-                                setSelectedSurveyForQuotationAutoFill(value);
-                                const numericValue = Number.parseInt(value.trim(), 10);
-                                const exactSurvey = surveys.find(survey =>
-                                  String(survey.surveyNo || '').trim() === value.trim() ||
-                                  (Number.isInteger(numericValue) &&
-                                    Number.parseInt(String(survey.surveyNo || '').trim(), 10) === numericValue)
-                                );
-                                if ((exactSurvey || (Number.isInteger(numericValue) && numericValue > 0)) && value.trim()) {
-                                  applySurveyToQuotation(value);
-                                }
-                              }}
-                              onBlur={() => {
-                                if (selectedSurveyForQuotationAutoFill.trim()) {
-                                  applySurveyToQuotation(selectedSurveyForQuotationAutoFill);
-                                }
-                              }}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                  e.preventDefault();
-                                  applySurveyToQuotation(selectedSurveyForQuotationAutoFill);
-                                }
-                              }}
-                            />
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => applySurveyToQuotation(selectedSurveyForQuotationAutoFill)}
-                            className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm px-4 py-2 rounded-xl transition-colors cursor-pointer shrink-0 shadow-xs flex items-center gap-1.5 h-[38px]"
-                          >
-                            <Check className="w-4 h-4" />
-                            <span>Auto-Fill</span>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-
                     {/* Quotation Details Section */}
                     <div className="border-2 border-green-400 rounded-xl p-6 pt-8 relative bg-white shadow-sm">
                       <span className="absolute -top-3.5 left-4 bg-green-400 text-white px-4 py-1 rounded-md text-sm font-medium shadow-sm">Quot. Details</span>

@@ -215,9 +215,18 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
     ? `${numberToIndianWords(finalGrandTotalNum)} Rupees Only`
     : (quotation.payableInWords || '');
 
-  const handlePrint = () => {
-    setIsEditingSign(false);
-    window.print();
+  const handlePrint = async () => {
+    try {
+      setIsEditingSign(false);
+      const result = await createPdfDocument();
+      const printWindow = window.open(result.url, '_blank', 'noopener,noreferrer');
+      if (!printWindow) {
+        setDownloadError('Please allow pop-ups to print the quotation PDF.');
+      }
+    } catch (err) {
+      console.error('Quotation print failed:', err);
+      setDownloadError(err instanceof Error ? err.message : 'Unable to prepare the quotation for printing.');
+    }
   };
 
   /**

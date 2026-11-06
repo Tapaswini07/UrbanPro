@@ -95,9 +95,23 @@ export const PackingListPdfModal: React.FC<PackingListPdfModalProps> = ({
     displayItems.push({ name: '', qty: '', boxNo: '', value: '', remark: '' });
   }
 
-  const handlePrint = () => {
-    setIsEditingSign(false);
-    window.print();
+  const handlePrint = async () => {
+    try {
+      setIsEditingSign(false);
+      const element = document.getElementById('printable-packing-list-pdf');
+      if (!element) throw new Error('Printable packing list not found');
+      const filename = `UrbanPro_PackingList_${packingList.packingListNo || packingList.id}.pdf`;
+      const result = await downloadPdfFromElement(element, filename);
+      if (result.url) {
+        const printWindow = window.open(result.url, '_blank', 'noopener,noreferrer');
+        if (!printWindow) {
+          setDownloadSuccess(false);
+        }
+      }
+    } catch (err) {
+      console.error('Packing list print failed:', err);
+      window.print();
+    }
   };
 
   const handleDownloadPdf = async () => {

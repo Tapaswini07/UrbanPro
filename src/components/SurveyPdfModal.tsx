@@ -38,6 +38,7 @@ export const SurveyPdfModal: React.FC<SurveyPdfModalProps> = ({ survey, onClose,
   const [isDownloading, setIsDownloading] = useState(false);
   const [isOpeningInTab, setIsOpeningInTab] = useState(false);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
   const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null);
 
   // Authorized Signature options: customizable directly on the signature box
@@ -81,9 +82,19 @@ export const SurveyPdfModal: React.FC<SurveyPdfModalProps> = ({ survey, onClose,
     itemsList.push({ name: '', qty: '', value: '', remark: '' });
   }
 
-  const handlePrint = () => {
-    setIsEditingSign(false);
-    window.print();
+  const handlePrint = async () => {
+    try {
+      setIsEditingSign(false);
+      setDownloadError(null);
+      const result = await createPdfDocument();
+      const printWindow = window.open(result.url, '_blank', 'noopener,noreferrer');
+      if (!printWindow) {
+        setDownloadError('Please allow pop-ups to print the survey PDF.');
+      }
+    } catch (err) {
+      console.error('Survey print failed:', err);
+      setDownloadError(err instanceof Error ? err.message : 'Unable to prepare the survey for printing.');
+    }
   };
 
   /**
