@@ -300,7 +300,8 @@ export function addCanvasToA4Pdf(pdf: jsPDF, canvas: HTMLCanvasElement, margin =
  */
 export async function downloadPdfFromElement(
   element: HTMLElement, 
-  filename: string = 'document.pdf'
+  filename: string = 'document.pdf',
+  options: { fitToSinglePage?: boolean } = {}
 ): Promise<{ success: boolean; url?: string }> {
   try {
     const canvas = await renderElementToCanvas(element);
@@ -313,7 +314,22 @@ export async function downloadPdfFromElement(
     });
 
     const margin = 2; // 2mm margin for clean edge-to-edge A4 layout
-    addCanvasToA4Pdf(pdf, canvas, margin);
+    if (options.fitToSinglePage) {
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      pdf.addImage(
+        canvas.toDataURL('image/jpeg', 0.94),
+        'JPEG',
+        margin,
+        margin,
+        pageWidth - margin * 2,
+        pageHeight - margin * 2,
+        undefined,
+        'FAST'
+      );
+    } else {
+      addCanvasToA4Pdf(pdf, canvas, margin);
+    }
 
     const blob = new Blob([pdf.output('blob')], { type: 'application/pdf' });
     const blobUrl = URL.createObjectURL(blob);

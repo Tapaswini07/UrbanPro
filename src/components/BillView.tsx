@@ -334,35 +334,41 @@ export const BillView: React.FC<Props> = ({
   ];
 
   // Calculations
-  const calcInsuranceAmt = (f: BillData) => {
-    const goodsValue = Number(f.goodsValue) || 0;
-    const insurancePercent = Number(f.insurancePercent ?? 3);
-    return Math.round((goodsValue * insurancePercent) / 100);
+  const quotationChargeValue = (f: BillData, key: string) => {
+    const value = f[key as keyof BillData];
+    const status = f.chargeStatuses?.[key];
+    if (status === 'included') return `${value || 0} Included`;
+    if (status === 'excluded') return `${value || 0} Excluded`;
+    return value;
   };
 
-  const calcSubTotal = (f: BillData) => {
-    const standardTotal = billChargeItems.reduce((total, item) => {
-      if (f.chargeStatuses?.[item.key] === 'excluded') return total;
-      return total + (Number(f[item.key]) || 0);
-    }, 0);
-    const customTotal = (f.customCharges || []).reduce((total, charge) => (
-      charge.status === 'excluded' ? total : total + (Number(charge.amount) || 0)
-    ), 0);
-    return standardTotal + customTotal;
-  };
+  const calculateBillTotals = (f: BillData) => calculateQuotationTotals({
+    transportCharges: quotationChargeValue(f, 'freightAmount'),
+    packingCharges: quotationChargeValue(f, 'packingCharges'),
+    unpackingCharges: quotationChargeValue(f, 'unpackingCharges'),
+    loadingCharges: quotationChargeValue(f, 'loadingCharges'),
+    unloadingCharges: quotationChargeValue(f, 'unloadingCharges'),
+    dismantlingCharges: quotationChargeValue(f, 'dismantlingCharges'),
+    octroiCharges: quotationChargeValue(f, 'octroiCharges'),
+    carCharges: quotationChargeValue(f, 'carTransportationCharges'),
+    bikeCharges: quotationChargeValue(f, 'bikeTransportationCharges'),
+    statCharges: quotationChargeValue(f, 'statCharges'),
+    customCharges: (f.customCharges || []).map(charge => ({
+      name: charge.name,
+      val: `${charge.amount} ${charge.status === 'standard' ? '' : charge.status === 'included' ? 'Included' : 'Excluded'}`.trim(),
+    })),
+    goodsValue: f.goodsValue,
+    insurancePercent: `${f.insurancePercent || 0}%`,
+    insuranceStatus: f.insurancePercent === 0 ? 'Exempted' : 'Extra',
+    gstPercent: `${f.gstRate || 0}%`,
+    gstType: f.gstType,
+    gstStatus: f.gstType === 'Exempted' || f.gstRate === 0 ? 'Exempted' : 'Extra',
+  });
 
-  const calcGstAmt = (f: BillData) => {
-    const sub = calcSubTotal(f);
-    if (f.gstType === 'Exempted' || f.gstRate === 0) return 0;
-    return Math.round((sub * (Number(f.gstRate) || 0)) / 100);
-  };
-
-  const calcGrandTotal = (f: BillData) => {
-    const sub = calcSubTotal(f);
-    const ins = calcInsuranceAmt(f);
-    const gst = calcGstAmt(f);
-    return sub + ins + gst;
-  };
+  const calcInsuranceAmt = (f: BillData) => calculateBillTotals(f).insuranceNum;
+  const calcSubTotal = (f: BillData) => calculateBillTotals(f).subTotal;
+  const calcGstAmt = (f: BillData) => calculateBillTotals(f).gstNum;
+  const calcGrandTotal = (f: BillData) => calculateBillTotals(f).grandTotal;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -430,8 +436,10 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
       ...prev,
       partyName: quot.partyName || prev.partyName,
       mobileNo: quot.mobileNo || prev.mobileNo,
+      gstin: quot.gstin || prev.gstin,
       consignorName: quot.partyName || prev.consignorName,
       consignorPhone: quot.mobileNo || prev.consignorPhone,
+      fromCountry: quot.fromCountry || prev.fromCountry,
       city: quot.fromCity || prev.city,
       fromCity: quot.fromCity || prev.fromCity,
       fromState: quot.fromState || prev.fromState,
@@ -439,10 +447,13 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
       fromPincode: quot.fromPincode || prev.fromPincode,
       fromFloor: quot.fromFloor || prev.fromFloor,
       toCity: quot.toCity || prev.toCity,
+      toCountry: quot.toCountry || prev.toCountry,
       toState: quot.toState || prev.toState,
       toArea: quot.toArea || prev.toArea,
       toPincode: quot.toPincode || prev.toPincode,
       toFloor: quot.toFloor || prev.toFloor,
+      address: quot.fromAddress || (quot.fromArea ? `${quot.fromArea}, ${quot.fromCity || ''}` : quot.fromCity) || prev.address,
+      typeOfShipment: quot.moveType || prev.typeOfShipment,
       goodsDeliveryDate: quot.deliveryDate || prev.goodsDeliveryDate,
       freightAmount: parseChargeDetails(quot.transportCharges).amount,
       packingCharges: parseChargeDetails(quot.packingCharges).amount,

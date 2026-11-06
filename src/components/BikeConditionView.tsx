@@ -136,7 +136,7 @@ export const BikeConditionView: React.FC<Props> = ({
       }
 
       const filename = `UrbanPro_BikeCondition_${rec.conditionNo || '1'}_${(rec.partyName || 'Customer').replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
-      const result = await downloadPdfFromElement(printableElement, filename);
+      const result = await downloadPdfFromElement(printableElement, filename, { fitToSinglePage: true });
 
       if (result.success) {
         setDownloadSuccess(true);
