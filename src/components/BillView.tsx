@@ -63,6 +63,10 @@ export interface BillData {
   billNo: string;
   date: string;
   billDate?: string;
+  quotationNo?: string | number;
+  surveyNo?: string | number;
+  email?: string;
+  packingDate?: string;
   lrBiltyNo?: string;
   goodsDeliveryDate?: string;
   vehicleNo?: string;
@@ -80,6 +84,11 @@ export interface BillData {
   address?: string;
   modeOfMoving?: string;
   typeOfShipment?: string;
+  fromLift?: string;
+  toLift?: string;
+  easyAccess?: string;
+  balconyItems?: string;
+  extraInfo?: string;
 
   // Consignor
   sameAsBillingConsignor?: boolean;
@@ -235,6 +244,10 @@ export const BillView: React.FC<Props> = ({
     billNo: `${getNextAvailableDocumentNumber(bills, 'billNo')}`,
     date: new Date().toISOString().split('T')[0],
     billDate: new Date().toISOString().split('T')[0],
+    quotationNo: '',
+    surveyNo: '',
+    email: '',
+    packingDate: '',
     lrBiltyNo: '',
     goodsDeliveryDate: '',
     vehicleNo: '',
@@ -251,6 +264,11 @@ export const BillView: React.FC<Props> = ({
     address: '',
     modeOfMoving: 'By Surface',
     typeOfShipment: 'Personal Goods',
+    fromLift: 'Not Required',
+    toLift: 'Not Required',
+    easyAccess: '',
+    balconyItems: '',
+    extraInfo: '',
 
     sameAsBillingConsignor: true,
     consignorName: '',
@@ -437,8 +455,16 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
       partyName: quot.partyName || prev.partyName,
       mobileNo: quot.mobileNo || prev.mobileNo,
       gstin: quot.gstin || prev.gstin,
+      quotationNo: quot.quotationNo || prev.quotationNo,
+      surveyNo: quot.surveyNo || prev.surveyNo,
+      email: quot.email || prev.email,
+      packingDate: quot.packingDate || prev.packingDate,
       consignorName: quot.partyName || prev.consignorName,
       consignorPhone: quot.mobileNo || prev.consignorPhone,
+      country: quot.fromCountry || prev.country,
+      state: quot.fromState || prev.state,
+      area: quot.fromArea || prev.area,
+      pincode: quot.fromPincode || prev.pincode,
       fromCountry: quot.fromCountry || prev.fromCountry,
       city: quot.fromCity || prev.city,
       fromCity: quot.fromCity || prev.fromCity,
@@ -446,14 +472,20 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
       fromArea: quot.fromArea || prev.fromArea,
       fromPincode: quot.fromPincode || prev.fromPincode,
       fromFloor: quot.fromFloor || prev.fromFloor,
+      fromLift: quot.fromLift || prev.fromLift,
       toCity: quot.toCity || prev.toCity,
       toCountry: quot.toCountry || prev.toCountry,
       toState: quot.toState || prev.toState,
       toArea: quot.toArea || prev.toArea,
       toPincode: quot.toPincode || prev.toPincode,
       toFloor: quot.toFloor || prev.toFloor,
+      toLift: quot.toLift || prev.toLift,
       address: quot.fromAddress || (quot.fromArea ? `${quot.fromArea}, ${quot.fromCity || ''}` : quot.fromCity) || prev.address,
+      modeOfMoving: quot.moveType || prev.modeOfMoving,
       typeOfShipment: quot.moveType || prev.typeOfShipment,
+      easyAccess: quot.easyAccess || prev.easyAccess,
+      balconyItems: quot.balconyItems || prev.balconyItems,
+      extraInfo: quot.extraInfo || prev.extraInfo,
       goodsDeliveryDate: quot.deliveryDate || prev.goodsDeliveryDate,
       freightAmount: parseChargeDetails(quot.transportCharges).amount,
       packingCharges: parseChargeDetails(quot.packingCharges).amount,
@@ -709,6 +741,43 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                   value={form.vehicleNo}
                   onChange={e => setForm({ ...form, vehicleNo: e.target.value })}
                   className="w-full outline-none font-mono font-bold text-slate-800 text-sm"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Quotation Details */}
+          <div className="border-2 border-violet-500 rounded-2xl p-6 pt-8 relative bg-white shadow-xs">
+            <span className="absolute -top-3.5 left-4 bg-violet-500 text-white px-4 py-1 rounded-md text-xs font-bold shadow-xs">
+              Quotation Details
+            </span>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {[
+                ['Quotation No.', 'quotationNo', 'text'],
+                ['Survey No.', 'surveyNo', 'text'],
+                ['Customer Email', 'email', 'email'],
+                ['Packing Date', 'packingDate', 'date'],
+                ['From Lift', 'fromLift', 'text'],
+                ['To Lift', 'toLift', 'text'],
+                ['Easy Access', 'easyAccess', 'text'],
+                ['Balcony Items', 'balconyItems', 'text'],
+              ].map(([label, key, type]) => (
+                <div key={key} className="border border-slate-300 rounded-xl p-3 bg-white">
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">{label}</label>
+                  <input
+                    type={type}
+                    value={String(form[key as keyof BillData] ?? '')}
+                    onChange={e => setForm({ ...form, [key]: e.target.value })}
+                    className="w-full outline-none font-medium text-slate-800 text-sm"
+                  />
+                </div>
+              ))}
+              <div className="border border-slate-300 rounded-xl p-3 bg-white md:col-span-2">
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Other Details</label>
+                <textarea
+                  value={form.extraInfo ?? ''}
+                  onChange={e => setForm({ ...form, extraInfo: e.target.value })}
+                  className="w-full min-h-20 outline-none font-medium text-slate-800 text-sm resize-y"
                 />
               </div>
             </div>
@@ -1931,13 +2000,16 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                 {/* Meta Fields: Bill No, Dates, Shipment */}
                 <div className="grid grid-cols-2 p-2 gap-x-2 gap-y-1 text-[11px]">
                   <div><span className="font-bold">Bill No.</span> {selectedRecord.billNo || '1'}</div>
+                  <div><span className="font-bold">Quotation No.</span> {selectedRecord.quotationNo || ''}</div>
                   <div><span className="font-bold">Mode Of Moving:</span> {selectedRecord.modeOfMoving ?? 'By Surface'}</div>
                   <div><span className="font-bold">Billing Date:</span> {selectedRecord.billDate || selectedRecord.date}</div>
+                  <div><span className="font-bold">Packing Date:</span> {selectedRecord.packingDate || ''}</div>
                   <div><span className="font-bold">Type Of Shipment:</span> {selectedRecord.typeOfShipment ?? 'Personal Goods'}</div>
                   <div><span className="font-bold">Lr No.</span> {selectedRecord.lrBiltyNo || ''}</div>
                   <div><span className="font-bold">From:</span> {selectedRecord.fromCity || ''} <span className="font-bold">To:</span> {selectedRecord.toCity || ''}</div>
                   <div><span className="font-bold">Delivery Date:</span> {selectedRecord.goodsDeliveryDate || ''}</div>
                   <div><span className="font-bold">Truck No:</span> {selectedRecord.vehicleNo || ''}</div>
+                  <div><span className="font-bold">Survey No.</span> {selectedRecord.surveyNo || ''}</div>
                 </div>
 
                 {/* Bill To Header Bar */}
@@ -1949,6 +2021,7 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                 <div className="p-2 space-y-0.5 text-[11px]">
                   <div><span className="font-bold">Name:</span> {selectedRecord.partyName}</div>
                   <div><span className="font-bold">Phone:</span> {selectedRecord.mobileNo}</div>
+                  {selectedRecord.email && <div><span className="font-bold">Email:</span> {selectedRecord.email}</div>}
                   <div><span className="font-bold">State:</span> {selectedRecord.state ?? 'N/A'}</div>
                   <div><span className="font-bold">Address:</span> {selectedRecord.address}</div>
                   <div>
@@ -2009,6 +2082,12 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                     Insurance: {selectedRecord.insurancePercent || 0}% of declared goods value ₹{Number(selectedRecord.goodsValue || 0).toLocaleString()}
                     {' = '}₹{calcInsuranceAmt(selectedRecord).toLocaleString()}
                   </span>
+                </div>
+
+                <div className="border-t border-[#1e3a8a] p-2 text-[11px]">
+                  <div><span className="font-bold">From Lift:</span> {selectedRecord.fromLift || 'Not Required'} <span className="font-bold ml-3">To Lift:</span> {selectedRecord.toLift || 'Not Required'}</div>
+                  <div><span className="font-bold">Easy Access:</span> {selectedRecord.easyAccess || ''} <span className="font-bold ml-3">Balcony Items:</span> {selectedRecord.balconyItems || ''}</div>
+                  {selectedRecord.extraInfo && <div><span className="font-bold">Other Details:</span> {selectedRecord.extraInfo}</div>}
                 </div>
 
                 {/* Total Amount in Words */}
