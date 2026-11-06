@@ -1157,7 +1157,7 @@ export const BikeConditionView: React.FC<Props> = ({
 
               <button
                 type="button"
-                onClick={() => window.print()}
+                onClick={() => handleOpenInNewTab(selectedRecord)}
                 className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl text-xs shadow-xs flex items-center gap-1.5 cursor-pointer transition-all active:scale-95"
               >
                 <Printer className="w-4 h-4" />
@@ -1384,7 +1384,7 @@ export const BikeConditionView: React.FC<Props> = ({
             </button>
             <button
               type="button"
-              onClick={() => window.print()}
+              onClick={() => handleOpenInNewTab(selectedRecord)}
               className="bg-slate-900 hover:bg-black text-white font-bold px-5 py-2 rounded-xl text-xs shadow-md cursor-pointer flex items-center gap-1.5"
             >
               <Printer className="w-4 h-4" />

@@ -585,7 +585,7 @@ export const MoneyReceiptView: React.FC<Props> = ({
 
               <button
                 type="button"
-                onClick={() => window.print()}
+                onClick={() => handleOpenInNewTab(selectedRecord)}
                 className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl text-xs shadow-xs flex items-center gap-1.5 cursor-pointer transition-all active:scale-95"
               >
                 <Printer className="w-4 h-4" />
@@ -763,7 +763,7 @@ export const MoneyReceiptView: React.FC<Props> = ({
                 Back to Form
               </button>
               <button
-                onClick={() => window.print()}
+                onClick={() => handleOpenInNewTab(selectedRecord)}
                 className="bg-blue-600 text-white font-bold px-5 py-2 rounded-xl text-xs flex items-center gap-1.5 cursor-pointer shadow-xs hover:bg-blue-700"
               >
                 <Printer className="w-4 h-4" /> Print Money Receipt

@@ -755,27 +755,24 @@ export default function App() {
   const [surveySearchQuery, setSurveySearchQuery] = useState('');
   const [shareToast, setShareToast] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (
-      adminTab === 'add-quotation' &&
-      !editingQuotationId &&
-      !quotationForm.partyName.trim()
-    ) {
-      const numberIsUsed = quotations.some(
-        quotation => String(quotation.quotationNo || '').trim() === quotationForm.quotationNo
-      );
-      const nextQuotationNo = numberIsUsed ? getNextQuotationNumber() : quotationForm.quotationNo;
-      if (nextQuotationNo !== quotationForm.quotationNo) {
-        setQuotationForm(prev => ({ ...prev, quotationNo: nextQuotationNo }));
-        return;
-      }
-
-    }
-  }, [adminTab, editingQuotationId, quotations, quotationForm.quotationNo, quotationForm.partyName]);
-
   const handleSaveQuotation = () => {
     if (!quotationForm.partyName.trim()) {
       setShareToast('Please enter Party Name');
+      setTimeout(() => setShareToast(null), 3000);
+      return;
+    }
+    const quotationNo = String(quotationForm.quotationNo || '').trim();
+    if (!quotationNo) {
+      setShareToast('Please enter Quotation No.');
+      setTimeout(() => setShareToast(null), 3000);
+      return;
+    }
+    const duplicateQuotation = quotations.find(
+      quotation => String(quotation.id) !== String(editingQuotationId) &&
+        String(quotation.quotationNo || '').trim().toLowerCase() === quotationNo.toLowerCase()
+    );
+    if (duplicateQuotation) {
+      setShareToast(`Quotation No. ${quotationNo} is already used`);
       setTimeout(() => setShareToast(null), 3000);
       return;
     }
@@ -4100,7 +4097,7 @@ export default function App() {
                           <input
                             type="text"
                             value={quotationForm.quotationNo}
-                            readOnly
+                            onChange={(e) => setQuotationForm({ ...quotationForm, quotationNo: e.target.value })}
                             className="w-full outline-none text-slate-800 text-sm bg-transparent"
                           />
                         </div>
