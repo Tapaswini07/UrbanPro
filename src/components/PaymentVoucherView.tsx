@@ -255,7 +255,7 @@ export const PaymentVoucherView: React.FC<Props> = ({ vouchers, initialViewMode 
                 <input
                   type="number"
                   required
-                  value={form.amount}
+                  value={form.amount === 0 ? '' : form.amount}
                   onChange={e => setForm({ ...form, amount: parseFloat(e.target.value) || 0 })}
                   className="w-full outline-none text-slate-800 text-sm font-bold bg-transparent"
                   placeholder="0.00"
