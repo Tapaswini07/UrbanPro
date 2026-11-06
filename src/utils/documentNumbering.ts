@@ -1,11 +1,8 @@
 export function getNextAvailableDocumentNumber<T>(records: T[], numberField: keyof T): string {
-  const usedNumbers = new Set(
-    records
-      .map((record) => Number.parseInt(String(record[numberField] ?? '').replace(/\D/g, ''), 10))
-      .filter((number) => Number.isFinite(number) && number > 0)
-  );
+  const highestNumber = records.reduce((highest, record) => {
+    const number = Number.parseInt(String(record[numberField] ?? '').replace(/\D/g, ''), 10);
+    return Number.isFinite(number) && number > highest ? number : highest;
+  }, 0);
 
-  let nextNumber = 1;
-  while (usedNumbers.has(nextNumber)) nextNumber += 1;
-  return String(nextNumber);
+  return String(highestNumber + 1);
 }
