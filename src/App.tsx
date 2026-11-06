@@ -4093,12 +4093,16 @@ export default function App() {
                       <span className="absolute -top-3.5 left-4 bg-green-400 text-white px-4 py-1 rounded-md text-sm font-medium shadow-sm">Quot. Details</span>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="border border-slate-300 rounded-lg p-2 focus-within:border-green-500 focus-within:ring-1 focus-within:ring-green-500 transition-all bg-white">
-                          <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Quot No. *</label>
+                          <label className="block text-[11px] text-slate-500 font-medium mb-0.5">
+                            Quot No. * <span className="text-emerald-600">(Editable)</span>
+                          </label>
                           <input
                             type="text"
+                            inputMode="numeric"
+                            aria-label="Editable quotation number"
                             value={quotationForm.quotationNo}
-                            onChange={(e) => setQuotationForm({ ...quotationForm, quotationNo: e.target.value })}
-                            className="w-full outline-none text-slate-800 text-sm bg-transparent"
+                            onChange={(e) => setQuotationForm(prev => ({ ...prev, quotationNo: e.target.value }))}
+                            className="w-full outline-none text-slate-800 text-sm bg-transparent cursor-text"
                           />
                         </div>
                         <div className="border border-slate-300 rounded-lg p-2 focus-within:border-green-500 focus-within:ring-1 focus-within:ring-green-500 transition-all bg-white relative">
