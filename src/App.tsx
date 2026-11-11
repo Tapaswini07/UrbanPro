@@ -144,6 +144,16 @@ export default function App() {
   const [quoteSubmissionError, setQuoteSubmissionError] = useState('');
   const [submittedQuoteDetails, setSubmittedQuoteDetails] = useState<SubmittedQuoteDetails | null>(readSubmittedQuoteDetails);
   const [showQuoteSubmitToast, setShowQuoteSubmitToast] = useState(() => Boolean(readSubmittedQuoteDetails()));
+  const [quoteRequests, setQuoteRequests] = useState<any[]>(() => {
+    try {
+      const saved = localStorage.getItem('upl_quote_requests');
+      const parsed = saved ? JSON.parse(saved) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (error) {
+      console.error('Failed to restore enquiry requests', error);
+      return [];
+    }
+  });
 
   const [isAdminView, setIsAdminView] = useState(false);
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
@@ -1611,6 +1621,30 @@ export default function App() {
       }
     };
 
+    // Website enquiries are the first source of customer details. Include them
+    // so the admin can complete a survey later using only the mobile number.
+    quoteRequests.forEach(request => {
+      addProfile({
+        partyName: request.name,
+        mobileNo: request.phone,
+        email: request.email,
+        fromCity: request.movingFrom,
+        toCity: request.movingTo,
+        moveType: request.item,
+        packingDate: request.movingDate,
+        uniqueId: request.submittedAt,
+        source: 'Website Enquiry',
+        items: (request.itemRows || [])
+          .filter((item: any) => item.name?.trim())
+          .map((item: any) => ({
+            name: item.name,
+            qty: '1',
+            value: item.value || '',
+            remark: 'From website enquiry',
+          })),
+      });
+    });
+
     // 1. From Surveys
     surveys.forEach(s => {
       addProfile({
@@ -1777,7 +1811,7 @@ export default function App() {
     });
 
     return Array.from(map.values());
-  }, [surveys, quotations, packingLists, bilties, bills, moneyReceipts, carConditions, bikeConditions]);
+  }, [quoteRequests, surveys, quotations, packingLists, bilties, bills, moneyReceipts, carConditions, bikeConditions]);
 
   const findCustomerProfile = (query: string) => {
     if (!query || !query.trim()) return null;
@@ -1851,6 +1885,7 @@ export default function App() {
           toFloor: match.toFloor || prev.toFloor,
           toLift: match.toLift || prev.toLift,
           moveType: match.moveType || prev.moveType,
+          items: match.items?.length ? match.items : prev.items,
         };
       }
       return { ...prev, partyName: val };
@@ -2144,10 +2179,20 @@ export default function App() {
         window.sessionStorage.setItem('upl_pending_quote_confirmation', JSON.stringify(submittedDetails));
         const savedRequests = JSON.parse(localStorage.getItem('upl_quote_requests') || '[]');
         const requests = Array.isArray(savedRequests) ? savedRequests : [];
-        localStorage.setItem('upl_quote_requests', JSON.stringify([
+        const request = {
+          ...submittedDetails,
+          email: formData.email,
+          movingDate: formData.date,
+          itemRows: formData.itemRows,
+          message,
+          submittedAt: new Date().toISOString(),
+        };
+        const updatedRequests = [
           ...requests,
-          { ...submittedDetails, message, submittedAt: new Date().toISOString() },
-        ].slice(-200)));
+          request,
+        ].slice(-200);
+        localStorage.setItem('upl_quote_requests', JSON.stringify(updatedRequests));
+        setQuoteRequests(updatedRequests);
       } catch (error) {
         console.error('Failed to save quote request locally', error);
       }
