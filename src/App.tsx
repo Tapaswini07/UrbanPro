@@ -2143,7 +2143,6 @@ export default function App() {
     };
     setIsSubmittingQuote(true);
     setQuoteSubmissionError('');
-    const whatsappWindow = window.open('', '_blank');
     try {
       const response = await fetch('https://api.web3forms.com/submit', {
         method: 'POST',
@@ -2170,10 +2169,23 @@ export default function App() {
       if (!response.ok || !result?.success) throw new Error(result?.message || 'Email service rejected the request');
 
       setSubmittedQuoteDetails(submittedDetails);
-      if (whatsappWindow && !whatsappWindow.closed) {
-        whatsappWindow.location.href = whatsappUrl;
-      } else {
-        window.location.assign(whatsappUrl);
+      const whatsappResponse = await fetch('/api/whatsapp/enquiry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name,
+          phone: formData.phone,
+          email: formData.email,
+          movingDate: formData.date,
+          serviceType: finalItem,
+          items: itemListText,
+          movingFrom: formData.movingFrom,
+          movingTo: formData.movingTo,
+        }),
+      });
+      const whatsappResult = await whatsappResponse.json().catch(() => null);
+      if (!whatsappResponse.ok || !whatsappResult?.success) {
+        throw new Error(whatsappResult?.message || 'WhatsApp service rejected the request');
       }
       try {
         window.sessionStorage.setItem('upl_pending_quote_confirmation', JSON.stringify(submittedDetails));
@@ -2200,9 +2212,6 @@ export default function App() {
       setShowQuoteSubmitToast(true);
       setFormData({ name: '', phone: '', email: '', date: '', item: '', otherItem: '', movingFrom: '', movingTo: '', itemRows: [{ name: '', value: '' }] });
     } catch (error) {
-      if (whatsappWindow && !whatsappWindow.closed) {
-        whatsappWindow.close();
-      }
       console.error('Failed to submit quote request by email', error);
       setQuoteSubmissionError('Your request could not be sent. Please try again.');
     } finally {

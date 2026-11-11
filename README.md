@@ -18,3 +18,22 @@ View your app in AI Studio: https://ai.studio/apps/af2df666-ccbb-44fd-be17-f67b4
 2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
 3. Run the app:
    `npm run dev`
+
+## Meta WhatsApp Cloud API
+
+Copy `.env.example` to `.env` and fill in the Meta values before running
+`npm run dev:server` or `npm start`. The access token stays on the server.
+
+Create and approve a WhatsApp message template named
+`urbanpro_new_enquiry` with seven body variables:
+
+1. Customer name
+2. Customer phone
+3. Email
+4. Moving date
+5. Service type
+6. Requested items
+7. Moving route
+
+The enquiry form sends the existing email and then sends this approved template
+through Meta's WhatsApp Cloud API. It does not open or redirect to WhatsApp.
