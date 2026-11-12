@@ -2,6 +2,7 @@ import express from 'express';
 import fs from 'node:fs';
 import path from 'node:path';
 import 'dotenv/config';
+import nodemailer from 'nodemailer';
 
 const app = express();
 const port = Number(process.env.PORT || 3001);
@@ -46,75 +47,41 @@ app.post('/api/email/enquiry', async (req, res) => {
     movingTo,
     message,
   } = req.body || {};
-  const accessKey = process.env.WEB3FORMS_ACCESS_KEY;
+  const smtpUser = process.env.SMTP_USER;
+  const smtpPass = process.env.SMTP_PASS;
+  const recipientEmail = process.env.SMTP_RECIPIENT_EMAIL || 'urbanpro403@gmail.com';
 
-  if (!accessKey) {
-    res.status(503).json({
-      success: false,
-      message: 'Email service is not configured on the server.',
-    });
-    return;
-  }
-
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 15000);
-
-  try {
-    const response = await fetch('https://api.web3forms.com/submit', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      signal: controller.signal,
-      body: JSON.stringify({
-        access_key: accessKey,
-        from_name: 'UrbanPro Website',
-        subject: 'New quote request from UrbanPro website',
-        to: process.env.WEB3FORMS_RECIPIENT_EMAIL || 'urbanpro403@gmail.com',
-        name,
-        phone,
-        email: email || 'Not provided',
-        replyto: email || undefined,
-        movingDate,
-        serviceType,
-        items: items || 'Not provided',
-        movingFrom,
-        movingTo,
-        message,
-      }),
-    });
-    const responseText = await response.text();
-    let result: { success?: boolean; message?: string } | null = null;
+  if (smtpUser && smtpPass) {
     try {
-      result = JSON.parse(responseText);
-    } catch {
-      console.error('Web3Forms returned a non-JSON response', {
-        status: response.status,
-        preview: responseText.slice(0, 120),
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: { user: smtpUser, pass: smtpPass },
       });
-    }
-
-    if (!response.ok || !result?.success) {
-      console.error('Web3Forms rejected enquiry', result);
+      await transporter.sendMail({
+        from: process.env.SMTP_FROM || smtpUser,
+        to: recipientEmail,
+        replyTo: email && email !== 'Not provided' ? email : undefined,
+        subject: 'New quote request from UrbanPro website',
+        text: message,
+      });
+      res.json({ success: true, transport: 'smtp' });
+      return;
+    } catch (error) {
+      console.error('SMTP rejected enquiry', error);
       res.status(502).json({
         success: false,
-        message: result?.message || 'Web3Forms is unavailable from the server. Please configure another email provider.',
+        message: 'SMTP could not send the enquiry. Check the Gmail App Password.',
       });
       return;
     }
+  }
 
-    res.json({ success: true });
-  } catch (error) {
-    console.error('Failed to send enquiry through Web3Forms', error);
-    res.status(502).json({
+  if (!smtpUser || !smtpPass) {
+    res.status(503).json({
       success: false,
-      message: error instanceof DOMException && error.name === 'AbortError'
-        ? 'Email service timed out.'
-        : 'Could not connect to email service.',
+      message: 'Email service is not configured. Add SMTP_USER and SMTP_PASS to the server environment.',
     });
-  } finally {
-    clearTimeout(timeout);
+    return;
   }
 });
 

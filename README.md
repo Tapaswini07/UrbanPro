@@ -21,8 +21,8 @@ View your app in AI Studio: https://ai.studio/apps/af2df666-ccbb-44fd-be17-f67b4
 
 ## Meta WhatsApp Cloud API
 
-Email enquiries are sent by the server through Web3Forms. Configure
-`WEB3FORMS_ACCESS_KEY` and, optionally, `WEB3FORMS_RECIPIENT_EMAIL` in `.env`.
+Email enquiries are sent directly by the server through Gmail SMTP. Configure
+`SMTP_USER`, `SMTP_PASS` (a Gmail App Password), and `SMTP_RECIPIENT_EMAIL` in `.env`.
 
 Copy `.env.example` to `.env` and fill in the Meta values before running
 `npm run dev:server` or `npm start`. The access token stays on the server.
