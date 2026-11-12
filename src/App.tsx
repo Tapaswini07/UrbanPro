@@ -2144,25 +2144,46 @@ export default function App() {
     setIsSubmittingQuote(true);
     setQuoteSubmissionError('');
     try {
-      const response = await fetch('/api/email/enquiry', {
+      const emailPayload = {
+        name: formData.name,
+        phone: formData.phone,
+        email: formData.email || 'Not provided',
+        movingDate: formData.date,
+        serviceType: finalItem,
+        items: itemListText || 'Not provided',
+        movingFrom: formData.movingFrom,
+        movingTo: formData.movingTo,
+        message,
+      };
+      let response = await fetch('/api/email/enquiry', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
-        body: JSON.stringify({
-          name: formData.name,
-          phone: formData.phone,
-          email: formData.email || 'Not provided',
-          movingDate: formData.date,
-          serviceType: finalItem,
-          items: itemListText || 'Not provided',
-          movingFrom: formData.movingFrom,
-          movingTo: formData.movingTo,
-          message,
-        }),
+        body: JSON.stringify(emailPayload),
       });
-      const result = await response.json().catch(() => null);
+      let result = await response.json().catch(() => null);
+
+      // Some networks challenge server requests to Web3Forms, while browser requests still work.
+      if (!response.ok || !result?.success) {
+        response = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          body: JSON.stringify({
+            access_key: 'cbba3f97-fafc-4d1d-a35f-1ddbae8e444c',
+            from_name: 'UrbanPro Website',
+            subject: 'New quote request from UrbanPro website',
+            to: 'urbanpro403@gmail.com',
+            replyto: formData.email || undefined,
+            ...emailPayload,
+          }),
+        });
+        result = await response.json().catch(() => null);
+      }
       if (!response.ok || !result?.success) throw new Error(result?.message || 'Email service rejected the request');
 
       setSubmittedQuoteDetails(submittedDetails);
