@@ -34,6 +34,81 @@ app.put('/api/portal-store/:key', (req, res) => {
   }
 });
 
+app.post('/api/email/enquiry', async (req, res) => {
+  const {
+    name,
+    phone,
+    email,
+    movingDate,
+    serviceType,
+    items,
+    movingFrom,
+    movingTo,
+    message,
+  } = req.body || {};
+  const accessKey = process.env.WEB3FORMS_ACCESS_KEY;
+
+  if (!accessKey) {
+    res.status(503).json({
+      success: false,
+      message: 'Email service is not configured on the server.',
+    });
+    return;
+  }
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 15000);
+
+  try {
+    const response = await fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      signal: controller.signal,
+      body: JSON.stringify({
+        access_key: accessKey,
+        from_name: 'UrbanPro Website',
+        subject: 'New quote request from UrbanPro website',
+        to: process.env.WEB3FORMS_RECIPIENT_EMAIL || 'urbanpro403@gmail.com',
+        name,
+        phone,
+        email: email || 'Not provided',
+        replyto: email || undefined,
+        movingDate,
+        serviceType,
+        items: items || 'Not provided',
+        movingFrom,
+        movingTo,
+        message,
+      }),
+    });
+    const result = await response.json().catch(() => null);
+
+    if (!response.ok || !result?.success) {
+      console.error('Web3Forms rejected enquiry', result);
+      res.status(502).json({
+        success: false,
+        message: result?.message || 'Email service rejected the enquiry.',
+      });
+      return;
+    }
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Failed to send enquiry through Web3Forms', error);
+    res.status(502).json({
+      success: false,
+      message: error instanceof DOMException && error.name === 'AbortError'
+        ? 'Email service timed out.'
+        : 'Could not connect to email service.',
+    });
+  } finally {
+    clearTimeout(timeout);
+  }
+});
+
 app.post('/api/whatsapp/enquiry', async (req, res) => {
   const {
     name,

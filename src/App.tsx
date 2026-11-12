@@ -2144,18 +2144,13 @@ export default function App() {
     setIsSubmittingQuote(true);
     setQuoteSubmissionError('');
     try {
-      const response = await fetch('https://api.web3forms.com/submit', {
+      const response = await fetch('/api/email/enquiry', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
         body: JSON.stringify({
-          access_key: 'ee8adabe-b586-4a77-8b24-a3d732085afc',
-          from_name: 'UrbanPro Website',
-          subject: 'New quote request from UrbanPro website',
-          to: 'urbanpro403@gmail.com',
-          replyto: formData.email || undefined,
           name: formData.name,
           phone: formData.phone,
           email: formData.email || 'Not provided',
@@ -2196,8 +2191,7 @@ export default function App() {
       setShowQuoteSubmitToast(true);
       setFormData({ name: '', phone: '', email: '', date: '', item: '', otherItem: '', movingFrom: '', movingTo: '', itemRows: [{ name: '', value: '' }] });
 
-      try {
-        const whatsappResponse = await fetch('/api/whatsapp/enquiry', {
+      void fetch('/api/whatsapp/enquiry', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -2210,17 +2204,21 @@ export default function App() {
             movingFrom: formData.movingFrom,
             movingTo: formData.movingTo,
           }),
-        });
+        })
+        .then(async whatsappResponse => {
         const whatsappResult = await whatsappResponse.json().catch(() => null);
         if (!whatsappResponse.ok || !whatsappResult?.success) {
           console.error('WhatsApp notification failed after email submission', whatsappResult);
         }
-      } catch (error) {
-        console.error('WhatsApp notification failed after email submission', error);
-      }
+        })
+        .catch(error => {
+          console.error('WhatsApp notification failed after email submission', error);
+        });
     } catch (error) {
       console.error('Failed to submit quote request by email', error);
-      setQuoteSubmissionError('Your request could not be sent. Please try again.');
+      setQuoteSubmissionError(error instanceof Error && error.message
+        ? error.message
+        : 'Your request could not be sent. Please try again.');
     } finally {
       setIsSubmittingQuote(false);
     }
