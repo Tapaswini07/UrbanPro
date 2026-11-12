@@ -84,13 +84,22 @@ app.post('/api/email/enquiry', async (req, res) => {
         message,
       }),
     });
-    const result = await response.json().catch(() => null);
+    const responseText = await response.text();
+    let result: { success?: boolean; message?: string } | null = null;
+    try {
+      result = JSON.parse(responseText);
+    } catch {
+      console.error('Web3Forms returned a non-JSON response', {
+        status: response.status,
+        preview: responseText.slice(0, 120),
+      });
+    }
 
     if (!response.ok || !result?.success) {
       console.error('Web3Forms rejected enquiry', result);
       res.status(502).json({
         success: false,
-        message: result?.message || 'Email service rejected the enquiry.',
+        message: result?.message || 'Web3Forms is unavailable from the server. Please configure another email provider.',
       });
       return;
     }
