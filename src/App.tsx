@@ -2154,6 +2154,8 @@ export default function App() {
           access_key: 'ee8adabe-b586-4a77-8b24-a3d732085afc',
           from_name: 'UrbanPro Website',
           subject: 'New quote request from UrbanPro website',
+          to: 'urbanpro403@gmail.com',
+          replyto: formData.email || undefined,
           name: formData.name,
           phone: formData.phone,
           email: formData.email || 'Not provided',
@@ -2169,24 +2171,6 @@ export default function App() {
       if (!response.ok || !result?.success) throw new Error(result?.message || 'Email service rejected the request');
 
       setSubmittedQuoteDetails(submittedDetails);
-      const whatsappResponse = await fetch('/api/whatsapp/enquiry', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: formData.name,
-          phone: formData.phone,
-          email: formData.email,
-          movingDate: formData.date,
-          serviceType: finalItem,
-          items: itemListText,
-          movingFrom: formData.movingFrom,
-          movingTo: formData.movingTo,
-        }),
-      });
-      const whatsappResult = await whatsappResponse.json().catch(() => null);
-      if (!whatsappResponse.ok || !whatsappResult?.success) {
-        throw new Error(whatsappResult?.message || 'WhatsApp service rejected the request');
-      }
       try {
         window.sessionStorage.setItem('upl_pending_quote_confirmation', JSON.stringify(submittedDetails));
         const savedRequests = JSON.parse(localStorage.getItem('upl_quote_requests') || '[]');
@@ -2211,6 +2195,29 @@ export default function App() {
       setQuoteSubmitted(true);
       setShowQuoteSubmitToast(true);
       setFormData({ name: '', phone: '', email: '', date: '', item: '', otherItem: '', movingFrom: '', movingTo: '', itemRows: [{ name: '', value: '' }] });
+
+      try {
+        const whatsappResponse = await fetch('/api/whatsapp/enquiry', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: formData.name,
+            phone: formData.phone,
+            email: formData.email,
+            movingDate: formData.date,
+            serviceType: finalItem,
+            items: itemListText,
+            movingFrom: formData.movingFrom,
+            movingTo: formData.movingTo,
+          }),
+        });
+        const whatsappResult = await whatsappResponse.json().catch(() => null);
+        if (!whatsappResponse.ok || !whatsappResult?.success) {
+          console.error('WhatsApp notification failed after email submission', whatsappResult);
+        }
+      } catch (error) {
+        console.error('WhatsApp notification failed after email submission', error);
+      }
     } catch (error) {
       console.error('Failed to submit quote request by email', error);
       setQuoteSubmissionError('Your request could not be sent. Please try again.');
@@ -2218,8 +2225,6 @@ export default function App() {
       setIsSubmittingQuote(false);
     }
 
-
-    setFormData({ name: '', phone: '', email: '', date: '', item: '', otherItem: '', movingFrom: '', movingTo: '', itemRows: [{ name: '', value: '' }] });
   };
 
   const updateItemRow = (index: number, field: 'name' | 'value', value: string) => {

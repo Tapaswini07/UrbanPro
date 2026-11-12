@@ -37,3 +37,6 @@ Create and approve a WhatsApp message template named
 
 The enquiry form sends the existing email and then sends this approved template
 through Meta's WhatsApp Cloud API. It does not open or redirect to WhatsApp.
+Email submission is the primary delivery. WhatsApp notification configuration is
+optional and a WhatsApp API failure does not invalidate a successfully submitted
+email enquiry.
