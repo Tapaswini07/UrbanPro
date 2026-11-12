@@ -2155,16 +2155,22 @@ export default function App() {
         movingTo: formData.movingTo,
         message,
       };
-      const response = await fetch('/api/email/enquiry', {
+      const directForm = new FormData();
+      directForm.append('access_key', import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || '');
+      directForm.append('from_name', 'UrbanPro Website');
+      directForm.append('subject', 'New quote request from UrbanPro website');
+      directForm.append('to', 'urbanpro403@gmail.com');
+      Object.entries(emailPayload).forEach(([key, value]) => {
+        if (value) directForm.append(key, value);
+      });
+      const response = await fetch('https://api.web3forms.com/submit', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify(emailPayload),
+        body: directForm,
       });
       const result = await response.json().catch(() => null);
-      if (!response.ok || !result?.success) throw new Error(result?.message || 'Email service rejected the request');
+      if (!response.ok || !result?.success) {
+        throw new Error(result?.message || 'Email service rejected the request');
+      }
 
       setSubmittedQuoteDetails(submittedDetails);
       try {

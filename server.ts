@@ -2,7 +2,6 @@ import express from 'express';
 import fs from 'node:fs';
 import path from 'node:path';
 import 'dotenv/config';
-import nodemailer from 'nodemailer';
 
 const app = express();
 const port = Number(process.env.PORT || 3001);
@@ -32,56 +31,6 @@ app.put('/api/portal-store/:key', (req, res) => {
     res.json({ success: true });
   } catch {
     res.status(500).json({ error: 'Failed to save portal data' });
-  }
-});
-
-app.post('/api/email/enquiry', async (req, res) => {
-  const {
-    name,
-    phone,
-    email,
-    movingDate,
-    serviceType,
-    items,
-    movingFrom,
-    movingTo,
-    message,
-  } = req.body || {};
-  const smtpUser = process.env.SMTP_USER;
-  const smtpPass = process.env.SMTP_PASS;
-  const recipientEmail = process.env.SMTP_RECIPIENT_EMAIL || 'urbanpro403@gmail.com';
-
-  if (smtpUser && smtpPass) {
-    try {
-      const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: { user: smtpUser, pass: smtpPass },
-      });
-      await transporter.sendMail({
-        from: process.env.SMTP_FROM || smtpUser,
-        to: recipientEmail,
-        replyTo: email && email !== 'Not provided' ? email : undefined,
-        subject: 'New quote request from UrbanPro website',
-        text: message,
-      });
-      res.json({ success: true, transport: 'smtp' });
-      return;
-    } catch (error) {
-      console.error('SMTP rejected enquiry', error);
-      res.status(502).json({
-        success: false,
-        message: 'SMTP could not send the enquiry. Check the Gmail App Password.',
-      });
-      return;
-    }
-  }
-
-  if (!smtpUser || !smtpPass) {
-    res.status(503).json({
-      success: false,
-      message: 'Email service is not configured. Add SMTP_USER and SMTP_PASS to the server environment.',
-    });
-    return;
   }
 });
 
