@@ -2155,22 +2155,35 @@ export default function App() {
         movingTo: formData.movingTo,
         message,
       };
-      const directForm = new FormData();
-      directForm.append('access_key', import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || '');
-      directForm.append('from_name', 'UrbanPro Website');
-      directForm.append('subject', 'New quote request from UrbanPro website');
-      directForm.append('to', 'urbanpro403@gmail.com');
-      Object.entries(emailPayload).forEach(([key, value]) => {
-        if (value) directForm.append(key, value);
-      });
-      const response = await fetch('https://api.web3forms.com/submit', {
+      const response = await fetch('/api/email/enquiry', {
         method: 'POST',
-        body: directForm,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify(emailPayload),
       });
-      const result = await response.json().catch(() => null);
+      let result = await response.json().catch(() => null);
       if (!response.ok || !result?.success) {
-        throw new Error(result?.message || 'Email service rejected the request');
+        const directForm = new FormData();
+        directForm.append('access_key', '89cd421e-088f-474c-b569-a063e5af2aed');
+        directForm.append('from_name', 'UrbanPro Website');
+        directForm.append('subject', 'New quote request from UrbanPro website');
+        directForm.append('to', 'urbanpro403@gmail.com');
+        Object.entries(emailPayload).forEach(([key, value]) => {
+          if (value) directForm.append(key, value);
+        });
+
+        const directResponse = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          body: directForm,
+        });
+        const directResult = await directResponse.json().catch(() => null);
+        if (directResponse.ok && directResult?.success) {
+          result = directResult;
+        }
       }
+      if (!result?.success) throw new Error(result?.message || 'Email service rejected the request');
 
       setSubmittedQuoteDetails(submittedDetails);
       try {
@@ -6618,8 +6631,7 @@ export default function App() {
                 </motion.div>
               )}
 
-              <form action="https://api.web3forms.com/submit" method="POST" onSubmit={handleSubmit} className="space-y-3.5">
-                <input type="hidden" name="access_key" value={import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || ''} />
+              <form onSubmit={handleSubmit} className="space-y-3.5">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Name *</label>
                   <input
@@ -7454,8 +7466,7 @@ export default function App() {
               </motion.div>
             )}
 
-            <form action="https://api.web3forms.com/submit" method="POST" onSubmit={handleSubmit} className="space-y-4">
-              <input type="hidden" name="access_key" value={import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || ''} />
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Name *</label>
                 <input
