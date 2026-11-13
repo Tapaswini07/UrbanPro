@@ -6618,7 +6618,8 @@ export default function App() {
                 </motion.div>
               )}
 
-              <form action="89cd421e-088f-474c-b569-a063e5af2aed" method="POST" onSubmit={handleSubmit} className="space-y-3.5">
+              <form action="https://api.web3forms.com/submit" method="POST" onSubmit={handleSubmit} className="space-y-3.5">
+                <input type="hidden" name="access_key" value={import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || ''} />
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Name *</label>
                   <input
@@ -7453,7 +7454,8 @@ export default function App() {
               </motion.div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form action="https://api.web3forms.com/submit" method="POST" onSubmit={handleSubmit} className="space-y-4">
+              <input type="hidden" name="access_key" value={import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || ''} />
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Name *</label>
                 <input
