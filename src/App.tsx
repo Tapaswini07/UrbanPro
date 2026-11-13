@@ -95,8 +95,9 @@ export const FLOOR_OPTIONS = [
 ];
 
 // Web3Forms access keys are intentionally public and are tied to the inbox
-// selected when the key is created. Vite replaces this value at build time.
-const WEB3FORMS_ACCESS_KEY = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY;
+// selected when the key is created. The fallback keeps static-host deployments
+// working when their build environment does not provide VITE_WEB3FORMS_ACCESS_KEY.
+const WEB3FORMS_ACCESS_KEY = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || '89cd421e-088f-474c-b569-a063e5af2aed';
 
 type SubmittedQuoteDetails = {
   name: string;
