@@ -16,18 +16,19 @@ export async function readSharedValue(key: string): Promise<unknown> {
   }
 }
 
-export function writeSharedValue(key: string, value: unknown): void {
-  fetch(`/api/portal-store/${encodeURIComponent(key)}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ value }),
-  }).then(response => {
+export async function writeSharedValue(key: string, value: unknown): Promise<void> {
+  try {
+    const response = await fetch(`/api/portal-store/${encodeURIComponent(key)}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ value }),
+    });
     if (!response.ok) throw new Error(`Failed to save shared data: ${key}`);
-  }).catch(() => {
+  } catch {
     try {
       localStorage.setItem(key, JSON.stringify(value));
     } catch (error) {
       console.error(`Failed to save local fallback data: ${key}`, error);
     }
-  });
+  }
 }

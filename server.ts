@@ -1,37 +1,139 @@
-import express from 'express';
+import express, { type Response } from 'express';
 import fs from 'node:fs';
 import path from 'node:path';
+import { Pool } from 'pg';
 import 'dotenv/config';
 
 const app = express();
 const port = Number(process.env.PORT || 3001);
-const dataDirectory = process.env.DATA_DIR || path.join(process.cwd(), 'data');
-const dataFile = path.join(dataDirectory, 'portal-store.json');
+const databaseUrl = process.env.DATABASE_URL;
+const pool = databaseUrl
+  ? new Pool({
+      connectionString: databaseUrl,
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined,
+    })
+  : null;
 
-fs.mkdirSync(dataDirectory, { recursive: true });
-if (!fs.existsSync(dataFile)) fs.writeFileSync(dataFile, '{}');
+const PORTAL_COLLECTIONS = new Set([
+  'upl_quote_requests',
+  'upl_surveys',
+  'upl_quotations',
+  'upl_packing_lists',
+  'upl_bilties',
+  'upl_bills',
+  'upl_money_receipts',
+  'upl_vouchers',
+  'upl_car_conditions',
+  'upl_bike_conditions',
+  'upl_company_profile',
+  'upl_global_signature',
+  'upl_company_signature',
+]);
+const portalSubscribers = new Set<Response>();
+
+let schemaPromise: Promise<void> | null = null;
+
+async function ensureDatabase(): Promise<void> {
+  if (!pool) throw new Error('DATABASE_URL is not configured.');
+  if (!schemaPromise) {
+    schemaPromise = pool.query(`
+      CREATE TABLE IF NOT EXISTS portal_collections (
+        collection_key TEXT PRIMARY KEY,
+        value JSONB NOT NULL,
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+      CREATE INDEX IF NOT EXISTS portal_collections_updated_at_idx
+        ON portal_collections (updated_at DESC);
+    `).then(() => undefined);
+  }
+  return schemaPromise;
+}
 
 app.use(express.json({ limit: '50mb' }));
 
-const readStore = () => JSON.parse(fs.readFileSync(dataFile, 'utf8')) as Record<string, unknown>;
+function broadcastCollectionChange(key: string): void {
+  const message = `event: collection\ndata: ${JSON.stringify({ key })}\n\n`;
+  for (const subscriber of portalSubscribers) subscriber.write(message);
+}
+
+app.get('/api/health', (_req, res) => {
+  void (async () => {
+    try {
+      await ensureDatabase();
+      await pool!.query('SELECT 1');
+      res.json({ status: 'ok', database: 'connected' });
+    } catch (error) {
+      console.error('PostgreSQL health check failed', error);
+      res.status(503).json({ status: 'unavailable', database: 'disconnected' });
+    }
+  })();
+});
+
+app.get('/api/portal-store/events', (req, res) => {
+  res.status(200).set({
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache, no-transform',
+    Connection: 'keep-alive',
+  });
+  res.flushHeaders();
+  res.write('event: connected\ndata: {}\n\n');
+  portalSubscribers.add(res);
+  const heartbeat = setInterval(() => res.write(': keep-alive\n\n'), 25_000);
+  req.on('close', () => {
+    clearInterval(heartbeat);
+    portalSubscribers.delete(res);
+  });
+});
 
 app.get('/api/portal-store/:key', (req, res) => {
-  try {
-    res.json({ value: readStore()[req.params.key] ?? null });
-  } catch {
-    res.status(500).json({ error: 'Failed to read portal data' });
-  }
+  void (async () => {
+    const key = req.params.key;
+    if (!PORTAL_COLLECTIONS.has(key)) {
+      res.status(400).json({ error: 'Unsupported portal collection.' });
+      return;
+    }
+    try {
+      await ensureDatabase();
+      const result = await pool!.query(
+        'SELECT value, updated_at FROM portal_collections WHERE collection_key = $1',
+        [key]
+      );
+      res.json({ value: result.rows[0]?.value ?? null, updatedAt: result.rows[0]?.updated_at ?? null });
+    } catch (error) {
+      console.error(`Failed to read PostgreSQL collection ${key}`, error);
+      res.status(503).json({ error: 'PostgreSQL database is unavailable.' });
+    }
+  })();
 });
 
 app.put('/api/portal-store/:key', (req, res) => {
-  try {
-    const store = readStore();
-    store[req.params.key] = req.body.value;
-    fs.writeFileSync(dataFile, JSON.stringify(store, null, 2));
-    res.json({ success: true });
-  } catch {
-    res.status(500).json({ error: 'Failed to save portal data' });
-  }
+  void (async () => {
+    const key = req.params.key;
+    if (!PORTAL_COLLECTIONS.has(key)) {
+      res.status(400).json({ error: 'Unsupported portal collection.' });
+      return;
+    }
+    if (!Object.prototype.hasOwnProperty.call(req.body || {}, 'value')) {
+      res.status(400).json({ error: 'A collection value is required.' });
+      return;
+    }
+    try {
+      await ensureDatabase();
+      const result = await pool!.query(
+        `INSERT INTO portal_collections (collection_key, value)
+         VALUES ($1, $2::jsonb)
+         ON CONFLICT (collection_key)
+         DO UPDATE SET value = EXCLUDED.value, updated_at = NOW()
+         RETURNING updated_at`,
+        [key, JSON.stringify(req.body.value)]
+      );
+      broadcastCollectionChange(key);
+      res.json({ success: true, updatedAt: result.rows[0].updated_at });
+    } catch (error) {
+      console.error(`Failed to save PostgreSQL collection ${key}`, error);
+      res.status(503).json({ error: 'PostgreSQL database is unavailable.' });
+    }
+  })();
 });
 
 app.post('/api/whatsapp/enquiry', async (req, res) => {

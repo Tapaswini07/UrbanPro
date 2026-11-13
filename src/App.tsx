@@ -81,7 +81,7 @@ import { PRAKASH_SIGNATURE_BASE64 } from './assets/signatureBase64';
 import { INDIAN_STATES, getStateCodeByName } from './utils/indianStates';
 import { findCustomerProfileByMobile } from './utils/customerLookup';
 import { getNextAvailableDocumentNumber } from './utils/documentNumbering';
-import { writeSharedValue } from './utils/sharedStorage';
+import { readSharedValue, writeSharedValue } from './utils/sharedStorage';
 export { INDIAN_STATES, getStateCodeByName };
 
 export const FLOOR_OPTIONS = [
@@ -1544,6 +1544,138 @@ export default function App() {
   const [signatureUrl, setSignatureUrl] = useState(() => {
     return localStorage.getItem('upl_company_signature') || '';
   });
+
+  // PostgreSQL is the source of truth. On the first successful connection,
+  // existing browser data is imported into an empty Neon database. LocalStorage
+  // remains only as an offline cache/fallback, never as the shared data source.
+  useEffect(() => {
+    let cancelled = false;
+    const keys = [
+      'upl_quote_requests', 'upl_surveys', 'upl_quotations', 'upl_packing_lists',
+      'upl_bilties', 'upl_bills', 'upl_money_receipts', 'upl_vouchers',
+      'upl_car_conditions', 'upl_bike_conditions', 'upl_company_profile',
+      'upl_global_signature', 'upl_company_signature',
+    ];
+    const currentValues: Record<string, unknown> = {
+      upl_quote_requests: quoteRequests,
+      upl_surveys: surveys,
+      upl_quotations: quotations,
+      upl_packing_lists: packingLists,
+      upl_bilties: bilties,
+      upl_bills: bills,
+      upl_money_receipts: moneyReceipts,
+      upl_vouchers: vouchers,
+      upl_car_conditions: carConditions,
+      upl_bike_conditions: bikeConditions,
+      upl_company_profile: companyProfile,
+      upl_global_signature: globalSignature,
+      upl_company_signature: signatureUrl,
+    };
+
+    void Promise.all(keys.map(async key => [key, await readSharedValue(key)] as const))
+      .then(entries => {
+        if (cancelled) return;
+        const remote = Object.fromEntries(entries) as Record<string, unknown>;
+        const useRemoteArray = (key: string, setValue: (value: any[]) => void) => {
+          if (Array.isArray(remote[key])) setValue(remote[key]);
+        };
+
+        useRemoteArray('upl_quote_requests', setQuoteRequests);
+        useRemoteArray('upl_surveys', setSurveys);
+        useRemoteArray('upl_quotations', setQuotations);
+        useRemoteArray('upl_packing_lists', setPackingLists);
+        useRemoteArray('upl_bilties', setBilties);
+        useRemoteArray('upl_bills', setBills);
+        useRemoteArray('upl_money_receipts', setMoneyReceipts);
+        useRemoteArray('upl_vouchers', setVouchers);
+        useRemoteArray('upl_car_conditions', setCarConditions);
+        useRemoteArray('upl_bike_conditions', setBikeConditions);
+        if (remote.upl_company_profile && typeof remote.upl_company_profile === 'object' && !Array.isArray(remote.upl_company_profile)) {
+          setCompanyProfile(remote.upl_company_profile);
+        }
+        if (remote.upl_global_signature && typeof remote.upl_global_signature === 'object' && !Array.isArray(remote.upl_global_signature)) {
+          setGlobalSignature(remote.upl_global_signature as { text: string; image?: string });
+        }
+        if (typeof remote.upl_company_signature === 'string') setSignatureUrl(remote.upl_company_signature);
+
+        sharedHydrated.current = true;
+        // A null value means Neon has no data for that collection yet: import
+        // the existing local record once, preserving the user's current data.
+        Object.entries(currentValues).forEach(([key, value]) => {
+          if (remote[key] === null) writeSharedValue(key, value);
+        });
+      })
+      .catch(error => console.error('Failed to hydrate portal data from PostgreSQL', error));
+
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('upl_quote_requests', JSON.stringify(quoteRequests));
+      if (sharedHydrated.current) writeSharedValue('upl_quote_requests', quoteRequests);
+    } catch (error) {
+      console.error('Failed to save quote requests', error);
+    }
+  }, [quoteRequests]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('upl_company_signature', signatureUrl);
+      if (sharedHydrated.current) writeSharedValue('upl_company_signature', signatureUrl);
+    } catch (error) {
+      console.error('Failed to save company signature', error);
+    }
+  }, [signatureUrl]);
+
+  // Changes saved from another browser are broadcast by the API and merged
+  // here. A value comparison prevents receiving our own update from causing a
+  // second write loop.
+  useEffect(() => {
+    const eventSource = new EventSource('/api/portal-store/events');
+    const setArrayIfChanged = (setter: React.Dispatch<React.SetStateAction<any[]>>, value: unknown) => {
+      if (!Array.isArray(value)) return;
+      setter(current => JSON.stringify(current) === JSON.stringify(value) ? current : value);
+    };
+    const refreshCollection = async (key: string) => {
+      const value = await readSharedValue(key);
+      switch (key) {
+        case 'upl_quote_requests': setArrayIfChanged(setQuoteRequests, value); break;
+        case 'upl_surveys': setArrayIfChanged(setSurveys, value); break;
+        case 'upl_quotations': setArrayIfChanged(setQuotations, value); break;
+        case 'upl_packing_lists': setArrayIfChanged(setPackingLists, value); break;
+        case 'upl_bilties': setArrayIfChanged(setBilties, value); break;
+        case 'upl_bills': setArrayIfChanged(setBills, value); break;
+        case 'upl_money_receipts': setArrayIfChanged(setMoneyReceipts, value); break;
+        case 'upl_vouchers': setArrayIfChanged(setVouchers, value); break;
+        case 'upl_car_conditions': setArrayIfChanged(setCarConditions, value); break;
+        case 'upl_bike_conditions': setArrayIfChanged(setBikeConditions, value); break;
+        case 'upl_company_profile':
+          if (value && typeof value === 'object' && !Array.isArray(value)) {
+            setCompanyProfile(current => JSON.stringify(current) === JSON.stringify(value) ? current : value as typeof current);
+          }
+          break;
+        case 'upl_global_signature':
+          if (value && typeof value === 'object' && !Array.isArray(value)) {
+            setGlobalSignature(current => JSON.stringify(current) === JSON.stringify(value) ? current : value as typeof current);
+          }
+          break;
+        case 'upl_company_signature':
+          if (typeof value === 'string') setSignatureUrl(current => current === value ? current : value);
+          break;
+      }
+    };
+    const onCollectionChange = (event: MessageEvent<string>) => {
+      try {
+        const { key } = JSON.parse(event.data) as { key?: string };
+        if (key) void refreshCollection(key);
+      } catch (error) {
+        console.error('Invalid PostgreSQL live-update event', error);
+      }
+    };
+    eventSource.addEventListener('collection', onCollectionChange);
+    return () => eventSource.close();
+  }, []);
 
   // ----------------------------------------------------
   // Unified Customer Directory & Cross-Form Smart Auto-Fill

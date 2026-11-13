@@ -19,6 +19,29 @@ View your app in AI Studio: https://ai.studio/apps/af2df666-ccbb-44fd-be17-f67b4
 3. Run the app:
    `npm run dev`
 
+## Neon PostgreSQL database
+
+This application now stores the portal data in PostgreSQL instead of
+`data/portal-store.json` or browser local storage. Browser storage is retained
+only as an offline cache and is automatically imported the first time the
+database has no value for a collection.
+
+1. In Neon, create a database and copy its **pooled** connection string.
+2. Copy `.env.example` to `.env` and set `DATABASE_URL` to that connection
+   string. Never use a `VITE_` prefix for this value and never expose it in the
+   frontend.
+3. Run `npm run dev:server` for the API and `npm run dev` for the frontend, or
+   run `npm start` for the production server.
+4. On first connection, the API creates the `portal_collections` table
+   automatically. You may also run [database/schema.sql](database/schema.sql)
+   in the Neon SQL editor.
+5. Add the same `DATABASE_URL` to your hosting provider's server environment
+   variables before deployment.
+
+The PostgreSQL-backed collections are enquiries, surveys, quotations, packing
+lists, bilties, bills, money receipts, vouchers, car and bike condition
+reports, company profile, and signatures.
+
 ## Meta WhatsApp Cloud API
 
 Email enquiries are sent from the browser through Web3Forms. Configure

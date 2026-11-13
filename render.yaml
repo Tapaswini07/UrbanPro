@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: urbanpro-packer-logistics
+    runtime: node
+    plan: free
+    region: singapore
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start:server
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: VITE_WEB3FORMS_ACCESS_KEY
+        sync: false
+      - key: META_WHATSAPP_ACCESS_TOKEN
+        sync: false
+      - key: META_WHATSAPP_PHONE_NUMBER_ID
+        sync: false
+      - key: META_WHATSAPP_RECIPIENT_PHONE
+        sync: false
+      - key: META_WHATSAPP_TEMPLATE_NAME
+        sync: false
+      - key: META_WHATSAPP_TEMPLATE_LANGUAGE
+        value: en_US
+      - key: META_WHATSAPP_GRAPH_VERSION
+        value: v22.0

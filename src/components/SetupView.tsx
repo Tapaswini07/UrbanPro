@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { UPL_LOGO_BASE64 } from '../assets/logoBase64';
 import { PRAKASH_SIGNATURE_BASE64 } from '../assets/signatureBase64';
+import { writeSharedValue } from '../utils/sharedStorage';
 
 export interface CompanyProfileData {
   companyName: string;
@@ -668,11 +669,11 @@ export const SetupView: React.FC<Props> = ({
           <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-200 text-xs text-emerald-950 space-y-2">
             <div className="flex items-center gap-2 font-bold text-sm text-emerald-800">
               <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span>Permanent Storage Status: ACTIVE & PERMANENT</span>
+              <span>PostgreSQL Storage Status: ACTIVE</span>
             </div>
             <p className="text-emerald-900 leading-relaxed">
-              All records you create (Surveys, Quotations, Bills, Bilties, Receipts, Vouchers, and Vehicle Reports) are stored permanently in your browser's persistent database storage.
-              <strong> They have NO expiry date and will NOT be automatically deleted.</strong> Records remain safe until you explicitly click the red <em>"Delete"</em> button on any specific record.
+              All records you create (Surveys, Quotations, Bills, Bilties, Receipts, Vouchers, enquiries, and Vehicle Reports) are stored in the shared PostgreSQL database.
+              <strong> They have NO expiry date and will NOT be automatically deleted.</strong> Browser storage is only an offline cache; records remain safe until you explicitly click the red <em>"Delete"</em> button on any specific record.
             </p>
           </div>
 
@@ -680,7 +681,7 @@ export const SetupView: React.FC<Props> = ({
           <div>
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-1.5">
               <HardDrive className="w-3.5 h-3.5" />
-              <span>Current Database Records Audit</span>
+              <span>Current PostgreSQL Records Audit</span>
             </h3>
             {(() => {
               const getCount = (key: string) => {
@@ -734,6 +735,7 @@ export const SetupView: React.FC<Props> = ({
                 type="button"
                 onClick={() => {
                   const backupKeys = [
+                    'upl_quote_requests',
                     'upl_surveys',
                     'upl_quotations',
                     'upl_packing_lists',
@@ -745,7 +747,7 @@ export const SetupView: React.FC<Props> = ({
                     'upl_bike_conditions',
                     'upl_company_profile',
                     'upl_global_signature',
-                    'upl_customer_profiles'
+                    'upl_company_signature'
                   ];
                   const exportPayload: Record<string, any> = {
                     version: '1.0',
@@ -787,14 +789,15 @@ export const SetupView: React.FC<Props> = ({
                     const file = e.target.files?.[0];
                     if (!file) return;
                     const reader = new FileReader();
-                    reader.onload = (event) => {
+                    reader.onload = async (event) => {
                       try {
                         const content = event.target?.result as string;
                         const parsed = JSON.parse(content);
                         if (parsed && parsed.data) {
-                          Object.keys(parsed.data).forEach(k => {
+                          await Promise.all(Object.keys(parsed.data).map(async k => {
                             localStorage.setItem(k, JSON.stringify(parsed.data[k]));
-                          });
+                            await writeSharedValue(k, parsed.data[k]);
+                          }));
                           alert('Database successfully restored! The page will now refresh to load your data.');
                           window.location.reload();
                         } else {
