@@ -94,6 +94,10 @@ export const FLOOR_OPTIONS = [
   "Above 4th Floor"
 ];
 
+// Web3Forms access keys are intentionally public and are tied to the inbox
+// selected when the key is created. Vite replaces this value at build time.
+const WEB3FORMS_ACCESS_KEY = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY;
+
 type SubmittedQuoteDetails = {
   name: string;
   phone: string;
@@ -2147,7 +2151,6 @@ export default function App() {
       const emailPayload = {
         name: formData.name,
         phone: formData.phone,
-        email: formData.email || 'Not provided',
         movingDate: formData.date,
         serviceType: finalItem,
         items: itemListText || 'Not provided',
@@ -2155,35 +2158,25 @@ export default function App() {
         movingTo: formData.movingTo,
         message,
       };
-      const response = await fetch('/api/email/enquiry', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify(emailPayload),
-      });
-      let result = await response.json().catch(() => null);
-      if (!response.ok || !result?.success) {
-        const directForm = new FormData();
-        directForm.append('access_key', '89cd421e-088f-474c-b569-a063e5af2aed');
-        directForm.append('from_name', 'UrbanPro Website');
-        directForm.append('subject', 'New quote request from UrbanPro website');
-        directForm.append('to', 'urbanpro403@gmail.com');
-        Object.entries(emailPayload).forEach(([key, value]) => {
-          if (value) directForm.append(key, value);
-        });
-
-        const directResponse = await fetch('https://api.web3forms.com/submit', {
-          method: 'POST',
-          body: directForm,
-        });
-        const directResult = await directResponse.json().catch(() => null);
-        if (directResponse.ok && directResult?.success) {
-          result = directResult;
-        }
+      if (!WEB3FORMS_ACCESS_KEY) {
+        throw new Error('Email delivery is not configured. Please contact the site administrator.');
       }
-      if (!result?.success) throw new Error(result?.message || 'Email service rejected the request');
+
+      const directForm = new FormData();
+      directForm.append('access_key', WEB3FORMS_ACCESS_KEY);
+      directForm.append('from_name', 'UrbanPro Website');
+      directForm.append('subject', 'New quote request from UrbanPro website');
+      if (formData.email) directForm.append('email', formData.email);
+      Object.entries(emailPayload).forEach(([key, value]) => {
+        if (value) directForm.append(key, value);
+      });
+
+      const directResponse = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        body: directForm,
+      });
+      const result = await directResponse.json().catch(() => null);
+      if (!directResponse.ok || !result?.success) throw new Error(result?.message || 'Email service rejected the request');
 
       setSubmittedQuoteDetails(submittedDetails);
       try {
