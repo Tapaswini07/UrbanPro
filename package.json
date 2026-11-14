@@ -6,9 +6,9 @@
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
     "dev:server": "tsx server.ts",
-    "start": "npm run build && tsx server.ts",
-    "start:server": "tsx server.ts",
-    "build": "vite build",
+    "build": "vite build && esbuild server.ts --platform=node --format=esm --packages=external --outfile=dist/server.js",
+    "start": "node dist/server.js",
+    "start:server": "node dist/server.js",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit"
