@@ -7172,8 +7172,8 @@ export default function App() {
                   {/* Column headers */}
                   <div className="grid grid-cols-[1fr_60px_90px_auto] gap-2 mb-1 px-0.5">
                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Item Name</span>
-                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Qty</span>
-                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Value (₹)</span>
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Quantity</span>
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Price (₹)</span>
                     <span className="w-6" />
                   </div>
                   <div className="space-y-2">
@@ -7181,7 +7181,7 @@ export default function App() {
                       <div key={index} className="grid grid-cols-[1fr_60px_90px_auto] gap-2">
                         <input type="text" value={row.name} onChange={e => updateItemRow(index, 'name', e.target.value)} className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-900 outline-none text-sm" placeholder="Item name" />
                         <input type="number" min="1" value={row.qty ?? '1'} onChange={e => updateItemRow(index, 'qty', e.target.value)} className="w-full px-2 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-900 outline-none text-sm text-center" placeholder="1" />
-                        <input type="number" min="0" value={row.value} onChange={e => updateItemRow(index, 'value', e.target.value)} className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-900 outline-none text-sm" placeholder="0" />
+                        <input type="number" min="0" value={row.value} onChange={e => updateItemRow(index, 'value', e.target.value)} className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-900 outline-none text-sm" placeholder="Price" />
                         <button type="button" onClick={() => removeItemRow(index)} disabled={formData.itemRows.length === 1} className="px-2 text-red-600 disabled:text-slate-300 text-lg flex items-center justify-center" aria-label="Remove item">×</button>
                       </div>
                     ))}
@@ -8010,8 +8010,8 @@ export default function App() {
                 {/* Column headers */}
                 <div className="grid grid-cols-[1fr_60px_90px_auto] gap-2 mb-1 px-0.5">
                   <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Item Name</span>
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Qty</span>
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Value (₹)</span>
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Quantity</span>
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Price (₹)</span>
                   <span className="w-6" />
                 </div>
                 <div className="space-y-2">
@@ -8019,7 +8019,7 @@ export default function App() {
                     <div key={index} className="grid grid-cols-[1fr_60px_90px_auto] gap-2">
                       <input type="text" value={row.name} onChange={e => updateItemRow(index, 'name', e.target.value)} className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-900 outline-none text-sm bg-white" placeholder="Item name" />
                       <input type="number" min="1" value={row.qty ?? '1'} onChange={e => updateItemRow(index, 'qty', e.target.value)} className="w-full px-2 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-900 outline-none text-sm text-center bg-white" placeholder="1" />
-                      <input type="number" min="0" value={row.value} onChange={e => updateItemRow(index, 'value', e.target.value)} className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-900 outline-none text-sm bg-white" placeholder="0" />
+                      <input type="number" min="0" value={row.value} onChange={e => updateItemRow(index, 'value', e.target.value)} className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-900 outline-none text-sm bg-white" placeholder="Price" />
                       <button type="button" onClick={() => removeItemRow(index)} disabled={formData.itemRows.length === 1} className="px-2 text-red-600 disabled:text-slate-300 text-lg flex items-center justify-center" aria-label="Remove item">×</button>
                     </div>
                   ))}
