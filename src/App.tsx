@@ -7838,7 +7838,7 @@ export default function App() {
               <span className="text-xs font-bold text-blue-900 uppercase tracking-widest block mb-1">Long-Term Goal</span>
               <h3 className="text-2xl font-bold text-blue-900 mb-3">OUR VISION</h3>
               <p className="text-sm text-slate-700 leading-relaxed">
-                Our vision is to establish <span className="text-blue-900">Urban</span><span className="text-[#ff0800] font-bold">Pro</span> <span className="text-blue-900">Packer & Logistics</span> as a trusted and recognized name in India's Packer & Mover and Logistics industry by continuously improving our services and building lasting relationships with our customers.
+                Our vision is to establish <span className="text-slate-950">Urban</span><span className="text-[#ff0800] font-bold">Pro</span> <span className="text-blue-900">Packer & Logistics</span> as a trusted and recognized name in India's Packer & Mover and Logistics industry by continuously improving our services and building lasting relationships with our customers.
               </p>
             </div>
           </div>
