@@ -6867,32 +6867,34 @@ export default function App() {
 
       {/* Navigation */}
       <nav className="bg-white sticky top-0 z-50 border-b border-slate-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 sm:px-8 py-2 flex min-h-[68px] items-center">
-          {/* LEFT: Logo + Brand Name — small fixed left gap */}
-          <div className="flex shrink-0 items-center gap-3 mr-auto">
-            <img src={activeAppLogo || '/urbanpro%20logo.jpeg'} alt="UrbanPro Packer & Logistics" className="h-11 sm:h-13 w-auto max-w-[110px] object-contain" />
-            <div className="leading-tight hidden sm:block" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
-              <div className="text-[20px] sm:text-[24px] font-black tracking-tight whitespace-nowrap leading-tight">
+        <div className="w-full px-2 sm:px-4 md:px-6 py-2 flex min-h-[68px] items-center relative justify-between">
+          {/* LEFT: Logo + Brand Name */}
+          <div className="flex shrink-0 items-center gap-2.5 z-10">
+            <img src={activeAppLogo || '/urbanpro%20logo.jpeg'} alt="UrbanPro Packer & Logistics" className="h-11 sm:h-12 w-auto max-w-[110px] object-contain" />
+            <div className="leading-none hidden sm:block" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
+              <div className="text-[20px] sm:text-[23px] font-black tracking-tight whitespace-nowrap" style={{ lineHeight: '1.1' }}>
                 <span style={{ color: '#1e3a8a', fontWeight: 900 }}>Urban</span><span style={{ color: '#ff0800', fontWeight: 900 }}>Pro</span>
               </div>
-              <div className="text-[11px] sm:text-[13px] font-black tracking-[0.1em] uppercase whitespace-nowrap leading-tight" style={{ color: '#1e3a8a' }}>
+              <div className="text-[11px] sm:text-[12px] font-black tracking-[0.12em] uppercase whitespace-nowrap" style={{ color: '#1e3a8a', lineHeight: '1.3' }}>
                 Packer &amp; Logistics
               </div>
             </div>
           </div>
 
-          {/* CENTER: Nav Links — truly centered in remaining space */}
-          <div className="hidden lg:flex absolute left-1/2 -translate-x-1/2 items-center gap-6 xl:gap-8 font-semibold text-slate-600 text-[13px] xl:text-[14px]">
-            <a href="#services" className="whitespace-nowrap hover:text-[#1e3a8a] transition-colors">Services</a>
-            <a href="#about" className="whitespace-nowrap hover:text-[#1e3a8a] transition-colors">About Us</a>
-            <a href="#packing-labour" className="whitespace-nowrap hover:text-[#1e3a8a] transition-colors">Materials &amp; Labour</a>
-            <a href="#why-choose-us" className="whitespace-nowrap hover:text-[#1e3a8a] transition-colors">Why Choose Us</a>
-            <a href="#network" className="whitespace-nowrap hover:text-[#1e3a8a] transition-colors">Network</a>
-            <a href="#contact" className="whitespace-nowrap hover:text-[#1e3a8a] transition-colors">Contact</a>
+          {/* CENTER: Nav Links — absolutely centered in the full bar */}
+          <div className="hidden lg:flex absolute left-0 right-0 justify-center items-center gap-5 xl:gap-7 font-semibold text-slate-600 text-[13px] xl:text-[14px] pointer-events-none">
+            <div className="flex items-center gap-5 xl:gap-7 pointer-events-auto">
+              <a href="#services" className="whitespace-nowrap hover:text-[#1e3a8a] transition-colors">Services</a>
+              <a href="#about" className="whitespace-nowrap hover:text-[#1e3a8a] transition-colors">About Us</a>
+              <a href="#packing-labour" className="whitespace-nowrap hover:text-[#1e3a8a] transition-colors">Materials &amp; Labour</a>
+              <a href="#why-choose-us" className="whitespace-nowrap hover:text-[#1e3a8a] transition-colors">Why Choose Us</a>
+              <a href="#network" className="whitespace-nowrap hover:text-[#1e3a8a] transition-colors">Network</a>
+              <a href="#contact" className="whitespace-nowrap hover:text-[#1e3a8a] transition-colors">Contact</a>
+            </div>
           </div>
 
-          {/* RIGHT: Admin Button — fixed to right edge */}
-          <div className="flex shrink-0 items-center ml-auto">
+          {/* RIGHT: Admin Button */}
+          <div className="flex shrink-0 items-center ml-auto z-10">
             <button
               type="button"
               onClick={openAdminPortal}
@@ -6924,20 +6926,31 @@ export default function App() {
               transition={{ duration: 0.6 }}
               className="text-white space-y-6"
             >
-              <div className="inline-flex items-center gap-2 bg-blue-800/60 backdrop-blur-sm border border-blue-600 rounded-full px-4 py-1.5 text-xs sm:text-sm font-semibold text-yellow-300">
+              <div className="inline-flex items-center gap-2 bg-blue-800/80 backdrop-blur-sm border border-blue-600 rounded-full pl-3 pr-2 py-1 text-xs sm:text-sm font-semibold text-yellow-300">
                 <ShieldCheck className="w-4 h-4 text-yellow-400" />
-                <span>Pack Smart &amp; Move Safe with Urban<span className="text-[#ff0800]">Pro</span></span>
+                <span className="flex items-center gap-1.5">
+                  Pack Smart &amp; Move Safe with
+                  <span className="inline-flex items-center bg-white px-2 py-0.5 rounded shadow-xs font-black" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
+                    <span style={{ color: '#1e3a8a' }}>Urban</span><span style={{ color: '#ff0800' }}>Pro</span>
+                  </span>
+                </span>
               </div>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight">
-                <span className="block text-white">Your Trusted Partner</span>
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black leading-tight whitespace-nowrap">
+                <span className="text-white">Your Trusted Partner</span>
               </h1>
-              <p className="text-base sm:text-lg text-blue-100 max-w-xl leading-relaxed">
-                <strong className="font-extrabold">
-                  <span className="text-blue-200">Urban</span><span className="text-[#ff0800] font-bold">Pro</span>{' '}
-                  <span className="text-blue-200">Packer &amp; Logistics</span>
-                </strong>{' '}
-                provides professional and reliable Packer & Mover, Relocation, and Transportation services with Packing Material & Labour Supply for Households, Offices, Businesses, and Commercial Shifting requirements.
-              </p>
+              <div className="max-w-xl space-y-3">
+                <div className="inline-block bg-white rounded-xl px-4 py-2.5 shadow-md border border-slate-100" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
+                  <div className="text-[22px] sm:text-[26px] font-black leading-tight tracking-tight">
+                    <span style={{ color: '#1e3a8a', fontWeight: 900 }}>Urban</span><span style={{ color: '#ff0800', fontWeight: 900 }}>Pro</span>
+                  </div>
+                  <div className="text-[12px] sm:text-[14px] font-black tracking-[0.12em] uppercase" style={{ color: '#1e3a8a', lineHeight: '1.3' }}>
+                    Packer &amp; Logistics
+                  </div>
+                </div>
+                <p className="text-base sm:text-lg text-blue-100 leading-relaxed">
+                  provides professional and reliable Packer &amp; Mover, Relocation, and Transportation services with Packing Material &amp; Labour Supply for Households, Offices, Businesses, and Commercial Shifting requirements.
+                </p>
+              </div>
 
               <div className="flex flex-wrap gap-3 pt-2">
                 <a
@@ -7322,17 +7335,28 @@ export default function App() {
                 <span className="text-2xl leading-none font-black">2009</span>
               </div>
               <div>
-                <span className="text-xs font-bold text-yellow-400 uppercase tracking-widest">Company Background & Legacy</span>
-                <h3 className="text-2xl font-bold mt-1"><span className="text-blue-200">Urban</span><span className="text-[#ff0800] font-bold">Pro</span> <span className="text-blue-200">Packer &amp; Logistics</span></h3>
+                <span className="text-xs font-bold text-yellow-400 uppercase tracking-widest">Company Background &amp; Legacy</span>
+                <div className="mt-2 inline-block bg-white rounded-xl px-4 py-2 shadow-md" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
+                  <div className="text-xl sm:text-2xl font-black leading-tight tracking-tight">
+                    <span style={{ color: '#1e3a8a', fontWeight: 900 }}>Urban</span><span style={{ color: '#ff0800', fontWeight: 900 }}>Pro</span>
+                  </div>
+                  <div className="text-[11px] sm:text-[13px] font-black tracking-[0.12em] uppercase" style={{ color: '#1e3a8a', lineHeight: '1.3' }}>
+                    Packer &amp; Logistics
+                  </div>
+                </div>
               </div>
             </div>
 
             <p className="text-blue-100 text-base sm:text-lg leading-relaxed mb-6 font-normal">
-              <span className="text-blue-200">Urban</span><span className="text-[#ff0800] font-bold">Pro</span> <span className="text-blue-200">Packer &amp; Logistics</span> was established in <strong>2009</strong> and has substantial experience in the transportation and logistics sector, undertaking a wide range of transportation-related work over the years.
+              <span className="inline-flex items-center bg-white px-2 py-0.5 rounded shadow-xs font-black mr-1" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
+                <span style={{ color: '#1e3a8a' }}>Urban</span><span style={{ color: '#ff0800' }}>Pro</span>&nbsp;<span style={{ color: '#1e3a8a', fontSize: '0.85em' }}>Packer &amp; Logistics</span>
+              </span> was established in <strong>2009</strong> and has substantial experience in the transportation and logistics sector, undertaking a wide range of transportation-related work over the years.
             </p>
 
             <p className="text-blue-100 text-base sm:text-lg leading-relaxed mb-6 font-normal">
-              <strong><span className="text-blue-200">Urban</span><span className="text-[#ff0800] font-bold">Pro</span> <span className="text-blue-200">Packer &amp; Logistics</span></strong> provides professional Packer & Mover, relocation, transportation and logistics services across India.
+              <span className="inline-flex items-center bg-white px-2 py-0.5 rounded shadow-xs font-black mr-1" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
+                <span style={{ color: '#1e3a8a' }}>Urban</span><span style={{ color: '#ff0800' }}>Pro</span>&nbsp;<span style={{ color: '#1e3a8a', fontSize: '0.85em' }}>Packer &amp; Logistics</span>
+              </span> provides professional Packer &amp; Mover, relocation, transportation and logistics services across India.
             </p>
 
             {/* State Tags */}
@@ -7370,7 +7394,9 @@ export default function App() {
                 Our objective is to make every move safe, organized and hassle-free through professional planning, responsible handling and dependable transportation solutions.
               </p>
               <p>
-                <span className="text-blue-200">Urban</span><span className="text-[#ff0800] font-bold">Pro</span>{' '}<span className="text-blue-200">Packer &amp; Logistics</span> is committed to providing customer-focused services and building long-term relationships based on reliability, professionalism and responsible service.
+                <span className="inline-flex items-center bg-white px-2 py-0.5 rounded shadow-xs font-black mr-1" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
+                  <span style={{ color: '#1e3a8a' }}>Urban</span><span style={{ color: '#ff0800' }}>Pro</span>&nbsp;<span style={{ color: '#1e3a8a', fontSize: '0.85em' }}>Packer &amp; Logistics</span>
+                </span> is committed to providing customer-focused services and building long-term relationships based on reliability, professionalism and responsible service.
               </p>
             </div>
 
