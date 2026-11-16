@@ -140,7 +140,7 @@ export default function App() {
     otherItem: '',
     movingFrom: '',
     movingTo: '',
-    itemRows: [{ name: '', value: '' }],
+    itemRows: [{ name: '', qty: '1', value: '' }],
   });
 
   const [expandedService, setExpandedService] = useState<number | null>(null);
@@ -2271,7 +2271,7 @@ export default function App() {
     const finalItem = formData.item === 'Other' ? (formData.otherItem || 'Custom requirement') : formData.item;
     const itemListText = formData.itemRows
       .filter(row => row.name.trim())
-      .map((row, index) => `Item ${index + 1}: ${row.name}\nItem Value: ${row.value || 'Not specified'}`)
+      .map((row, index) => `${index + 1}. ${row.name.trim()} (Qty: ${row.qty || '1'}${row.value ? `, Est. Value: ₹${row.value}` : ''})`)
       .join('\n');
     const message = [
       'New Quote Request from Website',
@@ -2412,7 +2412,7 @@ export default function App() {
           otherItem: '',
           movingFrom: '',
           movingTo: '',
-          itemRows: [{ name: '', value: '' }],
+          itemRows: [{ name: '', qty: '1', value: '' }],
         });
       } else {
         const friendlyError = `Your enquiry was safely recorded in our portal, but the automated email notice could not be sent (${emailFailMessage}). You can also connect directly via WhatsApp or Call at +91 8093017400.`;
@@ -2440,7 +2440,7 @@ export default function App() {
 
   };
 
-  const updateItemRow = (index: number, field: 'name' | 'value', value: string) => {
+  const updateItemRow = (index: number, field: 'name' | 'qty' | 'value', value: string) => {
     setFormData(prev => ({
       ...prev,
       itemRows: prev.itemRows.map((row, rowIndex) => rowIndex === index ? { ...row, [field]: value } : row)
@@ -2448,7 +2448,7 @@ export default function App() {
   };
 
   const addItemRow = () => {
-    setFormData(prev => ({ ...prev, itemRows: [...prev.itemRows, { name: '', value: '' }] }));
+    setFormData(prev => ({ ...prev, itemRows: [...prev.itemRows, { name: '', qty: '1', value: '' }] }));
   };
 
   const removeItemRow = (index: number) => {
