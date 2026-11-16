@@ -6867,34 +6867,39 @@ export default function App() {
 
       {/* Navigation */}
       <nav className="bg-white sticky top-0 z-50 border-b border-slate-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex min-h-[88px] items-center justify-between gap-5">
-          <div className="flex min-w-0 shrink-0 items-center gap-2">
-            <img src={activeAppLogo || '/urbanpro%20logo.jpeg'} alt="UrbanPro Packer & Logistics" className="h-11 sm:h-12 w-auto max-w-[112px] object-contain" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2 flex min-h-[72px] items-center gap-4">
+          {/* LEFT: Logo + Brand Name */}
+          <div className="flex shrink-0 items-center gap-2.5">
+            <img src={activeAppLogo || '/urbanpro%20logo.jpeg'} alt="UrbanPro Packer & Logistics" className="h-12 sm:h-14 w-auto max-w-[120px] object-contain" />
             <div className="leading-tight hidden sm:block" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
-              <div className="text-xl sm:text-[23px] font-black tracking-tight whitespace-nowrap">
+              <div className="text-[22px] sm:text-[26px] font-black tracking-tight whitespace-nowrap leading-none">
                 <span style={{ color: '#1e3a8a', fontWeight: 900 }}>Urban</span><span style={{ color: '#ff0800', fontWeight: 900 }}>Pro</span>
               </div>
-              <div className="text-base sm:text-[18px] font-black tracking-[0.1em] uppercase whitespace-nowrap" style={{ color: '#1e3a8a' }}>
-                Packer & Logistics
+              <div className="text-[13px] sm:text-[15px] font-black tracking-[0.08em] uppercase whitespace-nowrap" style={{ color: '#1e3a8a' }}>
+                Packer &amp; Logistics
               </div>
             </div>
           </div>
-          <div className="hidden lg:flex min-w-0 flex-1 items-center justify-center gap-4 xl:gap-5 font-semibold text-slate-600 text-[13px] xl:text-sm">
-            <a href="#services" className="whitespace-nowrap hover:text-blue-900 transition-colors">Services</a>
-            <a href="#about" className="whitespace-nowrap hover:text-blue-900 transition-colors">About Us</a>
-            <a href="#packing-labour" className="whitespace-nowrap hover:text-blue-900 transition-colors">Materials & Labour</a>
-            <a href="#why-choose-us" className="whitespace-nowrap hover:text-blue-900 transition-colors">Why Choose Us</a>
-            <a href="#network" className="whitespace-nowrap hover:text-blue-900 transition-colors">Network</a>
-            <a href="#contact" className="whitespace-nowrap hover:text-blue-900 transition-colors">Contact</a>
+
+          {/* CENTER: Nav Links */}
+          <div className="hidden lg:flex flex-1 items-center justify-center gap-5 xl:gap-7 font-semibold text-slate-600 text-[14px] xl:text-[15px]">
+            <a href="#services" className="whitespace-nowrap hover:text-[#1e3a8a] transition-colors hover:underline underline-offset-4">Services</a>
+            <a href="#about" className="whitespace-nowrap hover:text-[#1e3a8a] transition-colors hover:underline underline-offset-4">About Us</a>
+            <a href="#packing-labour" className="whitespace-nowrap hover:text-[#1e3a8a] transition-colors hover:underline underline-offset-4">Materials &amp; Labour</a>
+            <a href="#why-choose-us" className="whitespace-nowrap hover:text-[#1e3a8a] transition-colors hover:underline underline-offset-4">Why Choose Us</a>
+            <a href="#network" className="whitespace-nowrap hover:text-[#1e3a8a] transition-colors hover:underline underline-offset-4">Network</a>
+            <a href="#contact" className="whitespace-nowrap hover:text-[#1e3a8a] transition-colors hover:underline underline-offset-4">Contact</a>
           </div>
-          <div className="flex shrink-0 items-center gap-2">
+
+          {/* RIGHT: Admin Button */}
+          <div className="flex shrink-0 items-center gap-2 ml-auto">
             <button
               type="button"
               onClick={openAdminPortal}
-              className="bg-slate-900 hover:bg-slate-800 text-white px-2.5 py-2 rounded font-semibold text-[11px] transition-colors shadow-sm flex items-center gap-1 cursor-pointer whitespace-nowrap"
+              className="bg-[#1e3a8a] hover:bg-blue-950 text-white px-3 py-2 rounded-lg font-semibold text-[12px] transition-colors shadow-sm flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
               title="Open Admin & Inventory Management"
             >
-              <Lock className="w-3 h-3 text-yellow-400" />
+              <Lock className="w-3.5 h-3.5 text-yellow-400" />
               <span>Admin Portal</span>
             </button>
           </div>
@@ -7096,15 +7101,23 @@ export default function App() {
                 )}
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Item List</label>
+                  {/* Column headers */}
+                  <div className="grid grid-cols-[1fr_60px_90px_auto] gap-2 mb-1 px-0.5">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Item Name</span>
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Qty</span>
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Value (₹)</span>
+                    <span className="w-6" />
+                  </div>
                   <div className="space-y-2">
                     {formData.itemRows.map((row, index) => (
-                      <div key={index} className="grid grid-cols-[1fr_1fr_auto] gap-2">
-                        <input type="text" value={row.name} onChange={e => updateItemRow(index, 'name', e.target.value)} className="w-full px-3.5 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-900 outline-none text-sm" placeholder="Item name" />
-                        <input type="number" min="0" value={row.value} onChange={e => updateItemRow(index, 'value', e.target.value)} className="w-full px-3.5 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-900 outline-none text-sm" placeholder="Value" />
-                        <button type="button" onClick={() => removeItemRow(index)} disabled={formData.itemRows.length === 1} className="px-2 text-red-600 disabled:text-slate-300 text-lg" aria-label="Remove item">×</button>
+                      <div key={index} className="grid grid-cols-[1fr_60px_90px_auto] gap-2">
+                        <input type="text" value={row.name} onChange={e => updateItemRow(index, 'name', e.target.value)} className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-900 outline-none text-sm" placeholder="Item name" />
+                        <input type="number" min="1" value={row.qty ?? '1'} onChange={e => updateItemRow(index, 'qty', e.target.value)} className="w-full px-2 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-900 outline-none text-sm text-center" placeholder="1" />
+                        <input type="number" min="0" value={row.value} onChange={e => updateItemRow(index, 'value', e.target.value)} className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-900 outline-none text-sm" placeholder="0" />
+                        <button type="button" onClick={() => removeItemRow(index)} disabled={formData.itemRows.length === 1} className="px-2 text-red-600 disabled:text-slate-300 text-lg flex items-center justify-center" aria-label="Remove item">×</button>
                       </div>
                     ))}
-                    <button type="button" onClick={addItemRow} className="text-xs font-bold text-blue-900 hover:text-blue-700">+ Add another item</button>
+                    <button type="button" onClick={addItemRow} className="text-xs font-bold text-[#1e3a8a] hover:text-blue-700 mt-1">+ Add another item</button>
                   </div>
                 </div>
                 {quoteSubmissionError && <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm font-semibold text-red-700">{quoteSubmissionError}</p>}
@@ -7159,53 +7172,61 @@ export default function App() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.4, delay: index * 0.1 }}
-                    className="bg-white p-7 rounded-2xl shadow-sm border border-slate-200 hover:shadow-xl hover:border-blue-300 transition-all group flex flex-col h-full"
+                    className="bg-white rounded-2xl shadow-sm border border-slate-200 hover:shadow-xl hover:border-blue-300 transition-all group flex flex-col h-full overflow-hidden"
                   >
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center group-hover:bg-blue-900 transition-colors">
-                        {service.title === 'Household Shifting' ? (
-                          <span className="text-3xl leading-none" role="img" aria-label="Household shifting">🏠 📦</span>
-                        ) : service.title === 'Office & Corporate Relocation' ? (
-                          <span className="text-3xl leading-none" role="img" aria-label="Office relocation">🏢 💼</span>
-                        ) : service.title === 'Commercial Shifting' ? (
-                          <span className="text-3xl leading-none" role="img" aria-label="Commercial shifting">🏬 🚚</span>
-                        ) : (
-                          <Icon className="w-7 h-7 text-blue-600 group-hover:text-yellow-400 transition-colors" />
-                        )}
-                      </div>
-                    </div>
-                    <h4 className="text-lg font-bold text-slate-900 mb-2">{service.title}</h4>
-                    <p className="text-slate-600 leading-relaxed mb-5 flex-grow text-xs sm:text-sm">
-                      {service.desc}
-                    </p>
-
-                    <div className="mt-auto">
-                      <button
-                        type="button"
-                        onClick={() => toggleService(globalIndex)}
-                        className="flex items-center justify-between w-full text-blue-700 hover:text-blue-900 font-semibold py-2 border-t border-slate-100 group-hover:border-blue-100 transition-colors text-xs sm:text-sm cursor-pointer"
-                      >
-                        <span>{isExpanded ? 'Hide Details' : 'View Details & Inclusions'}</span>
-                        {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                      </button>
-
-                      <motion.div
-                        initial={false}
-                        animate={{ height: isExpanded ? 'auto' : 0, opacity: isExpanded ? 1 : 0 }}
-                        className="overflow-hidden"
-                      >
-                        <div className="pt-3 space-y-2.5">
-                          {service.details.map((detail, idx) => (
-                            <div key={idx} className="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                              <h5 className="font-bold text-slate-800 text-xs mb-1 flex items-center gap-1.5 text-blue-950">
-                                <span className="w-1.5 h-1.5 rounded-full bg-red-500 inline-block"></span>
-                                {detail.title}
-                              </h5>
-                              <p className="text-[11px] sm:text-xs text-slate-600 leading-relaxed pl-3">{detail.text}</p>
-                            </div>
-                          ))}
+                    {/* Card top colored accent bar */}
+                    <div className="h-1.5 bg-gradient-to-r from-[#1e3a8a] to-[#3b82f6]" />
+                    <div className="p-6 flex flex-col flex-1">
+                      {/* Icon + Title row */}
+                      <div className="flex items-start gap-4 mb-3">
+                        <div className="w-14 h-14 bg-blue-50 border border-blue-100 rounded-2xl flex items-center justify-center group-hover:bg-[#1e3a8a] transition-colors shrink-0 shadow-sm">
+                          {service.title === 'Household Shifting' ? (
+                            <span className="text-2xl leading-none" role="img" aria-label="Household shifting">🏠</span>
+                          ) : service.title === 'Office & Corporate Relocation' ? (
+                            <span className="text-2xl leading-none" role="img" aria-label="Office relocation">🏢</span>
+                          ) : service.title === 'Commercial Shifting' ? (
+                            <span className="text-2xl leading-none" role="img" aria-label="Commercial shifting">🏬</span>
+                          ) : (
+                            <Icon className="w-6 h-6 text-blue-600 group-hover:text-yellow-400 transition-colors" />
+                          )}
                         </div>
-                      </motion.div>
+                        <div className="min-w-0">
+                          <h4 className="text-base sm:text-lg font-bold text-[#1e3a8a] leading-snug">{service.title}</h4>
+                          <span className="text-[10px] font-semibold text-blue-400 uppercase tracking-widest">{service.category}</span>
+                        </div>
+                      </div>
+                      <p className="text-slate-600 leading-relaxed mb-4 flex-grow text-xs sm:text-sm">
+                        {service.desc}
+                      </p>
+
+                      <div className="mt-auto">
+                        <button
+                          type="button"
+                          onClick={() => toggleService(globalIndex)}
+                          className="flex items-center justify-between w-full text-[#1e3a8a] hover:text-blue-900 font-semibold py-2.5 border-t border-slate-100 group-hover:border-blue-100 transition-colors text-xs sm:text-sm cursor-pointer"
+                        >
+                          <span>{isExpanded ? 'Hide Details' : 'View Details & Inclusions'}</span>
+                          {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                        </button>
+
+                        <motion.div
+                          initial={false}
+                          animate={{ height: isExpanded ? 'auto' : 0, opacity: isExpanded ? 1 : 0 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="pt-3 space-y-2">
+                            {service.details.map((detail, idx) => (
+                              <div key={idx} className="bg-blue-50/50 p-3 rounded-xl border border-blue-100">
+                                <h5 className="font-bold text-[#1e3a8a] text-xs mb-1 flex items-center gap-1.5">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-red-500 inline-block"></span>
+                                  {detail.title}
+                                </h5>
+                                <p className="text-[11px] sm:text-xs text-slate-600 leading-relaxed pl-3">{detail.text}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </motion.div>
+                      </div>
                     </div>
                   </motion.div>
                 );
@@ -7233,33 +7254,38 @@ export default function App() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.4, delay: index * 0.1 }}
-                    className="bg-white p-7 rounded-2xl shadow-sm border border-slate-200 hover:shadow-xl hover:border-blue-300 transition-all group flex flex-col h-full"
+                    className="bg-white rounded-2xl shadow-sm border border-slate-200 hover:shadow-xl hover:border-blue-300 transition-all group flex flex-col h-full overflow-hidden"
                   >
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center group-hover:bg-blue-900 transition-colors">
-                        {service.title === 'Vehicle Shifting' ? (
-                          <span className="text-2xl leading-none" role="img" aria-label="Car and bike">
-                            🚙 🛵
-                          </span>
-                        ) : service.title === 'Packing Material Supply' ? (
-                          <span className="text-2xl leading-none" role="img" aria-label="Packing materials">
-                            📦 🎁
-                          </span>
-                        ) : service.title === 'Skilled Labour Available' ? (
-                          <img
-                            src="/labour-supply.png"
-                            alt="Skilled labour support"
-                            className="h-12 w-12 object-contain"
-                          />
-                        ) : (
-                          <Icon className="w-7 h-7 text-blue-600 group-hover:text-yellow-400 transition-colors" />
-                        )}
+                    {/* Top accent */}
+                    <div className="h-1.5 bg-gradient-to-r from-[#ff0800] to-[#1e3a8a]" />
+                    <div className="p-6 flex flex-col flex-1">
+                      {/* Icon row */}
+                      <div className="flex items-start gap-4 mb-3">
+                        <div className="w-14 h-14 bg-red-50 border border-red-100 rounded-2xl flex items-center justify-center group-hover:bg-[#1e3a8a] transition-colors shrink-0 shadow-sm">
+                          {service.title === 'Vehicle Shifting' ? (
+                            <span className="text-2xl leading-none" role="img" aria-label="Car and bike">🚙</span>
+                          ) : service.title === 'Packing Material Supply' ? (
+                            <span className="text-2xl leading-none" role="img" aria-label="Packing materials">📦</span>
+                          ) : service.title === 'Skilled Labour Available' ? (
+                            <span className="text-2xl leading-none" role="img" aria-label="Skilled labour">👷</span>
+                          ) : (
+                            <Icon className="w-6 h-6 text-red-600 group-hover:text-yellow-400 transition-colors" />
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <h4 className="text-base sm:text-lg font-bold text-[#1e3a8a] leading-snug">{service.title}</h4>
+                          <span className="text-[10px] font-semibold text-red-400 uppercase tracking-widest">On-Demand Service</span>
+                        </div>
+                      </div>
+                      <p className="text-slate-600 leading-relaxed flex-grow text-xs sm:text-sm">
+                        {service.desc}
+                      </p>
+                      <div className="mt-4 pt-3 border-t border-slate-100">
+                        <a href="#quote" className="text-xs font-bold text-[#1e3a8a] hover:text-blue-700 flex items-center gap-1 transition-colors cursor-pointer group-hover:underline">
+                          Get Free Quote →
+                        </a>
                       </div>
                     </div>
-                    <h4 className="text-lg font-bold text-slate-900 mb-2">{service.title}</h4>
-                    <p className="text-slate-600 leading-relaxed flex-grow text-xs sm:text-sm">
-                      {service.desc}
-                    </p>
                   </motion.div>
                 );
               })}
