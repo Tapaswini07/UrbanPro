@@ -7352,11 +7352,11 @@ export default function App() {
             </div>
 
             <p className="text-blue-100 text-base sm:text-lg leading-relaxed mb-6 font-normal">
-              <strong className="font-extrabold"><span className="text-blue-200">Urban</span><span className="text-[#ff0800] font-black">Pro</span> <span className="text-white">Packer &amp; Logistics</span></strong> was established in <strong>2009</strong> and has substantial experience in the transportation and logistics sector, undertaking a wide range of transportation-related work over the years.
+              <strong className="font-extrabold"><span className="text-blue-200">Urban</span><span className="text-[#ff0800] font-black">Pro</span> <span className="text-blue-200">Packer &amp; Logistics</span></strong> was established in <strong>2009</strong> and has substantial experience in the transportation and logistics sector, undertaking a wide range of transportation-related work over the years.
             </p>
 
             <p className="text-blue-100 text-base sm:text-lg leading-relaxed mb-6 font-normal">
-              <strong className="font-extrabold"><span className="text-blue-200">Urban</span><span className="text-[#ff0800] font-black">Pro</span> <span className="text-white">Packer &amp; Logistics</span></strong> provides professional Packer &amp; Mover, relocation, transportation and logistics services across India.
+              <strong className="font-extrabold"><span className="text-blue-200">Urban</span><span className="text-[#ff0800] font-black">Pro</span> <span className="text-blue-200">Packer &amp; Logistics</span></strong> provides professional Packer &amp; Mover, relocation, transportation and logistics services across India.
             </p>
 
             {/* State Tags */}
@@ -7394,7 +7394,7 @@ export default function App() {
                 Our objective is to make every move safe, organized and hassle-free through professional planning, responsible handling and dependable transportation solutions.
               </p>
               <p>
-                <strong className="font-extrabold"><span className="text-blue-200">Urban</span><span className="text-[#ff0800] font-black">Pro</span> <span className="text-white">Packer &amp; Logistics</span></strong> is committed to providing customer-focused services and building long-term relationships based on reliability, professionalism and responsible service.
+                <strong className="font-extrabold"><span className="text-blue-200">Urban</span><span className="text-[#ff0800] font-black">Pro</span> <span className="text-blue-200">Packer &amp; Logistics</span></strong> is committed to providing customer-focused services and building long-term relationships based on reliability, professionalism and responsible service.
               </p>
             </div>
 
