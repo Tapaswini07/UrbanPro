@@ -1791,7 +1791,7 @@ export default function App() {
           .filter((item: any) => item.name?.trim())
           .map((item: any) => ({
             name: item.name,
-            qty: '1',
+            qty: item.qty || '1',
             value: item.value || '',
             remark: 'From website enquiry',
           })),
@@ -1971,6 +1971,58 @@ export default function App() {
     const cleanStr = query.trim().toLowerCase();
     const cleanDigits = query.replace(/\D/g, '');
 
+    // 1. Direct website enquiry lookup by 10-digit phone or name
+    if (cleanDigits.length >= 10 || cleanStr.length >= 3) {
+      const foundEnquiry = quoteRequests.find(r => {
+        const rPhone = String(r.phone || '').replace(/\D/g, '');
+        if (cleanDigits.length >= 10 && rPhone.length >= 10 && rPhone.slice(-10) === cleanDigits.slice(-10)) return true;
+        if (cleanStr.length >= 3 && r.name && r.name.trim().toLowerCase().includes(cleanStr)) return true;
+        return false;
+      });
+
+      if (foundEnquiry) {
+        const enqItems = (foundEnquiry.itemRows || [])
+          .filter((item: any) => item.name?.trim())
+          .map((item: any) => ({
+            name: item.name,
+            qty: item.qty || '1',
+            value: item.value || '',
+            remark: 'From website enquiry',
+          }));
+
+        const existingProfile = customerProfiles.find(c => {
+          if (cleanDigits.length >= 10 && findCustomerProfileByMobile([c], query)) return true;
+          if (c.partyName && c.partyName.trim().toLowerCase() === cleanStr) return true;
+          return false;
+        });
+
+        return {
+          partyName: foundEnquiry.name || existingProfile?.partyName || '',
+          mobileNo: foundEnquiry.phone || existingProfile?.mobileNo || query,
+          email: foundEnquiry.email || existingProfile?.email || '',
+          fromCountry: 'India',
+          fromState: existingProfile?.fromState || 'Odisha',
+          fromCity: foundEnquiry.movingFrom || existingProfile?.fromCity || '',
+          fromArea: existingProfile?.fromArea || '',
+          fromPinCode: existingProfile?.fromPinCode || '',
+          fromFloor: existingProfile?.fromFloor || 'Ground',
+          fromLift: existingProfile?.fromLift || 'Not Required',
+          toCountry: 'India',
+          toState: existingProfile?.toState || 'Odisha',
+          toCity: foundEnquiry.movingTo || existingProfile?.toCity || '',
+          toArea: existingProfile?.toArea || '',
+          toPinCode: existingProfile?.toPinCode || '',
+          toFloor: existingProfile?.toFloor || 'Ground',
+          toLift: existingProfile?.toLift || 'Not Required',
+          moveType: foundEnquiry.item || existingProfile?.moveType || 'Household Goods',
+          packingDate: foundEnquiry.movingDate || existingProfile?.packingDate || '',
+          deliveryDate: existingProfile?.deliveryDate || '',
+          items: enqItems.length > 0 ? enqItems : (existingProfile?.items || []),
+          source: 'Website Enquiry',
+        };
+      }
+    }
+
     return customerProfiles.find(c => {
       // 1. Match Unique IDs
       if (c.uniqueIds && c.uniqueIds.some((id: string) => id && String(id).trim().toLowerCase() === cleanStr)) return true;
@@ -2073,6 +2125,9 @@ export default function App() {
             toFloor: match.toFloor || prev.toFloor,
             toLift: match.toLift || prev.toLift,
             moveType: match.moveType || prev.moveType,
+            packingDate: match.packingDate || prev.packingDate,
+            dateOfDelivery: match.deliveryDate || prev.dateOfDelivery,
+            items: (match.items && match.items.length > 0) ? match.items : prev.items,
           };
         }
       }
@@ -2505,7 +2560,7 @@ export default function App() {
       .filter(r => r.name?.trim())
       .map(r => ({
         name: r.name,
-        qty: '1',
+        qty: r.qty || '1',
         value: r.value || '',
         remark: 'From website enquiry',
       }));
@@ -7952,15 +8007,23 @@ export default function App() {
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Item List</label>
+                {/* Column headers */}
+                <div className="grid grid-cols-[1fr_60px_90px_auto] gap-2 mb-1 px-0.5">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Item Name</span>
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Qty</span>
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Value (₹)</span>
+                  <span className="w-6" />
+                </div>
                 <div className="space-y-2">
                   {formData.itemRows.map((row, index) => (
-                    <div key={index} className="grid grid-cols-[1fr_1fr_auto] gap-2">
-                      <input type="text" value={row.name} onChange={e => updateItemRow(index, 'name', e.target.value)} className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-900 outline-none text-sm bg-white" placeholder="Item name" />
-                      <input type="number" min="0" value={row.value} onChange={e => updateItemRow(index, 'value', e.target.value)} className="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-900 outline-none text-sm bg-white" placeholder="Value" />
-                      <button type="button" onClick={() => removeItemRow(index)} disabled={formData.itemRows.length === 1} className="px-2 text-red-600 disabled:text-slate-300 text-lg" aria-label="Remove item">×</button>
+                    <div key={index} className="grid grid-cols-[1fr_60px_90px_auto] gap-2">
+                      <input type="text" value={row.name} onChange={e => updateItemRow(index, 'name', e.target.value)} className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-900 outline-none text-sm bg-white" placeholder="Item name" />
+                      <input type="number" min="1" value={row.qty ?? '1'} onChange={e => updateItemRow(index, 'qty', e.target.value)} className="w-full px-2 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-900 outline-none text-sm text-center bg-white" placeholder="1" />
+                      <input type="number" min="0" value={row.value} onChange={e => updateItemRow(index, 'value', e.target.value)} className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-900 outline-none text-sm bg-white" placeholder="0" />
+                      <button type="button" onClick={() => removeItemRow(index)} disabled={formData.itemRows.length === 1} className="px-2 text-red-600 disabled:text-slate-300 text-lg flex items-center justify-center" aria-label="Remove item">×</button>
                     </div>
                   ))}
-                  <button type="button" onClick={addItemRow} className="text-xs font-bold text-blue-900 hover:text-blue-700">+ Add another item</button>
+                  <button type="button" onClick={addItemRow} className="text-xs font-bold text-[#1e3a8a] hover:text-blue-700 mt-1">+ Add another item</button>
                 </div>
               </div>
 
