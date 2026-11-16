@@ -7329,34 +7329,34 @@ export default function App() {
 
           {/* Company Background & Legacy */}
           <div className="max-w-4xl mx-auto mb-10 bg-gradient-to-br from-blue-900 via-blue-950 to-slate-900 text-white rounded-2xl p-8 sm:p-10 shadow-xl border border-blue-800">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 mb-6">
-              <div className="w-16 h-16 bg-yellow-400 text-blue-950 rounded-2xl flex flex-col items-center justify-center font-black flex-shrink-0 shadow-lg">
-                <span className="text-xs uppercase tracking-tighter font-bold text-blue-900">ESTD</span>
-                <span className="text-2xl leading-none font-black">2009</span>
+            <div className="mb-6">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="px-3 py-1.5 bg-yellow-400 text-blue-950 rounded-xl flex items-center gap-2 font-black shadow-md shrink-0">
+                  <span className="text-[11px] uppercase tracking-wider font-bold text-blue-900">ESTD</span>
+                  <span className="text-lg leading-none font-black">2009</span>
+                </div>
+                <span className="text-xs font-bold text-yellow-400 uppercase tracking-widest">
+                  Company Background &amp; Legacy
+                </span>
               </div>
-              <div>
-                <span className="text-xs font-bold text-yellow-400 uppercase tracking-widest">Company Background &amp; Legacy</span>
-                <div className="mt-2 inline-block bg-white rounded-xl px-4 py-2 shadow-md" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
-                  <div className="text-xl sm:text-2xl font-black leading-tight tracking-tight">
-                    <span style={{ color: '#1e3a8a', fontWeight: 900 }}>Urban</span><span style={{ color: '#ff0800', fontWeight: 900 }}>Pro</span>
-                  </div>
-                  <div className="text-[11px] sm:text-[13px] font-black tracking-[0.12em] uppercase" style={{ color: '#1e3a8a', lineHeight: '1.3' }}>
-                    Packer &amp; Logistics
-                  </div>
+
+              {/* Placed UNDER ESTD 2009 */}
+              <div className="inline-block bg-white rounded-xl px-5 py-2.5 shadow-md border border-slate-100" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
+                <div className="text-2xl sm:text-3xl font-black leading-tight tracking-tight">
+                  <span style={{ color: '#1e3a8a', fontWeight: 900 }}>Urban</span><span style={{ color: '#ff0800', fontWeight: 900 }}>Pro</span>
+                </div>
+                <div className="text-[12px] sm:text-[14px] font-black tracking-[0.12em] uppercase" style={{ color: '#1e3a8a', lineHeight: '1.3' }}>
+                  Packer &amp; Logistics
                 </div>
               </div>
             </div>
 
             <p className="text-blue-100 text-base sm:text-lg leading-relaxed mb-6 font-normal">
-              <span className="inline-flex items-center bg-white px-2 py-0.5 rounded shadow-xs font-black mr-1" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
-                <span style={{ color: '#1e3a8a' }}>Urban</span><span style={{ color: '#ff0800' }}>Pro</span>&nbsp;<span style={{ color: '#1e3a8a', fontSize: '0.85em' }}>Packer &amp; Logistics</span>
-              </span> was established in <strong>2009</strong> and has substantial experience in the transportation and logistics sector, undertaking a wide range of transportation-related work over the years.
+              <strong className="font-extrabold"><span className="text-blue-200">Urban</span><span className="text-[#ff0800] font-black">Pro</span> <span className="text-white">Packer &amp; Logistics</span></strong> was established in <strong>2009</strong> and has substantial experience in the transportation and logistics sector, undertaking a wide range of transportation-related work over the years.
             </p>
 
             <p className="text-blue-100 text-base sm:text-lg leading-relaxed mb-6 font-normal">
-              <span className="inline-flex items-center bg-white px-2 py-0.5 rounded shadow-xs font-black mr-1" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
-                <span style={{ color: '#1e3a8a' }}>Urban</span><span style={{ color: '#ff0800' }}>Pro</span>&nbsp;<span style={{ color: '#1e3a8a', fontSize: '0.85em' }}>Packer &amp; Logistics</span>
-              </span> provides professional Packer &amp; Mover, relocation, transportation and logistics services across India.
+              <strong className="font-extrabold"><span className="text-blue-200">Urban</span><span className="text-[#ff0800] font-black">Pro</span> <span className="text-white">Packer &amp; Logistics</span></strong> provides professional Packer &amp; Mover, relocation, transportation and logistics services across India.
             </p>
 
             {/* State Tags */}
@@ -7394,9 +7394,7 @@ export default function App() {
                 Our objective is to make every move safe, organized and hassle-free through professional planning, responsible handling and dependable transportation solutions.
               </p>
               <p>
-                <span className="inline-flex items-center bg-white px-2 py-0.5 rounded shadow-xs font-black mr-1" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
-                  <span style={{ color: '#1e3a8a' }}>Urban</span><span style={{ color: '#ff0800' }}>Pro</span>&nbsp;<span style={{ color: '#1e3a8a', fontSize: '0.85em' }}>Packer &amp; Logistics</span>
-                </span> is committed to providing customer-focused services and building long-term relationships based on reliability, professionalism and responsible service.
+                <strong className="font-extrabold"><span className="text-blue-200">Urban</span><span className="text-[#ff0800] font-black">Pro</span> <span className="text-white">Packer &amp; Logistics</span></strong> is committed to providing customer-focused services and building long-term relationships based on reliability, professionalism and responsible service.
               </p>
             </div>
 
