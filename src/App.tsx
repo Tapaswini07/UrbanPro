@@ -6867,36 +6867,36 @@ export default function App() {
 
       {/* Navigation */}
       <nav className="bg-white sticky top-0 z-50 border-b border-slate-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2 flex min-h-[72px] items-center gap-4">
-          {/* LEFT: Logo + Brand Name */}
-          <div className="flex shrink-0 items-center gap-2.5">
-            <img src={activeAppLogo || '/urbanpro%20logo.jpeg'} alt="UrbanPro Packer & Logistics" className="h-12 sm:h-14 w-auto max-w-[120px] object-contain" />
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 py-2 flex min-h-[68px] items-center">
+          {/* LEFT: Logo + Brand Name — small fixed left gap */}
+          <div className="flex shrink-0 items-center gap-3 mr-auto">
+            <img src={activeAppLogo || '/urbanpro%20logo.jpeg'} alt="UrbanPro Packer & Logistics" className="h-11 sm:h-13 w-auto max-w-[110px] object-contain" />
             <div className="leading-tight hidden sm:block" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
-              <div className="text-[22px] sm:text-[26px] font-black tracking-tight whitespace-nowrap leading-none">
+              <div className="text-[20px] sm:text-[24px] font-black tracking-tight whitespace-nowrap leading-tight">
                 <span style={{ color: '#1e3a8a', fontWeight: 900 }}>Urban</span><span style={{ color: '#ff0800', fontWeight: 900 }}>Pro</span>
               </div>
-              <div className="text-[13px] sm:text-[15px] font-black tracking-[0.08em] uppercase whitespace-nowrap" style={{ color: '#1e3a8a' }}>
+              <div className="text-[11px] sm:text-[13px] font-black tracking-[0.1em] uppercase whitespace-nowrap leading-tight" style={{ color: '#1e3a8a' }}>
                 Packer &amp; Logistics
               </div>
             </div>
           </div>
 
-          {/* CENTER: Nav Links */}
-          <div className="hidden lg:flex flex-1 items-center justify-center gap-5 xl:gap-7 font-semibold text-slate-600 text-[14px] xl:text-[15px]">
-            <a href="#services" className="whitespace-nowrap hover:text-[#1e3a8a] transition-colors hover:underline underline-offset-4">Services</a>
-            <a href="#about" className="whitespace-nowrap hover:text-[#1e3a8a] transition-colors hover:underline underline-offset-4">About Us</a>
-            <a href="#packing-labour" className="whitespace-nowrap hover:text-[#1e3a8a] transition-colors hover:underline underline-offset-4">Materials &amp; Labour</a>
-            <a href="#why-choose-us" className="whitespace-nowrap hover:text-[#1e3a8a] transition-colors hover:underline underline-offset-4">Why Choose Us</a>
-            <a href="#network" className="whitespace-nowrap hover:text-[#1e3a8a] transition-colors hover:underline underline-offset-4">Network</a>
-            <a href="#contact" className="whitespace-nowrap hover:text-[#1e3a8a] transition-colors hover:underline underline-offset-4">Contact</a>
+          {/* CENTER: Nav Links — truly centered in remaining space */}
+          <div className="hidden lg:flex absolute left-1/2 -translate-x-1/2 items-center gap-6 xl:gap-8 font-semibold text-slate-600 text-[13px] xl:text-[14px]">
+            <a href="#services" className="whitespace-nowrap hover:text-[#1e3a8a] transition-colors">Services</a>
+            <a href="#about" className="whitespace-nowrap hover:text-[#1e3a8a] transition-colors">About Us</a>
+            <a href="#packing-labour" className="whitespace-nowrap hover:text-[#1e3a8a] transition-colors">Materials &amp; Labour</a>
+            <a href="#why-choose-us" className="whitespace-nowrap hover:text-[#1e3a8a] transition-colors">Why Choose Us</a>
+            <a href="#network" className="whitespace-nowrap hover:text-[#1e3a8a] transition-colors">Network</a>
+            <a href="#contact" className="whitespace-nowrap hover:text-[#1e3a8a] transition-colors">Contact</a>
           </div>
 
-          {/* RIGHT: Admin Button */}
-          <div className="flex shrink-0 items-center gap-2 ml-auto">
+          {/* RIGHT: Admin Button — fixed to right edge */}
+          <div className="flex shrink-0 items-center ml-auto">
             <button
               type="button"
               onClick={openAdminPortal}
-              className="bg-[#1e3a8a] hover:bg-blue-950 text-white px-3 py-2 rounded-lg font-semibold text-[12px] transition-colors shadow-sm flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+              className="bg-[#1e3a8a] hover:bg-blue-950 text-white px-3.5 py-2 rounded-lg font-semibold text-[12px] transition-colors shadow-sm flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
               title="Open Admin & Inventory Management"
             >
               <Lock className="w-3.5 h-3.5 text-yellow-400" />
@@ -7138,7 +7138,7 @@ export default function App() {
 
       {/* Services Section */}
       <section id="services" className="py-20 px-4 bg-slate-50">
-        <div className="max-w-screen-2xl mx-auto">
+        <div className="max-w-7xl mx-auto px-2 sm:px-4">
           <div className="text-center mb-16 space-y-4">
             <span className="inline-block text-2xl sm:text-3xl font-black text-red-600 uppercase tracking-widest bg-red-100/80 px-6 py-2 rounded-full border border-red-200">
               OUR SERVICES
@@ -7263,11 +7263,11 @@ export default function App() {
                       <div className="flex items-start gap-4 mb-3">
                         <div className="w-14 h-14 bg-red-50 border border-red-100 rounded-2xl flex items-center justify-center group-hover:bg-[#1e3a8a] transition-colors shrink-0 shadow-sm">
                           {service.title === 'Vehicle Shifting' ? (
-                            <span className="text-2xl leading-none" role="img" aria-label="Car and bike">🚙</span>
+                            <span className="text-xl leading-none flex gap-0.5" role="img" aria-label="Car and bike">🚗🏍️</span>
                           ) : service.title === 'Packing Material Supply' ? (
                             <span className="text-2xl leading-none" role="img" aria-label="Packing materials">📦</span>
                           ) : service.title === 'Skilled Labour Available' ? (
-                            <span className="text-2xl leading-none" role="img" aria-label="Skilled labour">👷</span>
+                            <img src="/labour-workers.png" alt="Skilled labour workers" className="w-10 h-10 object-contain" />
                           ) : (
                             <Icon className="w-6 h-6 text-red-600 group-hover:text-yellow-400 transition-colors" />
                           )}
