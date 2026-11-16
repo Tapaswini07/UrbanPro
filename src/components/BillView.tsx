@@ -87,6 +87,7 @@ export interface BillData {
   fromLift?: string;
   toLift?: string;
   easyAccess?: string;
+  paymentMode?: string;
   balconyItems?: string;
   extraInfo?: string;
 
@@ -268,6 +269,7 @@ export const BillView: React.FC<Props> = ({
     fromLift: 'Not Required',
     toLift: 'Not Required',
     easyAccess: '',
+    paymentMode: '',
     balconyItems: '',
     extraInfo: '',
 
@@ -418,6 +420,7 @@ export const BillView: React.FC<Props> = ({
 📍 *From:* ${bill.fromCity || bill.city || 'Origin'}
 🏁 *To:* ${bill.toCity || 'Destination'}
 📅 *Bill Date:* ${bill.billDate || bill.date || ''}
+💳 *Payment Mode:* ${bill.paymentMode || 'Not specified'}
 💰 *Total Bill Amount:* ₹ ${totalAmt.toLocaleString()}
 📝 *In Words:* ${words}
 ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName || ''} | A/C: ${companyProfile.accountNo} | IFSC: ${companyProfile.ifscCode || ''}\n` : ''}----------------------------------------
@@ -487,6 +490,7 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
       modeOfMoving: quot.moveType || prev.modeOfMoving,
       typeOfShipment: quot.moveType || prev.typeOfShipment,
       easyAccess: quot.easyAccess || prev.easyAccess,
+      paymentMode: quot.paymentMode || prev.paymentMode,
       balconyItems: quot.balconyItems || prev.balconyItems,
       extraInfo: quot.extraInfo || prev.extraInfo,
       goodsDeliveryDate: quot.deliveryDate || prev.goodsDeliveryDate,
@@ -763,7 +767,7 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                 ['Packing Date', 'packingDate', 'date'],
                 ['From Lift', 'fromLift', 'text'],
                 ['To Lift', 'toLift', 'text'],
-                ['Easy Access', 'easyAccess', 'text'],
+                ['Loading Access', 'easyAccess', 'text'],
                 ['Balcony Items', 'balconyItems', 'text'],
               ].map(([label, key, type]) => (
                 <div key={key} className="border border-slate-300 rounded-xl p-3 bg-white">
@@ -1686,11 +1690,12 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                 />
               </div>
               <div className="border border-slate-300 rounded-lg p-3 bg-white">
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Easy Access</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Payment Mode</label>
                 <input
                   type="text"
-                  value={form.easyAccess ?? ''}
-                  onChange={e => setForm({ ...form, easyAccess: e.target.value })}
+                  value={form.paymentMode ?? ''}
+                  onChange={e => setForm({ ...form, paymentMode: e.target.value })}
+                  placeholder="e.g. Cash, UPI, Bank Transfer"
                   className="w-full outline-none font-medium text-slate-800 text-sm"
                 />
               </div>
@@ -2142,7 +2147,8 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
 
                 <div className="border-t border-[#1e3a8a] p-2 text-[11px]">
                   <div><span className="font-bold">From Lift:</span> {selectedRecord.fromLift || 'Not Required'} <span className="font-bold ml-3">To Lift:</span> {selectedRecord.toLift || 'Not Required'}</div>
-                  <div><span className="font-bold">Easy Access:</span> {selectedRecord.easyAccess || ''} <span className="font-bold ml-3">Balcony Items:</span> {selectedRecord.balconyItems || ''}</div>
+                  <div><span className="font-bold">Loading Access:</span> {selectedRecord.easyAccess || ''} <span className="font-bold ml-3">Balcony Items:</span> {selectedRecord.balconyItems || ''}</div>
+                  <div><span className="font-bold">Payment Mode:</span> {selectedRecord.paymentMode || '—'}</div>
                   {selectedRecord.extraInfo && <div><span className="font-bold">Other Details:</span> {selectedRecord.extraInfo}</div>}
                 </div>
 

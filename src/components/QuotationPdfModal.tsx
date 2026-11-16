@@ -79,6 +79,7 @@ export interface QuotationData {
   grandTotal: number | string;
   payableInWords?: string;
   advancePaid?: string;
+  paymentMode?: string;
   status?: string;
   easyAccess?: string;
   balconyItems?: string;
@@ -1198,7 +1199,7 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
                 </div>
 
                 {/* Moving Requirements & Conditions Bar */}
-                <div className="bg-[#f0f9ff] border-b border-[#1e3a8a] p-1.5 text-[10px] grid grid-cols-3 gap-2">
+                <div className="bg-[#f0f9ff] border-b border-[#1e3a8a] p-1.5 text-[10px] grid grid-cols-2 md:grid-cols-4 gap-2">
                   <div>
                     <span className="font-bold text-slate-700">Service Type:</span> <span className="font-semibold text-black">{quotation.moveType || 'Part Load, Domestic Shifting'}</span>
                   </div>
@@ -1207,6 +1208,9 @@ export const QuotationPdfModal: React.FC<QuotationPdfModalProps> = ({
                   </div>
                   <div>
                     <span className="font-bold text-slate-700">Balcony Handling:</span> <span className="font-medium text-black">{quotation.balconyItems || 'None'}</span>
+                  </div>
+                  <div>
+                    <span className="font-bold text-slate-700">Payment Mode:</span> <span className="font-medium text-black">{quotation.paymentMode || '—'}</span>
                   </div>
                 </div>
 

@@ -740,6 +740,7 @@ export default function App() {
     payableInWords: '',
     advancePaid: '',
     easyAccess: '',
+    paymentMode: '',
     balconyItems: '',
     extraInfo: '',
     status: 'Pending'
@@ -2597,6 +2598,7 @@ export default function App() {
       toCity: enquiry.movingTo || '',
       quotationDate: new Date().toISOString().split('T')[0],
       movingDate: enquiry.movingDate || '',
+      paymentMode: '',
     }));
     setAdminTab('add-quotation');
     setShareToast(`Enquiry details transferred to Quotation Form!`);
@@ -5363,11 +5365,12 @@ export default function App() {
                           />
                         </div>
                         <div className="border border-slate-300 rounded-lg p-3 focus-within:border-green-500 transition-all bg-white">
+                          <label className="block text-[11px] text-slate-500 font-medium mb-0.5">Payment Mode</label>
                           <input
                             type="text"
-                            placeholder="Easy Access"
-                            value={quotationForm.easyAccess}
-                            onChange={(e) => setQuotationForm({ ...quotationForm, easyAccess: e.target.value })}
+                            placeholder="e.g. Cash, UPI, Bank Transfer"
+                            value={quotationForm.paymentMode}
+                            onChange={(e) => setQuotationForm({ ...quotationForm, paymentMode: e.target.value })}
                             className="w-full outline-none text-slate-700 text-sm bg-transparent placeholder-slate-500"
                           />
                         </div>
