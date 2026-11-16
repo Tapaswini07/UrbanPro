@@ -840,8 +840,10 @@ export const SetupView: React.FC<Props> = ({
               <p className="text-slate-700 mt-1">📞 +91 8093017400</p>
             </div>
             <div className="p-4 bg-blue-50 rounded-xl border border-blue-200">
-              <span className="font-bold text-blue-900 block text-sm">Head Office Location</span>
-              <p className="text-slate-700 mt-1">📍 Hanspal, Balianta Canal Road, Bhubaneswar, Odisha</p>
+              <span className="font-bold text-blue-900 block text-sm">Registered Office Address</span>
+              <p className="text-slate-700 mt-1">📍 Ward No. 3, Near Old SBI ATM, Dipka, Korba, CG – 495452</p>
+              <span className="font-bold text-blue-900 block text-sm mt-3">Main Operational Office / Branch Address</span>
+              <p className="text-slate-700 mt-1">📍 Plot No. 1491, Hanspal, Balianta Canal Road, Near Lenskart, Bhubaneswar, Odisha – 752101</p>
             </div>
           </div>
         </div>
