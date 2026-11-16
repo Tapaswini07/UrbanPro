@@ -7160,7 +7160,7 @@ export default function App() {
               Complete Packing, Moving & Logistics Solutions
             </h2>
             <p className="text-slate-600 max-w-none mx-auto text-base sm:text-lg">
-              <span className="text-blue-900">Urban</span><span className="text-[#ff0800] font-bold">Pro</span>{' '}<span className="text-blue-900">Packer &amp; Logistics</span> provides comprehensive, safe, and dependable shifting solutions tailored to your unique requirements across India.
+              <span className="inline-flex items-center bg-white px-2.5 py-0.5 rounded shadow-xs font-black mr-1" style={{ fontFamily: "'Times New Roman', Times, serif" }}><span style={{ color: '#1e3a8a', fontWeight: 900 }}>Urban</span><span style={{ color: '#ff0800', fontWeight: 900 }}>Pro</span>&nbsp;<span style={{ color: '#1e3a8a', fontWeight: 900 }}>Packer &amp; Logistics</span></span> provides comprehensive, safe, and dependable shifting solutions tailored to your unique requirements across India.
             </p>
           </div>
 
@@ -7329,13 +7329,13 @@ export default function App() {
 
           {/* Company Background & Legacy */}
           <div className="max-w-4xl mx-auto mb-10 bg-gradient-to-br from-blue-900 via-blue-950 to-slate-900 text-white rounded-2xl p-8 sm:p-10 shadow-xl border border-blue-800">
-            <div className="mb-6">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="px-3 py-1.5 bg-yellow-400 text-blue-950 rounded-xl flex items-center gap-2 font-black shadow-md shrink-0">
-                  <span className="text-[11px] uppercase tracking-wider font-bold text-blue-900">ESTD</span>
-                  <span className="text-lg leading-none font-black">2009</span>
-                </div>
-                <span className="text-xs font-bold text-yellow-400 uppercase tracking-widest">
+            <div className="mb-6 space-y-2">
+              <div className="inline-block px-3 py-1.5 bg-yellow-400 text-blue-950 rounded-xl font-black shadow-md">
+                <span className="text-[11px] uppercase tracking-wider font-bold text-blue-900 mr-1.5">ESTD</span>
+                <span className="text-lg leading-none font-black">2009</span>
+              </div>
+              <div>
+                <span className="text-xs font-bold text-yellow-400 uppercase tracking-widest block">
                   Company Background &amp; Legacy
                 </span>
               </div>
@@ -7352,11 +7352,11 @@ export default function App() {
             </div>
 
             <p className="text-blue-100 text-base sm:text-lg leading-relaxed mb-6 font-normal">
-              <strong className="font-extrabold"><span className="text-blue-200">Urban</span><span className="text-[#ff0800] font-black">Pro</span> <span className="text-blue-200">Packer &amp; Logistics</span></strong> was established in <strong>2009</strong> and has substantial experience in the transportation and logistics sector, undertaking a wide range of transportation-related work over the years.
+              <span className="inline-flex items-center bg-white px-2.5 py-0.5 rounded shadow-xs font-black mr-1" style={{ fontFamily: "'Times New Roman', Times, serif" }}><span style={{ color: '#1e3a8a', fontWeight: 900 }}>Urban</span><span style={{ color: '#ff0800', fontWeight: 900 }}>Pro</span>&nbsp;<span style={{ color: '#1e3a8a', fontWeight: 900 }}>Packer &amp; Logistics</span></span> was established in <strong>2009</strong> and has substantial experience in the transportation and logistics sector, undertaking a wide range of transportation-related work over the years.
             </p>
 
             <p className="text-blue-100 text-base sm:text-lg leading-relaxed mb-6 font-normal">
-              <strong className="font-extrabold"><span className="text-blue-200">Urban</span><span className="text-[#ff0800] font-black">Pro</span> <span className="text-blue-200">Packer &amp; Logistics</span></strong> provides professional Packer &amp; Mover, relocation, transportation and logistics services across India.
+              <span className="inline-flex items-center bg-white px-2.5 py-0.5 rounded shadow-xs font-black mr-1" style={{ fontFamily: "'Times New Roman', Times, serif" }}><span style={{ color: '#1e3a8a', fontWeight: 900 }}>Urban</span><span style={{ color: '#ff0800', fontWeight: 900 }}>Pro</span>&nbsp;<span style={{ color: '#1e3a8a', fontWeight: 900 }}>Packer &amp; Logistics</span></span> provides professional Packer &amp; Mover, relocation, transportation and logistics services across India.
             </p>
 
             {/* State Tags */}
@@ -7394,7 +7394,7 @@ export default function App() {
                 Our objective is to make every move safe, organized and hassle-free through professional planning, responsible handling and dependable transportation solutions.
               </p>
               <p>
-                <strong className="font-extrabold"><span className="text-blue-200">Urban</span><span className="text-[#ff0800] font-black">Pro</span> <span className="text-blue-200">Packer &amp; Logistics</span></strong> is committed to providing customer-focused services and building long-term relationships based on reliability, professionalism and responsible service.
+                <span className="inline-flex items-center bg-white px-2.5 py-0.5 rounded shadow-xs font-black mr-1" style={{ fontFamily: "'Times New Roman', Times, serif" }}><span style={{ color: '#1e3a8a', fontWeight: 900 }}>Urban</span><span style={{ color: '#ff0800', fontWeight: 900 }}>Pro</span>&nbsp;<span style={{ color: '#1e3a8a', fontWeight: 900 }}>Packer &amp; Logistics</span></span> is committed to providing customer-focused services and building long-term relationships based on reliability, professionalism and responsible service.
               </p>
             </div>
 
@@ -7462,7 +7462,7 @@ export default function App() {
               Need packing Material or Manpower for your shifting requirement?
             </p>
             <p className="text-slate-400 text-sm max-w-2xl mx-auto">
-              <span className="text-blue-200">Urban</span><span className="text-[#ff0800] font-bold">Pro</span>{' '}<span className="text-blue-200">Packer &amp; Logistics</span> provides packing materials and skilled labour support for household, office, commercial and relocation work.
+              <span className="inline-flex items-center bg-white px-2.5 py-0.5 rounded shadow-xs font-black mr-1" style={{ fontFamily: "'Times New Roman', Times, serif" }}><span style={{ color: '#1e3a8a', fontWeight: 900 }}>Urban</span><span style={{ color: '#ff0800', fontWeight: 900 }}>Pro</span>&nbsp;<span style={{ color: '#1e3a8a', fontWeight: 900 }}>Packer &amp; Logistics</span></span> provides packing materials and skilled labour support for household, office, commercial and relocation work.
             </p>
           </div>
 
@@ -7987,7 +7987,7 @@ export default function App() {
           </span>
           <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight">Ready to Move?</h2>
           <p className="text-xl sm:text-2xl font-bold text-yellow-300">
-            Pack Smart &amp; Move Safe with <span className="text-blue-200">Urban</span><span className="text-[#ff0800]">Pro</span>{' '}<span className="text-blue-200">Packer &amp; Logistics</span>
+            Pack Smart &amp; Move Safe with <span className="inline-flex items-center bg-white px-2.5 py-0.5 rounded shadow-xs font-black mx-1" style={{ fontFamily: "'Times New Roman', Times, serif" }}><span style={{ color: '#1e3a8a', fontWeight: 900 }}>Urban</span><span style={{ color: '#ff0800', fontWeight: 900 }}>Pro</span>&nbsp;<span style={{ color: '#1e3a8a', fontWeight: 900 }}>Packer &amp; Logistics</span></span>
           </p>
           <p className="text-blue-100 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
             Professional Packer & Mover and Logistics Solutions for Local, Intercity, Domestic and Commercial Requirements.
