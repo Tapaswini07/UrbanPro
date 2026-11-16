@@ -7624,7 +7624,7 @@ export default function App() {
       <section id="why-choose-us" className="py-20 px-4 bg-white border-t border-slate-100">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16 space-y-3">
-            <span className="text-xs font-bold text-blue-900 uppercase tracking-widest bg-blue-50 px-3.5 py-1.5 rounded-full border border-blue-200">
+            <span className="text-xs font-bold text-blue-900 uppercase tracking-widest bg-white px-3.5 py-1.5 rounded-full border border-blue-200">
               WHY CHOOSE Urban<span className="text-[#ff0800]">Pro</span> <span className="text-blue-900">Packer &amp; Logistics</span>?
             </span>
             <h2 className="text-3xl sm:text-4xl font-bold text-slate-900">Your Move. Our Responsibility.</h2>
