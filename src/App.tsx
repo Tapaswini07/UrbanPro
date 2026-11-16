@@ -5280,10 +5280,6 @@ export default function App() {
                                 <span className="text-slate-500">Base Charges:</span>{' '}
                                 <strong className="text-slate-900 font-mono">₹ {formTotals.baseTotal.toLocaleString()}</strong>
                               </div>
-                              <div className="bg-blue-100/70 text-blue-950 px-2 py-0.5 rounded font-bold">
-                                <span>Sub Total:</span>{' '}
-                                <strong className="font-mono">₹ {formTotals.subTotal.toLocaleString()}</strong>
-                              </div>
                               {formTotals.insuranceNum > 0 && (
                                 <div className="text-emerald-700">
                                   <span>+ Ins ({formTotals.insPercent} Extra):</span>{' '}
@@ -5308,42 +5304,22 @@ export default function App() {
                                 </div>
                               )}
                             </div>
-                            <div className="flex items-center gap-3">
-                              <div className="flex items-center gap-1.5">
+                            <div className="flex flex-col items-start md:items-end gap-1.5">
+                              <div className="flex items-center justify-between gap-4 w-full md:w-auto text-xs font-bold text-blue-950 bg-white px-2.5 py-1 rounded-lg border border-blue-200">
+                                <span>Sub Total:</span>
+                                <span className="font-mono">₹ {formTotals.subTotal.toLocaleString()}</span>
+                              </div>
+                              <div className="flex items-center justify-between gap-4 w-full md:w-auto">
                                 <span className="text-xs uppercase font-extrabold text-blue-900 tracking-wider">Grand Total:</span>
                                 <span className="text-base sm:text-lg font-black text-blue-950 font-mono bg-white px-2.5 py-0.5 rounded-lg border border-blue-300 shadow-2xs">
                                   ₹ {formTotals.grandTotal.toLocaleString()}
                                 </span>
                               </div>
                               {formTotals.advanceNum > 0 && (
-                                <div className="text-xs font-bold text-slate-700 bg-white px-2 py-0.5 rounded border border-slate-200">
+                                <div className="text-xs font-bold text-slate-700 bg-white px-2 py-0.5 rounded border border-slate-200 self-end">
                                   Due: <span className="text-emerald-700 font-mono">₹ {formTotals.balanceDue.toLocaleString()}</span>
                                 </div>
                               )}
-                            </div>
-                          </div>
-                        );
-                      })()}
-
-                      {/* Calculated Grand Total */}
-                      {(() => {
-                        const formTotals = calculateQuotationTotals(quotationForm);
-                        return (
-                          <div className="mt-4 pt-3 border-t border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="border border-slate-300 rounded-lg p-3 bg-white focus-within:border-blue-500 shadow-2xs group">
-                              <label className="block text-xs font-bold text-slate-900 uppercase tracking-wider mb-1 flex items-center justify-between">
-                                <span>Grand Total (Final Payable)</span>
-                              </label>
-                              <div className="flex items-center justify-between">
-                                <input
-                                  type="text"
-                                  placeholder={String(formTotals.grandTotal || '0')}
-                                  value={String(formTotals.grandTotal)}
-                                  readOnly
-                                  className="w-full outline-none text-blue-950 text-sm font-black bg-transparent"
-                                />
-                                <span className="text-[11px] text-slate-400 font-medium ml-1 shrink-0">₹ INR</span>
-                              </div>
                             </div>
                           </div>
                         );
@@ -5379,10 +5355,6 @@ export default function App() {
                           return (
                             <div className="border border-emerald-300 rounded-lg p-3 bg-emerald-50 md:col-span-2">
                               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm">
-                                <div className="text-slate-700">
-                                  <span className="font-semibold">Grand Total:</span>{' '}
-                                  <span className="font-black text-blue-950">₹ {formTotals.grandTotal.toLocaleString()}</span>
-                                </div>
                                 <div className="text-slate-700">
                                   <span className="font-semibold">Advance Paid:</span>{' '}
                                   <span className="font-black text-emerald-700">₹ {formTotals.advanceNum.toLocaleString()}</span>

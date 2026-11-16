@@ -1643,26 +1643,31 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
               </div>
 
               <div className="border-2 border-emerald-400 bg-emerald-50 rounded-xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 md:col-span-2 shadow-2xs">
-                <div className="flex-1">
-                  <div className="flex flex-wrap gap-x-5 gap-y-1 text-xs font-semibold text-slate-700 mb-2">
-                    <span>Charge Subtotal: ₹{calcSubTotal(form).toLocaleString()}</span>
+                <div className="flex-1 grid grid-cols-1 sm:grid-cols-[1fr_auto] items-end gap-3">
+                  <div className="flex flex-wrap gap-x-5 gap-y-1 text-xs font-semibold text-slate-700">
                     <span>Insurance ({form.insurancePercent || 0}%): ₹{calcInsuranceAmt(form).toLocaleString()}</span>
                     <span>GST ({form.gstRate || 0}% on subtotal): ₹{calcGstAmt(form).toLocaleString()}</span>
                   </div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label className="block text-xs font-bold text-emerald-950 uppercase tracking-wide">
-                      Total Payable Bill Amount (Grand Total ₹) *
-                    </label>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xl font-black text-emerald-800">₹</span>
-                    <input
-                      type="number"
-                      value={calcGrandTotal(form)}
-                      readOnly
-                      className="w-full outline-none font-black text-emerald-950 text-xl bg-white px-3 py-1.5 rounded-lg border border-emerald-300 shadow-2xs"
-                      placeholder={String(calcGrandTotal(form))}
-                    />
+                  <div className="flex flex-col gap-2 sm:min-w-64">
+                    <div className="flex items-center justify-between gap-4 text-xs font-bold text-emerald-950">
+                      <span>Charge Subtotal:</span>
+                      <span>₹{calcSubTotal(form).toLocaleString()}</span>
+                    </div>
+                    <div>
+                      <label className="block text-right text-xs font-bold text-emerald-950 uppercase tracking-wide mb-1">
+                        Grand Total (₹) *
+                      </label>
+                      <div className="flex items-center justify-end gap-2">
+                        <span className="text-xl font-black text-emerald-800">₹</span>
+                        <input
+                          type="number"
+                          value={calcGrandTotal(form)}
+                          readOnly
+                          className="w-full max-w-56 text-right outline-none font-black text-emerald-950 text-xl bg-white px-3 py-1.5 rounded-lg border border-emerald-300 shadow-2xs"
+                          placeholder={String(calcGrandTotal(form))}
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <div className="w-9 h-9 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
@@ -1700,7 +1705,6 @@ ${companyProfile?.accountNo ? `🏛 *Bank Account:* ${companyProfile.bankName ||
                 />
               </div>
               <div className="md:col-span-2 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm font-semibold">
-                <span>Grand Total: ₹{calcGrandTotal(form).toLocaleString()}</span>
                 <span>Advance Paid: ₹{calculateBillTotals(form).advanceNum.toLocaleString()}</span>
                 <span>Balance Due: ₹{calculateBillTotals(form).balanceDue.toLocaleString()}</span>
               </div>
