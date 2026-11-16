@@ -32,6 +32,7 @@ import {
   Plus,
   Lock,
   LogOut,
+  Inbox,
   Users,
   LayoutDashboard,
   ClipboardList,
@@ -76,6 +77,7 @@ import { BillView } from './components/BillView';
 import { MoneyReceiptView } from './components/MoneyReceiptView';
 import { PaymentVoucherView } from './components/PaymentVoucherView';
 import { SetupView } from './components/SetupView';
+import { EnquiriesView, type EnquiryItem } from './components/EnquiriesView';
 import { UPL_LOGO_BASE64 } from './assets/logoBase64';
 import { PRAKASH_SIGNATURE_BASE64 } from './assets/signatureBase64';
 import { INDIAN_STATES, getStateCodeByName } from './utils/indianStates';
@@ -148,7 +150,21 @@ export default function App() {
   const [isSubmittingQuote, setIsSubmittingQuote] = useState(false);
   const [quoteSubmissionError, setQuoteSubmissionError] = useState('');
   const [submittedQuoteDetails, setSubmittedQuoteDetails] = useState<SubmittedQuoteDetails | null>(readSubmittedQuoteDetails);
-  const [showQuoteSubmitToast, setShowQuoteSubmitToast] = useState(() => Boolean(readSubmittedQuoteDetails()));
+  const [showQuoteSubmitToast, setShowQuoteSubmitToast] = useState(false);
+  const [quoteToast, setQuoteToast] = useState<{
+    type: 'success' | 'error';
+    title: string;
+    message: string;
+    customerName?: string;
+  } | null>(null);
+
+  useEffect(() => {
+    if (!quoteToast) return;
+    const timer = setTimeout(() => {
+      setQuoteToast(null);
+    }, quoteToast.type === 'error' ? 6500 : 4500);
+    return () => clearTimeout(timer);
+  }, [quoteToast]);
   const [quoteRequests, setQuoteRequests] = useState<any[]>(() => {
     try {
       const saved = localStorage.getItem('upl_quote_requests');
@@ -2280,6 +2296,22 @@ export default function App() {
     };
     setIsSubmittingQuote(true);
     setQuoteSubmissionError('');
+
+    const enquiryId = `ENQ-${Date.now().toString().slice(-6)}`;
+    const request: EnquiryItem = {
+      id: enquiryId,
+      ...submittedDetails,
+      email: formData.email,
+      movingDate: formData.date,
+      itemRows: formData.itemRows,
+      items: itemListText,
+      message,
+      status: 'New',
+      adminNotes: '',
+      submittedAt: new Date().toISOString(),
+      emailDelivered: false,
+    };
+
     try {
       const emailPayload = {
         name: formData.name,
@@ -2291,80 +2323,117 @@ export default function App() {
         movingTo: formData.movingTo,
         message,
       };
+
+      let emailSucceeded = false;
+      let emailFailMessage = '';
+
       if (!WEB3FORMS_ACCESS_KEY) {
-        throw new Error('Email delivery is not configured. Please contact the site administrator.');
+        emailFailMessage = 'Email service is not configured.';
+      } else {
+        try {
+          const directForm = new FormData();
+          directForm.append('access_key', WEB3FORMS_ACCESS_KEY);
+          directForm.append('from_name', 'UrbanPro Website');
+          directForm.append('subject', `New quote request from ${formData.name}`);
+          if (formData.email) directForm.append('email', formData.email);
+          Object.entries(emailPayload).forEach(([key, value]) => {
+            if (value) directForm.append(key, value);
+          });
+
+          const directResponse = await fetch('https://api.web3forms.com/submit', {
+            method: 'POST',
+            body: directForm,
+          });
+          const result = await directResponse.json().catch(() => null);
+          if (directResponse.ok && result?.success) {
+            emailSucceeded = true;
+          } else {
+            emailFailMessage = result?.message || 'Email delivery was not confirmed.';
+          }
+        } catch (fetchErr) {
+          console.error('Web3Forms fetch error', fetchErr);
+          emailFailMessage = 'Network connection issue.';
+        }
       }
 
-      const directForm = new FormData();
-      directForm.append('access_key', WEB3FORMS_ACCESS_KEY);
-      directForm.append('from_name', 'UrbanPro Website');
-      directForm.append('subject', 'New quote request from UrbanPro website');
-      if (formData.email) directForm.append('email', formData.email);
-      Object.entries(emailPayload).forEach(([key, value]) => {
-        if (value) directForm.append(key, value);
-      });
+      request.emailDelivered = emailSucceeded;
 
-      const directResponse = await fetch('https://api.web3forms.com/submit', {
-        method: 'POST',
-        body: directForm,
-      });
-      const result = await directResponse.json().catch(() => null);
-      if (!directResponse.ok || !result?.success) throw new Error(result?.message || 'Email service rejected the request');
-
+      // Always save to portal so lead is safely stored and visible in Admin Portal immediately
       setSubmittedQuoteDetails(submittedDetails);
       try {
         window.sessionStorage.setItem('upl_pending_quote_confirmation', JSON.stringify(submittedDetails));
         const savedRequests = JSON.parse(localStorage.getItem('upl_quote_requests') || '[]');
         const requests = Array.isArray(savedRequests) ? savedRequests : [];
-        const request = {
-          ...submittedDetails,
-          email: formData.email,
-          movingDate: formData.date,
-          itemRows: formData.itemRows,
-          message,
-          submittedAt: new Date().toISOString(),
-        };
         const updatedRequests = [
-          ...requests,
           request,
-        ].slice(-200);
+          ...requests.filter((r: any) => r.id !== request.id),
+        ].slice(0, 300);
         localStorage.setItem('upl_quote_requests', JSON.stringify(updatedRequests));
         setQuoteRequests(updatedRequests);
-      } catch (error) {
-        console.error('Failed to save quote request locally', error);
-      }
-      setQuoteSubmitted(true);
-      setShowQuoteSubmitToast(true);
-      setFormData({ name: '', phone: '', email: '', date: '', item: '', otherItem: '', movingFrom: '', movingTo: '', itemRows: [{ name: '', value: '' }] });
-
-      void fetch('/api/whatsapp/enquiry', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: formData.name,
-            phone: formData.phone,
-            email: formData.email,
-            movingDate: formData.date,
-            serviceType: finalItem,
-            items: itemListText,
-            movingFrom: formData.movingFrom,
-            movingTo: formData.movingTo,
-          }),
-        })
-        .then(async whatsappResponse => {
-        const whatsappResult = await whatsappResponse.json().catch(() => null);
-        if (!whatsappResponse.ok || !whatsappResult?.success) {
-          console.error('WhatsApp notification failed after email submission', whatsappResult);
+        if (sharedHydrated.current) {
+          void writeSharedValue('upl_quote_requests', updatedRequests);
         }
-        })
-        .catch(error => {
-          console.error('WhatsApp notification failed after email submission', error);
+      } catch (storageError) {
+        console.error('Failed to save quote request locally', storageError);
+      }
+
+      // Best-effort WhatsApp Cloud API trigger in background
+      void fetch('/api/whatsapp/enquiry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name,
+          phone: formData.phone,
+          email: formData.email,
+          movingDate: formData.date,
+          serviceType: finalItem,
+          items: itemListText,
+          movingFrom: formData.movingFrom,
+          movingTo: formData.movingTo,
+        }),
+      }).catch(whatsappErr => {
+        console.error('WhatsApp background notification failed', whatsappErr);
+      });
+
+      if (emailSucceeded) {
+        setQuoteSubmissionError('');
+        setQuoteToast({
+          type: 'success',
+          title: 'Enquiry Submitted Successfully!',
+          message: `Thank you, ${formData.name}! Your moving enquiry has been received. Our team will contact you shortly with the best quote.`,
+          customerName: formData.name,
         });
+        setFormData({
+          name: '',
+          phone: '',
+          email: '',
+          date: '',
+          item: '',
+          otherItem: '',
+          movingFrom: '',
+          movingTo: '',
+          itemRows: [{ name: '', value: '' }],
+        });
+      } else {
+        const friendlyError = `Your enquiry was safely recorded in our portal, but the automated email notice could not be sent (${emailFailMessage}). You can also connect directly via WhatsApp or Call at +91 8093017400.`;
+        setQuoteSubmissionError(friendlyError);
+        setQuoteToast({
+          type: 'error',
+          title: 'Enquiry Recorded (Email Notice Delayed)',
+          message: friendlyError,
+          customerName: formData.name,
+        });
+      }
     } catch (error) {
-      console.error('Failed to submit quote request by email', error);
-      setQuoteSubmissionError(error instanceof Error && error.message
-        ? error.message
-        : 'Your request could not be sent. Please try again.');
+      console.error('Failed to submit quote request', error);
+      const friendlyError = 'We could not submit your enquiry right now due to a network issue. Please check your connection or contact us directly at +91 8093017400.';
+      setQuoteSubmissionError(friendlyError);
+      setQuoteToast({
+        type: 'error',
+        title: 'Submission Incomplete',
+        message: friendlyError,
+        customerName: formData.name,
+      });
     } finally {
       setIsSubmittingQuote(false);
     }
@@ -2387,6 +2456,96 @@ export default function App() {
       ...prev,
       itemRows: prev.itemRows.length > 1 ? prev.itemRows.filter((_, rowIndex) => rowIndex !== index) : prev.itemRows
     }));
+  };
+
+  const handleUpdateEnquiryStatus = (enquiryId: string, newStatus: EnquiryItem['status']) => {
+    setQuoteRequests(prev => {
+      const updated = prev.map((enq, idx) => {
+        const id = enq.id || (enq.submittedAt ? `ENQ-${new Date(enq.submittedAt).getTime()}` : `ENQ-${idx}`);
+        return id === enquiryId ? { ...enq, status: newStatus, updatedAt: new Date().toISOString() } : enq;
+      });
+      localStorage.setItem('upl_quote_requests', JSON.stringify(updated));
+      if (sharedHydrated.current) void writeSharedValue('upl_quote_requests', updated);
+      return updated;
+    });
+    setShareToast(`Enquiry status updated to "${newStatus}"`);
+    setTimeout(() => setShareToast(null), 3000);
+  };
+
+  const handleUpdateEnquiryNotes = (enquiryId: string, notes: string) => {
+    setQuoteRequests(prev => {
+      const updated = prev.map((enq, idx) => {
+        const id = enq.id || (enq.submittedAt ? `ENQ-${new Date(enq.submittedAt).getTime()}` : `ENQ-${idx}`);
+        return id === enquiryId ? { ...enq, adminNotes: notes, updatedAt: new Date().toISOString() } : enq;
+      });
+      localStorage.setItem('upl_quote_requests', JSON.stringify(updated));
+      if (sharedHydrated.current) void writeSharedValue('upl_quote_requests', updated);
+      return updated;
+    });
+    setShareToast('Follow-up notes updated successfully');
+    setTimeout(() => setShareToast(null), 3000);
+  };
+
+  const handleDeleteEnquiry = (enquiryId: string) => {
+    setQuoteRequests(prev => {
+      const updated = prev.filter((enq, idx) => {
+        const id = enq.id || (enq.submittedAt ? `ENQ-${new Date(enq.submittedAt).getTime()}` : `ENQ-${idx}`);
+        return id !== enquiryId;
+      });
+      localStorage.setItem('upl_quote_requests', JSON.stringify(updated));
+      if (sharedHydrated.current) void writeSharedValue('upl_quote_requests', updated);
+      return updated;
+    });
+    setShareToast('Enquiry removed from records');
+    setTimeout(() => setShareToast(null), 3000);
+  };
+
+  const handleConvertEnquiryToSurvey = (enquiry: EnquiryItem) => {
+    const surveyItems = (enquiry.itemRows || [])
+      .filter(r => r.name?.trim())
+      .map(r => ({
+        name: r.name,
+        qty: '1',
+        value: r.value || '',
+        remark: 'From website enquiry',
+      }));
+
+    setEditingSurveyId(null);
+    setSurveyForm({
+      ...initialSurveyForm,
+      id: Date.now(),
+      surveyNo: generateNextSurveyNo(surveys),
+      partyName: enquiry.name || '',
+      mobileNo: enquiry.phone || '',
+      email: enquiry.email || '',
+      fromCity: enquiry.movingFrom || '',
+      toCity: enquiry.movingTo || '',
+      packingDate: enquiry.movingDate || '',
+      surveyDate: new Date().toISOString().split('T')[0],
+      items: surveyItems.length > 0 ? surveyItems : initialSurveyForm.items,
+    });
+    setAdminTab('add-survey');
+    setShareToast(`Enquiry details transferred to Survey Form!`);
+    setTimeout(() => setShareToast(null), 3000);
+  };
+
+  const handleConvertEnquiryToQuotation = (enquiry: EnquiryItem) => {
+    setEditingQuotationId(null);
+    setQuotationForm(prev => ({
+      ...prev,
+      id: Date.now(),
+      quotationNo: getNextQuotationNumber(),
+      partyName: enquiry.name || '',
+      mobileNo: enquiry.phone || '',
+      email: enquiry.email || '',
+      fromCity: enquiry.movingFrom || '',
+      toCity: enquiry.movingTo || '',
+      quotationDate: new Date().toISOString().split('T')[0],
+      movingDate: enquiry.movingDate || '',
+    }));
+    setAdminTab('add-quotation');
+    setShareToast(`Enquiry details transferred to Quotation Form!`);
+    setTimeout(() => setShareToast(null), 3000);
   };
 
   const toggleService = (index: number) => {
@@ -2988,6 +3147,34 @@ export default function App() {
 
                 <div>
                   <div className="px-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                    <span>ENQUIRIES / LEADS</span>
+                    {quoteRequests.filter((r: any) => !r.status || r.status === 'New').length > 0 ? (
+                      <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold animate-pulse">
+                        {quoteRequests.filter((r: any) => !r.status || r.status === 'New').length} NEW
+                      </span>
+                    ) : (
+                      <span className="bg-slate-800 text-slate-400 text-[10px] px-1.5 py-0.5 rounded-full">{quoteRequests.length}</span>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => {
+                      setAdminTab('list-enquiry');
+                      if (window.innerWidth < 768) setSidebarOpen(false);
+                    }}
+                    className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm transition-colors cursor-pointer ${adminTab === 'list-enquiry' ? 'bg-blue-600 text-white font-semibold shadow-sm' : 'text-slate-300 hover:bg-slate-800 hover:text-white font-medium'}`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Inbox className="w-4 h-4 text-amber-400" />
+                      <span>All Enquiries</span>
+                    </div>
+                    <span className="bg-slate-800 text-slate-300 text-[10px] px-1.5 py-0.5 rounded-full font-semibold">
+                      {quoteRequests.length}
+                    </span>
+                  </button>
+                </div>
+
+                <div>
+                  <div className="px-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 flex items-center justify-between">
                     <span>SURVEYS</span>
                     <span className="bg-slate-800 text-slate-400 text-[10px] px-1.5 py-0.5 rounded-full">{surveys.length}</span>
                   </div>
@@ -3307,7 +3494,14 @@ export default function App() {
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2.5 w-full sm:w-auto">
+                      <div className="flex items-center gap-2.5 w-full sm:w-auto flex-wrap">
+                        <button
+                          onClick={() => setAdminTab('list-enquiry')}
+                          className="flex-1 sm:flex-initial bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
+                        >
+                          <Inbox className="w-4 h-4 text-white" />
+                          <span>View Leads ({quoteRequests.length})</span>
+                        </button>
                         <button
                           onClick={() => { setAdminTab('add-survey'); setEditingSurveyId(null); setSurveyForm(initialSurveyForm); }}
                           className="flex-1 sm:flex-initial bg-[#1e3a8a] hover:bg-blue-900 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
@@ -3326,8 +3520,35 @@ export default function App() {
                     </div>
                   </div>
 
-                  {/* 3 Metric Cards */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                  {/* 4 Metric Cards */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                    {/* Website Enquiries Card */}
+                    <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs hover:shadow-md transition-shadow relative overflow-hidden">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">WEBSITE LEADS</span>
+                        <div className="w-10 h-10 rounded-xl bg-red-50 text-red-600 flex items-center justify-center">
+                          <Inbox className="w-5 h-5" />
+                        </div>
+                      </div>
+                      <div className="flex items-baseline gap-2">
+                        <div className="text-3xl font-black text-slate-800">{quoteRequests.length}</div>
+                        {quoteRequests.filter((r: any) => !r.status || r.status === 'New').length > 0 && (
+                          <span className="text-[11px] font-bold bg-red-500 text-white px-2 py-0.5 rounded-full animate-pulse">
+                            {quoteRequests.filter((r: any) => !r.status || r.status === 'New').length} New
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-slate-500 mt-1 mb-4">Live website quote & moving enquiries</p>
+                      <div className="flex gap-2 pt-3 border-t border-slate-100">
+                        <button
+                          onClick={() => setAdminTab('list-enquiry')}
+                          className="w-full text-xs font-semibold bg-red-50 hover:bg-red-100 text-red-700 py-1.5 rounded-lg transition-colors cursor-pointer text-center flex items-center justify-center gap-1.5"
+                        >
+                          <span>Manage Leads ({quoteRequests.length})</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
                     {/* Surveys Card */}
                     <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs hover:shadow-md transition-shadow">
                       <div className="flex items-center justify-between mb-3">
@@ -6423,6 +6644,18 @@ export default function App() {
                 />
               )}
 
+              {/* WEBSITE ENQUIRIES / LEADS VIEW */}
+              {adminTab === 'list-enquiry' && (
+                <EnquiriesView
+                  enquiries={quoteRequests}
+                  onUpdateStatus={handleUpdateEnquiryStatus}
+                  onUpdateNotes={handleUpdateEnquiryNotes}
+                  onDeleteEnquiry={handleDeleteEnquiry}
+                  onCreateSurvey={handleConvertEnquiryToSurvey}
+                  onCreateQuotation={handleConvertEnquiryToQuotation}
+                />
+              )}
+
               {/* SETUP VIEWS (Company Profile, Signature, Settings, Contact Us) */}
               {(adminTab === 'company-profile' || adminTab === 'signature' || adminTab === 'settings' || adminTab === 'contact-us') && (
                 <SetupView
@@ -6540,33 +6773,81 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-red-100 selection:text-red-900">
-      {showQuoteSubmitToast && (
+      {/* Unified Single Floating Toast for Enquiry Submission */}
+      {quoteToast && (
         <div
           role="status"
           aria-live="polite"
-          className="fixed top-4 left-1/2 z-[100] flex w-[calc(100%-2rem)] max-w-xl -translate-x-1/2 items-start gap-3 rounded-xl border border-emerald-300 bg-emerald-700 px-4 py-3 text-sm font-semibold text-white shadow-xl"
+          className={`fixed top-5 right-4 sm:right-6 z-[100] w-[calc(100%-2rem)] sm:w-auto sm:max-w-md rounded-2xl p-4 shadow-2xl backdrop-blur-md transition-all duration-300 border ${
+            quoteToast.type === 'success'
+              ? 'bg-slate-900/95 border-emerald-500/50 text-white'
+              : 'bg-slate-900/95 border-rose-500/50 text-white'
+          }`}
         >
-          <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" />
-          <span className="flex-1">
-            {submittedQuoteDetails?.name
-              ? `Thank you, ${submittedQuoteDetails.name}! Your enquiry has been submitted successfully. Our team will contact you shortly.`
-              : 'Your enquiry has been submitted successfully. Our team will contact you shortly.'}
-          </span>
-          <button
-            type="button"
-            onClick={() => {
-              setShowQuoteSubmitToast(false);
-              try {
-                window.sessionStorage.removeItem('upl_pending_quote_confirmation');
-              } catch (error) {
-                console.error('Failed to clear enquiry confirmation', error);
-              }
-            }}
-            aria-label="Dismiss enquiry confirmation"
-            className="rounded p-0.5 text-white/80 hover:bg-white/10 hover:text-white"
-          >
-            <X className="h-4 w-4" />
-          </button>
+          <div className="flex items-start gap-3">
+            <div
+              className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-xs ${
+                quoteToast.type === 'success'
+                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
+                  : 'bg-rose-500/20 text-rose-400 border border-rose-500/40'
+              }`}
+            >
+              {quoteToast.type === 'success' ? (
+                <CheckCircle2 className="w-5 h-5" />
+              ) : (
+                <AlertCircle className="w-5 h-5" />
+              )}
+            </div>
+
+            <div className="flex-1 pr-2">
+              <h4 className="text-sm font-bold text-white mb-0.5 flex items-center gap-2">
+                {quoteToast.title}
+                {quoteToast.type === 'success' && (
+                  <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-extrabold border border-emerald-500/30">
+                    Done
+                  </span>
+                )}
+              </h4>
+              <p className="text-xs text-slate-300 leading-relaxed">{quoteToast.message}</p>
+              {quoteToast.type === 'error' && (
+                <div className="mt-2.5 flex items-center gap-2">
+                  <a
+                    href="tel:8093017400"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-[11px] font-bold transition-colors"
+                  >
+                    <Phone className="w-3 h-3" /> Call 8093017400
+                  </a>
+                  <a
+                    href="https://wa.me/918093017400"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold transition-colors"
+                  >
+                    <MessageSquare className="w-3 h-3" /> WhatsApp
+                  </a>
+                </div>
+              )}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setQuoteToast(null)}
+              aria-label="Close notification"
+              className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Animated Countdown Progress Bar */}
+          <div className="mt-3 w-full bg-slate-800 h-1 rounded-full overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all duration-300 ${
+                quoteToast.type === 'success' ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'
+              }`}
+              style={{ width: '100%' }}
+            />
+          </div>
         </div>
       )}
 
@@ -6703,59 +6984,6 @@ export default function App() {
               <p className="text-slate-600 mb-5 text-xs sm:text-sm">
                 Tell us about your relocation, packing or transportation requirement. Our team will help you with a suitable solution.
               </p>
-
-              {quoteSubmitted && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95, y: -8 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  className="mb-5 bg-gradient-to-br from-emerald-600 to-green-700 text-white rounded-xl p-4 sm:p-5 shadow-lg border border-emerald-400/40 relative overflow-hidden"
-                >
-                  <div className="flex items-start gap-3.5">
-                    <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-xs flex items-center justify-center shrink-0 border border-white/30 shadow-xs">
-                      <CheckCircle2 className="w-6 h-6 text-white" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/25 text-white font-extrabold text-xs uppercase tracking-wider">
-                          Submitted Successfully
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => setQuoteSubmitted(false)}
-                          className="text-white/80 hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
-                          title="Dismiss notice"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-                      <h4 className="font-bold text-lg text-white mt-1.5 leading-snug">
-                        Your Free Quote Was Submitted Successfully!
-                      </h4>
-                      <p className="text-emerald-50 text-xs sm:text-sm mt-1 leading-relaxed">
-                        Your quotation enquiry has been submitted successfully. Our team at <strong className="text-white"><span className="text-blue-200">Urban</span><span className="text-[#5b0f17] font-bold">Pro</span> <span className="text-blue-200">Packer &amp; Logistics</span></strong> will review your details and contact you shortly!
-                      </p>
-
-                      {submittedQuoteDetails && (
-                        <div className="mt-2.5 py-2 px-3 bg-black/20 rounded-lg text-xs space-y-1 text-emerald-100 border border-white/10">
-                          <div><span className="text-white font-semibold">Customer:</span> {submittedQuoteDetails.name} • <span className="text-white font-semibold">Phone:</span> {submittedQuoteDetails.phone}</div>
-                          <div><span className="text-white font-semibold">Route:</span> {submittedQuoteDetails.movingFrom} → {submittedQuoteDetails.movingTo}</div>
-                          <div><span className="text-white font-semibold">Service:</span> {submittedQuoteDetails.item}</div>
-                        </div>
-                      )}
-
-                      <div className="mt-3 flex flex-wrap items-center gap-2.5">
-                        <button
-                          type="button"
-                          onClick={() => setQuoteSubmitted(false)}
-                          className="text-xs font-semibold text-white/90 hover:text-white underline px-2 py-1 cursor-pointer"
-                        >
-                          Submit Another Quote
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
 
               <form onSubmit={handleSubmit} className="space-y-3.5">
                 <div>
@@ -7557,40 +7785,6 @@ export default function App() {
               </span>
               <span className="text-xs text-slate-500 font-medium">* Required fields</span>
             </div>
-
-            {quoteSubmitted && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-700 text-white shadow-lg border border-emerald-500"
-              >
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-full bg-white text-emerald-700 flex items-center justify-center shrink-0 font-bold">
-                    ✓
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-xs uppercase tracking-wider font-extrabold bg-emerald-800/80 px-2.5 py-0.5 rounded-full border border-emerald-400/40">
-                        Submitted Successfully
-                      </span>
-                    </div>
-                    <h4 className="font-bold text-sm sm:text-base mt-1 text-white">Your Free Quote Was Submitted Successfully!</h4>
-                    <p className="text-xs text-emerald-100 mt-0.5 leading-relaxed">
-                      Thank you for contacting <span className="text-blue-900">Urban</span><span className="text-[#ff0800] font-bold">Pro</span>{' '}<span className="text-blue-900">Packer &amp; Logistics</span>. Your quote enquiry has been forwarded.
-                    </p>
-                    <div className="mt-3 flex items-center gap-2 flex-wrap">
-                      <button
-                        type="button"
-                        onClick={() => setQuoteSubmitted(false)}
-                        className="text-xs font-semibold text-white/90 hover:text-white underline px-2 py-1 cursor-pointer"
-                      >
-                        Submit Another Quote
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
