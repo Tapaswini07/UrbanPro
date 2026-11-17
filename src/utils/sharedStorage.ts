@@ -1,18 +1,25 @@
 export async function readSharedValue(key: string): Promise<unknown> {
   try {
     const response = await fetch(`/api/portal-store/${encodeURIComponent(key)}`);
-    if (!response.ok) throw new Error(`Failed to read shared data: ${key}`);
-    const result = await response.json();
-    return result.value;
-  } catch (error) {
-    try {
-      const localValue = localStorage.getItem(key);
-      return localValue === null ? null : JSON.parse(localValue);
-    } catch (fallbackError) {
-      console.error(`Failed to read shared data: ${key}`, error);
-      console.error(`Failed to read local fallback data: ${key}`, fallbackError);
-      return null;
+    if (response.ok) {
+      const result = await response.json();
+      return result.value;
     }
+  } catch {
+    // Network or server offline; use local cache without logging noisy errors
+  }
+
+  try {
+    const localValue = localStorage.getItem(key);
+    if (localValue === null) return null;
+    try {
+      return JSON.parse(localValue);
+    } catch {
+      // Safe fallback for raw strings (e.g. signature base64 or empty string)
+      return localValue;
+    }
+  } catch {
+    return null;
   }
 }
 
@@ -24,20 +31,19 @@ export async function writeSharedValue(key: string, value: unknown): Promise<voi
     } else {
       localStorage.setItem(key, JSON.stringify(value));
     }
-  } catch (localErr) {
-    console.error(`Failed to write local cache for ${key}`, localErr);
+  } catch {
+    // Ignore storage quota or local errors
   }
 
   // Push directly to PostgreSQL database via API
   try {
-    const response = await fetch(`/api/portal-store/${encodeURIComponent(key)}`, {
+    await fetch(`/api/portal-store/${encodeURIComponent(key)}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ value }),
     });
-    if (!response.ok) throw new Error(`Failed to save shared data: ${key}`);
-  } catch (apiErr) {
-    console.warn(`PostgreSQL write deferred / offline for ${key}:`, apiErr);
+  } catch {
+    // Offline or server unavailable; local cache already saved
   }
 }
 
@@ -48,11 +54,10 @@ export async function submitEnquiryToDatabase(enquiry: any): Promise<boolean> {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(enquiry),
     });
-    if (!response.ok) throw new Error('API failed to save enquiry');
-    const data = await response.json();
+    if (!response.ok) return false;
+    const data = await response.json().catch(() => null);
     return Boolean(data?.success);
-  } catch (err) {
-    console.warn('Direct enquiry submission fell back:', err);
+  } catch {
     return false;
   }
 }

@@ -822,18 +822,42 @@ app.post('/api/whatsapp/enquiry', async (req, res) => {
 });
 
 // ----------------------------------------------------
-// Serve Static Vite Dist in Production
+// Serve Static Vite Dist in Production & Standalone
 // ----------------------------------------------------
 const distDirectory = path.join(process.cwd(), 'dist');
-if (fs.existsSync(distDirectory)) app.use(express.static(distDirectory));
-app.get('*', (_req, res) => {
-  if (fs.existsSync(path.join(distDirectory, 'index.html'))) {
-    res.sendFile(path.join(distDirectory, 'index.html'));
+if (fs.existsSync(distDirectory)) {
+  app.use(express.static(distDirectory));
+}
+
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api')) {
+    return next();
+  }
+  const indexPath = path.join(distDirectory, 'index.html');
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath);
   } else {
-    res.status(404).send('Run npm run build before npm start');
+    next();
   }
 });
 
-app.listen(port, '0.0.0.0', () => {
-  console.log(`UrbanPro portal server listening on http://localhost:${port}`);
-});
+const isMainModule = process.argv[1] && (
+  process.argv[1].endsWith('server.ts') ||
+  process.argv[1].endsWith('server.js') ||
+  process.env.NODE_ENV === 'production'
+);
+
+if (isMainModule) {
+  const server = app.listen(port, '0.0.0.0', () => {
+    console.log(`UrbanPro portal server listening on http://localhost:${port}`);
+  });
+  server.on('error', (err: any) => {
+    if (err.code === 'EADDRINUSE') {
+      console.log(`Port ${port} already active; continuing.`);
+    } else {
+      console.error('Server error:', err);
+    }
+  });
+}
+
+export default app;

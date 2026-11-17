@@ -1570,7 +1570,9 @@ export default function App() {
           if (remote[key] === null) writeSharedValue(key, value);
         });
       })
-      .catch(error => console.error('Failed to hydrate portal data from PostgreSQL', error));
+      .catch(() => {
+        // Seamless fallback to local cache when offline or starting up
+      });
 
     return () => { cancelled = true; };
   }, []);
@@ -1597,7 +1599,7 @@ export default function App() {
   // here. A value comparison prevents receiving our own update from causing a
   // second write loop.
   useEffect(() => {
-    const eventSource = new EventSource('/api/portal-store/events');
+    let eventSource: EventSource | null = null;
     const setArrayIfChanged = (setter: React.Dispatch<React.SetStateAction<any[]>>, value: unknown) => {
       if (!Array.isArray(value)) return;
       setter(current => JSON.stringify(current) === JSON.stringify(value) ? current : value);
@@ -1634,12 +1636,28 @@ export default function App() {
       try {
         const { key } = JSON.parse(event.data) as { key?: string };
         if (key) void refreshCollection(key);
-      } catch (error) {
-        console.error('Invalid PostgreSQL live-update event', error);
+      } catch {
+        // Ignore malformed event data
       }
     };
-    eventSource.addEventListener('collection', onCollectionChange);
-    return () => eventSource.close();
+
+    try {
+      eventSource = new EventSource('/api/portal-store/events');
+      eventSource.onerror = () => {
+        // Close cleanly on network error or offline to prevent repeating console errors
+        if (eventSource) {
+          eventSource.close();
+          eventSource = null;
+        }
+      };
+      eventSource.addEventListener('collection', onCollectionChange);
+    } catch {
+      // EventSource not supported
+    }
+
+    return () => {
+      if (eventSource) eventSource.close();
+    };
   }, []);
 
   // ----------------------------------------------------
