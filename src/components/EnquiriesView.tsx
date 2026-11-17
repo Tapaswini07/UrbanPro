@@ -23,7 +23,9 @@ import {
   Package,
   Layers,
   Sparkles,
-  ShieldCheck
+  ShieldCheck,
+  Copy,
+  Check
 } from 'lucide-react';
 
 export interface EnquiryItem {
@@ -104,6 +106,7 @@ export const EnquiriesView: React.FC<EnquiriesViewProps> = ({
   const [editingNotesId, setEditingNotesId] = useState<string | null>(null);
   const [tempNotes, setTempNotes] = useState('');
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [copiedPhoneId, setCopiedPhoneId] = useState<string | null>(null);
 
   const getEnquiryId = (enq: EnquiryItem, index: number): string => {
     return enq.id || (enq.submittedAt ? `ENQ-${new Date(enq.submittedAt).getTime()}` : `ENQ-${index}`);
@@ -371,23 +374,55 @@ export const EnquiriesView: React.FC<EnquiriesViewProps> = ({
                         <span className="truncate">{enquiry.name || 'Anonymous Customer'}</span>
                       </div>
 
-                      {/* Phone with Call & WhatsApp Links */}
+                      {/* Phone with Selection, Copy & Quick Actions */}
                       <div className="flex items-center gap-2 flex-wrap pt-0.5">
-                        <a
-                          href={`tel:${cleanPhone}`}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sky-50 hover:bg-sky-100 text-blue-900 text-xs font-bold border border-sky-200 transition-colors shadow-2xs"
-                          title="Click to Call"
-                        >
-                          <PhoneCall className="w-3.5 h-3.5 text-blue-700" />
-                          <span>{enquiry.phone || 'No phone'}</span>
-                        </a>
+                        {/* Selectable Phone Badge with Copy Button */}
+                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-sky-50 text-blue-950 text-xs font-bold border border-sky-200 shadow-2xs">
+                          <PhoneCall className="w-3.5 h-3.5 text-blue-700 shrink-0" />
+                          <span
+                            className="select-all font-mono tracking-wide cursor-text selection:bg-blue-200 selection:text-blue-950"
+                            title="Selectable phone number"
+                          >
+                            {enquiry.phone || 'No phone'}
+                          </span>
+                          {cleanPhone && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                void navigator.clipboard?.writeText(cleanPhone);
+                                setCopiedPhoneId(id);
+                                setTimeout(() => setCopiedPhoneId(null), 2000);
+                              }}
+                              className="ml-1 p-1 rounded-md text-blue-600 hover:text-blue-900 hover:bg-sky-200/60 transition-colors cursor-pointer"
+                              title="Copy phone number to clipboard"
+                            >
+                              {copiedPhoneId === id ? (
+                                <Check className="w-3.5 h-3.5 text-emerald-600 stroke-[2.5]" />
+                              ) : (
+                                <Copy className="w-3.5 h-3.5" />
+                              )}
+                            </button>
+                          )}
+                        </div>
+
+                        {cleanPhone && (
+                          <a
+                            href={`tel:${cleanPhone}`}
+                            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-sky-100 hover:bg-sky-200 text-blue-900 text-xs font-bold border border-sky-300 transition-colors shadow-2xs cursor-pointer"
+                            title="Call customer directly"
+                          >
+                            <Phone className="w-3.5 h-3.5 text-blue-700" />
+                            <span className="hidden sm:inline">Call</span>
+                          </a>
+                        )}
 
                         {cleanPhone && (
                           <a
                             href={`https://wa.me/91${cleanPhone}?text=${waText}`}
                             target="_blank"
                             rel="noreferrer"
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold border border-emerald-200 transition-colors shadow-2xs"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold border border-emerald-200 transition-colors shadow-2xs cursor-pointer"
                             title="Chat on WhatsApp"
                           >
                             <MessageSquare className="w-3.5 h-3.5 text-emerald-600" />
@@ -486,10 +521,13 @@ export const EnquiriesView: React.FC<EnquiriesViewProps> = ({
                         <p className="text-xs text-slate-400 italic">No specific items listed in enquiry.</p>
                       )}
 
-                      {enquiry.message && (
+                      {enquiry.message &&
+                        !enquiry.message.toLowerCase().includes('new quote request from website') &&
+                        !enquiry.message.toLowerCase().includes('moving from:') &&
+                        enquiry.message.trim() !== '' && (
                         <div className="mt-2 text-xs bg-blue-50/40 p-2.5 rounded-lg border-l-3 border-blue-500 border border-blue-100 text-slate-700">
-                          <strong className="text-blue-950 font-bold block text-[11px] mb-0.5">Customer Message:</strong>
-                          <p className="leading-relaxed">{enquiry.message}</p>
+                          <strong className="text-blue-950 font-bold block text-[11px] mb-0.5">Customer Note:</strong>
+                          <p className="leading-relaxed whitespace-pre-wrap">{enquiry.message}</p>
                         </div>
                       )}
                     </div>

@@ -2324,7 +2324,7 @@ export default function App() {
       .filter(row => row.name.trim())
       .map((row, index) => `${index + 1}. ${row.name.trim()} (Qty: ${row.qty || '1'}${row.value ? `, Est. Value: ₹${row.value}` : ''})`)
       .join('\n');
-    const message = [
+    const whatsappSummary = [
       'New Quote Request from Website',
       '',
       `Name: ${formData.name}`,
@@ -2336,7 +2336,7 @@ export default function App() {
       `Moving From: ${formData.movingFrom}`,
       `Moving To: ${formData.movingTo}`,
     ].join('\n');
-    const whatsappUrl = `https://wa.me/918093017400?text=${encodeURIComponent(message)}`;
+    const whatsappUrl = `https://wa.me/918093017400?text=${encodeURIComponent(whatsappSummary)}`;
     const submittedDetails: SubmittedQuoteDetails = {
       name: formData.name,
       phone: formData.phone,
@@ -2356,7 +2356,7 @@ export default function App() {
       movingDate: formData.date,
       itemRows: formData.itemRows,
       items: itemListText,
-      message,
+      message: '',
       status: 'New',
       adminNotes: '',
       submittedAt: new Date().toISOString(),
@@ -2372,7 +2372,7 @@ export default function App() {
         items: itemListText || 'Not provided',
         movingFrom: formData.movingFrom,
         movingTo: formData.movingTo,
-        message,
+        message: whatsappSummary,
       };
 
       let emailSucceeded = false;

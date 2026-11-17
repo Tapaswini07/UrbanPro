@@ -30,14 +30,14 @@ try {
 
 const app = express();
 const port = Number(process.env.PORT || 3001);
-const defaultDatabaseUrl =
-  'postgresql://neondb_owner:npg_2URJSVlsYI0C@ep-curly-surf-aoqv4jle-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require';
-const databaseUrl = process.env.DATABASE_URL || defaultDatabaseUrl;
+const databaseUrl = process.env.DATABASE_URL;
 
-const pool = new Pool({
-  connectionString: databaseUrl,
-  ssl: { rejectUnauthorized: false },
-});
+const pool = databaseUrl
+  ? new Pool({
+      connectionString: databaseUrl,
+      ssl: { rejectUnauthorized: false },
+    })
+  : null;
 
 const PORTAL_COLLECTIONS = new Set([
   'upl_quote_requests',
@@ -60,7 +60,7 @@ const portalSubscribers = new Set<Response>();
 let schemaPromise: Promise<void> | null = null;
 
 async function ensureDatabase(): Promise<void> {
-  if (!pool) throw new Error('DATABASE_URL is not configured.');
+  if (!pool) throw new Error('DATABASE_URL is not configured in .env file.');
   if (!schemaPromise) {
     schemaPromise = (async () => {
       // 1. Ensure core collections table
