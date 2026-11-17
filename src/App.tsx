@@ -192,6 +192,18 @@ export default function App() {
     try {
       localStorage.setItem('upl_admin_tab', adminTab);
     } catch (e) {}
+
+    if (adminTab === 'enquiries' || adminTab === 'dashboard') {
+      fetch('/api/enquiries')
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+          if (data && Array.isArray(data.enquiries)) {
+            setQuoteRequests(data.enquiries);
+            localStorage.setItem('upl_quote_requests', JSON.stringify(data.enquiries));
+          }
+        })
+        .catch(() => {});
+    }
   }, [adminTab]);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [surveyMenuOpen, setSurveyMenuOpen] = useState(true);
@@ -219,15 +231,15 @@ export default function App() {
     packingDate: '',
     dateOfDelivery: '',
     fromCountry: 'India',
-    fromState: 'Odisha',
-    fromCity: 'Bhubaneswar',
+    fromState: '',
+    fromCity: '',
     fromArea: '',
     fromPinCode: '',
     fromFloor: 'Ground',
     fromLift: 'Not Required',
     toCountry: 'India',
-    toState: 'Odisha',
-    toCity: 'Cuttack',
+    toState: '',
+    toCity: '',
     toArea: '',
     toPinCode: '',
     toFloor: 'Ground',
@@ -238,6 +250,28 @@ export default function App() {
     balconyItems: '',
     extraInfo: ''
   };
+
+  const getFreshSurveyForm = (existingSurveys: any[] = surveys) => ({
+    ...initialSurveyForm,
+    id: Date.now(),
+    surveyNo: generateNextSurveyNo(existingSurveys),
+    surveyDate: new Date().toISOString().split('T')[0],
+    fromCountry: 'India',
+    fromState: '',
+    fromCity: '',
+    fromArea: '',
+    fromPinCode: '',
+    fromFloor: 'Ground',
+    fromLift: 'Not Required',
+    toCountry: 'India',
+    toState: '',
+    toCity: '',
+    toArea: '',
+    toPinCode: '',
+    toFloor: 'Ground',
+    toLift: 'Not Required',
+    items: [] as {name: string, qty: string, value: string, remark: string}[],
+  });
 
   const [surveyForm, setSurveyForm] = useState(() => ({
     ...initialSurveyForm,
@@ -269,6 +303,17 @@ export default function App() {
 
   const [currentItem, setCurrentItem] = useState({name: '', qty: '1', value: '', remark: ''});
   const [editingSurveyId, setEditingSurveyId] = useState<number | null>(null);
+
+  // Automatically keep Survey No. (max + 1) and Survey Date (today) up to date when creating a survey
+  useEffect(() => {
+    if (!editingSurveyId && adminTab === 'add-survey' && !surveyForm.partyName && !surveyForm.mobileNo) {
+      setSurveyForm(prev => ({
+        ...prev,
+        surveyNo: generateNextSurveyNo(surveys),
+        surveyDate: new Date().toISOString().split('T')[0],
+      }));
+    }
+  }, [surveys, adminTab, editingSurveyId]);
   const [viewingSurvey, setViewingSurvey] = useState<any | null>(null);
   const [surveyToDelete, setSurveyToDelete] = useState<any | null>(null);
   const [surveyNoWarning, setSurveyNoWarning] = useState<string | null>(null);
@@ -362,8 +407,7 @@ export default function App() {
 
     setTimeout(() => setShareToast(null), 3000);
 
-    const nextFreeNo = generateNextSurveyNo(updatedSurveys);
-    setSurveyForm({ ...initialSurveyForm, id: Date.now(), surveyNo: nextFreeNo });
+    setSurveyForm(getFreshSurveyForm(updatedSurveys));
     setEditingSurveyId(null);
     setAdminTab('list-survey');
   };
@@ -1564,11 +1608,17 @@ export default function App() {
         if (typeof remote.upl_company_signature === 'string') setSignatureUrl(remote.upl_company_signature);
 
         sharedHydrated.current = true;
-        // A null value means Neon has no data for that collection yet: import
-        // the existing local record once, preserving the user's current data.
-        Object.entries(currentValues).forEach(([key, value]) => {
-          if (remote[key] === null) writeSharedValue(key, value);
-        });
+
+        // Ensure enquiries table in PostgreSQL is directly synced
+        fetch('/api/enquiries')
+          .then(res => res.ok ? res.json() : null)
+          .then(data => {
+            if (data && Array.isArray(data.enquiries) && data.enquiries.length > 0) {
+              setQuoteRequests(data.enquiries);
+              localStorage.setItem('upl_quote_requests', JSON.stringify(data.enquiries));
+            }
+          })
+          .catch(() => {});
       })
       .catch(() => {
         // Seamless fallback to local cache when offline or starting up
@@ -1580,7 +1630,6 @@ export default function App() {
   useEffect(() => {
     try {
       localStorage.setItem('upl_quote_requests', JSON.stringify(quoteRequests));
-      if (sharedHydrated.current) writeSharedValue('upl_quote_requests', quoteRequests);
     } catch (error) {
       console.error('Failed to save quote requests', error);
     }
@@ -1605,6 +1654,18 @@ export default function App() {
       setter(current => JSON.stringify(current) === JSON.stringify(value) ? current : value);
     };
     const refreshCollection = async (key: string) => {
+      if (key === 'upl_quote_requests') {
+        try {
+          const res = await fetch('/api/enquiries');
+          if (res.ok) {
+            const data = await res.json();
+            if (Array.isArray(data.enquiries)) {
+              setArrayIfChanged(setQuoteRequests, data.enquiries);
+              return;
+            }
+          }
+        } catch {}
+      }
       const value = await readSharedValue(key);
       switch (key) {
         case 'upl_quote_requests': setArrayIfChanged(setQuoteRequests, value); break;
@@ -2038,26 +2099,12 @@ export default function App() {
   const handleSurveyPartyNameChange = (val: string) => {
     setSurveyForm(prev => {
       const match = findCustomerProfile(val);
-      if (match) {
-        setShareToast(`✓“ Auto-filled customer details for ${match.partyName}`);
-        setTimeout(() => setShareToast(null), 3000);
+      if (match && (match.mobileNo || match.email)) {
         return {
           ...prev,
           partyName: val,
-          mobileNo: match.mobileNo || prev.mobileNo,
-          email: match.email || prev.email,
-          fromCity: match.fromCity || prev.fromCity,
-          fromArea: match.fromArea || prev.fromArea,
-          fromPinCode: match.fromPinCode || prev.fromPinCode,
-          fromFloor: match.fromFloor || prev.fromFloor,
-          fromLift: match.fromLift || prev.fromLift,
-          toCity: match.toCity || prev.toCity,
-          toArea: match.toArea || prev.toArea,
-          toPinCode: match.toPinCode || prev.toPinCode,
-          toFloor: match.toFloor || prev.toFloor,
-          toLift: match.toLift || prev.toLift,
-          moveType: match.moveType || prev.moveType,
-          items: match.items?.length ? match.items : prev.items,
+          mobileNo: prev.mobileNo ? prev.mobileNo : (match.mobileNo || ''),
+          email: prev.email ? prev.email : (match.email || ''),
         };
       }
       return { ...prev, partyName: val };
@@ -2069,32 +2116,14 @@ export default function App() {
       const cleanDigits = val.replace(/\D/g, '');
       if (cleanDigits.length >= 10) {
         const match = findCustomerProfile(val);
-        if (match) {
-          setShareToast(`✓“ Auto-filled customer info for ${match.partyName}`);
+        if (match && match.partyName) {
+          setShareToast(`Party Name auto-completed: ${match.partyName}`);
           setTimeout(() => setShareToast(null), 3000);
           return {
             ...prev,
             mobileNo: val,
-            partyName: match.partyName || prev.partyName,
-            email: match.email || prev.email,
-            fromCountry: match.fromCountry || prev.fromCountry,
-            fromState: match.fromState || prev.fromState,
-            fromCity: match.fromCity || prev.fromCity,
-            fromArea: match.fromArea || prev.fromArea,
-            fromPinCode: match.fromPinCode || prev.fromPinCode,
-            fromFloor: match.fromFloor || prev.fromFloor,
-            fromLift: match.fromLift || prev.fromLift,
-            toCountry: match.toCountry || prev.toCountry,
-            toState: match.toState || prev.toState,
-            toCity: match.toCity || prev.toCity,
-            toArea: match.toArea || prev.toArea,
-            toPinCode: match.toPinCode || prev.toPinCode,
-            toFloor: match.toFloor || prev.toFloor,
-            toLift: match.toLift || prev.toLift,
-            moveType: match.moveType || prev.moveType,
-            packingDate: match.packingDate || prev.packingDate,
-            dateOfDelivery: match.deliveryDate || prev.dateOfDelivery,
-            items: (match.items && match.items.length > 0) ? match.items : prev.items,
+            partyName: prev.partyName ? prev.partyName : match.partyName,
+            email: prev.email ? prev.email : (match.email || ''),
           };
         }
       }
@@ -2394,7 +2423,6 @@ export default function App() {
         setQuoteRequests(updatedRequests);
         // Persist directly to PostgreSQL database (both dedicated table & collection store)
         void submitEnquiryToDatabase(request);
-        void writeSharedValue('upl_quote_requests', updatedRequests);
       } catch (storageError) {
         console.error('Failed to save quote request', storageError);
       }
@@ -3158,23 +3186,14 @@ export default function App() {
             }`}
           >
             <div>
-              {/* Admin Portal Label & Mobile Close Button */}
+              {/* Admin Portal Label */}
               <div className="p-3 pb-2 border-b border-slate-800/80 flex items-center justify-between">
-                <div className="bg-white px-3.5 py-2 rounded-xl flex flex-col justify-center shadow-sm flex-1 mr-2">
+                <div className="bg-white px-3.5 py-2 rounded-xl flex flex-col justify-center shadow-sm w-full">
                   <h2 className="font-bold text-sm leading-tight">
                     <span className="text-[#1e3a8a] font-black">Urban</span><span className="text-[#ff0800] font-black">Pro</span>
                   </h2>
                   <p className="text-[10px] text-[#1e3a8a] font-bold">Packer & Logistics</p>
                 </div>
-
-                <button
-                  type="button"
-                  onClick={() => setSidebarOpen(false)}
-                  className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
-                  title="Close Menu"
-                >
-                  <X className="w-5 h-5" />
-                </button>
               </div>
 
               {/* Navigation Groups */}
@@ -3229,7 +3248,7 @@ export default function App() {
                       onClick={() => {
                         setAdminTab('add-survey');
                         setEditingSurveyId(null);
-                        setSurveyForm(initialSurveyForm);
+                        setSurveyForm(getFreshSurveyForm());
                       }}
                       className={`w-full flex items-center gap-2.5 px-3.5 py-2 rounded-lg text-sm transition-colors cursor-pointer ${adminTab === 'add-survey' ? 'bg-blue-600 text-white font-semibold' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
                     >
@@ -3548,7 +3567,7 @@ export default function App() {
                           <span>View Leads ({quoteRequests.length})</span>
                         </button>
                         <button
-                          onClick={() => { setAdminTab('add-survey'); setEditingSurveyId(null); setSurveyForm(initialSurveyForm); }}
+                          onClick={() => { setAdminTab('add-survey'); setEditingSurveyId(null); setSurveyForm(getFreshSurveyForm()); }}
                           className="flex-1 sm:flex-initial bg-[#1e3a8a] hover:bg-blue-900 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
                         >
                           <PlusCircle className="w-4 h-4 text-emerald-400" />
@@ -3606,7 +3625,7 @@ export default function App() {
                       <p className="text-xs text-slate-500 mt-1 mb-4">Total recorded surveys & inventory lists</p>
                       <div className="flex gap-2 pt-3 border-t border-slate-100">
                         <button
-                          onClick={() => { setAdminTab('add-survey'); setEditingSurveyId(null); setSurveyForm(initialSurveyForm); }}
+                          onClick={() => { setAdminTab('add-survey'); setEditingSurveyId(null); setSurveyForm(getFreshSurveyForm()); }}
                           className="flex-1 text-xs font-semibold bg-emerald-50 hover:bg-emerald-100 text-emerald-700 py-1.5 rounded-lg transition-colors cursor-pointer text-center"
                         >
                           + Add Survey
@@ -3695,7 +3714,7 @@ export default function App() {
                           No surveys recorded yet. Click below to add one.
                           <div className="mt-3">
                             <button
-                              onClick={() => { setAdminTab('add-survey'); setEditingSurveyId(null); setSurveyForm(initialSurveyForm); }}
+                              onClick={() => { setAdminTab('add-survey'); setEditingSurveyId(null); setSurveyForm(getFreshSurveyForm()); }}
                               className="text-xs font-semibold text-emerald-600 hover:underline cursor-pointer"
                             >
                               + Create first survey
@@ -3887,7 +3906,7 @@ export default function App() {
                               className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium"
                               value={surveyForm.surveyNo}
                               onChange={e => handleSurveyNoInputChange(e.target.value)}
-                              placeholder="e.g. 1042"
+                              placeholder="Survey No."
                             />
                             <button
                               type="button"
@@ -3924,7 +3943,7 @@ export default function App() {
                           <input
                             type="text"
                             list="upl-customer-parties-datalist"
-                            placeholder="e.g. Rahul Sharma"
+                            placeholder="Enter Party Name"
                             className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium"
                             value={surveyForm.partyName}
                             onChange={e => handleSurveyPartyNameChange(e.target.value)}
@@ -3942,7 +3961,7 @@ export default function App() {
                           <input
                             type="tel"
                             list="upl-customer-mobiles-datalist"
-                            placeholder="e.g. 8093017400"
+                            placeholder="Enter Mobile No."
                             className="w-full outline-none text-slate-800 text-sm bg-transparent font-medium"
                             value={surveyForm.mobileNo}
                             onChange={e => handleSurveyMobileChange(e.target.value)}
@@ -4274,8 +4293,7 @@ export default function App() {
                     <div className="flex items-center gap-2.5">
                       <button
                         onClick={() => {
-                          const next = generateNextSurveyNo(surveys);
-                          setSurveyForm({ ...initialSurveyForm, id: Date.now(), surveyNo: next });
+                          setSurveyForm(getFreshSurveyForm());
                           setEditingSurveyId(null);
                           setAdminTab('add-survey');
                         }}
@@ -4332,14 +4350,13 @@ export default function App() {
                           </h3>
                           <p className="text-slate-500 text-sm mt-1 max-w-sm mx-auto">
                             {surveys.length === 0
-                              ? 'Click below to create your first survey or load demo surveys for testing on localhost.'
+                              ? 'Click below to create your first survey.'
                               : `No records found matching "${surveySearchQuery}". Clear your search or create a new survey.`}
                           </p>
                           <div className="mt-4 flex flex-wrap justify-center gap-3">
                             <button
                               onClick={() => {
-                                const next = generateNextSurveyNo(surveys);
-                                setSurveyForm({ ...initialSurveyForm, id: Date.now(), surveyNo: next });
+                                setSurveyForm(getFreshSurveyForm());
                                 setEditingSurveyId(null);
                                 setAdminTab('add-survey');
                               }}

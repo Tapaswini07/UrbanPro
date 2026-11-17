@@ -921,7 +921,7 @@ export const BikeConditionView: React.FC<Props> = ({
                 <label className="block text-slate-500 font-medium text-[11px] mb-1">UPI ID / GPay / PhonePe</label>
                 <input
                   type="text"
-                  placeholder="e.g. 8093017400@upi"
+                  placeholder="Enter UPI ID"
                   value={form.upiId}
                   onChange={e => setForm({ ...form, upiId: e.target.value })}
                   className="w-full outline-none font-medium text-slate-800"

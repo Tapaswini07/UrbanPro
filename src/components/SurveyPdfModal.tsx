@@ -556,7 +556,7 @@ export const SurveyPdfModal: React.FC<SurveyPdfModalProps> = ({ survey, onClose,
                             type="text"
                             value={authSignName}
                             onChange={(e) => setAuthSignName(e.target.value)}
-                            placeholder="e.g. VIJAY / Tapaswini"
+                            placeholder="Authorized Signatory Name"
                             className="w-full bg-slate-50 border border-slate-300 rounded px-2 py-1 text-slate-800 font-medium text-[11px] focus:ring-1 focus:ring-blue-500 focus:outline-none"
                           />
                         </div>

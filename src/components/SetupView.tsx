@@ -413,7 +413,7 @@ export const SetupView: React.FC<Props> = ({
                   type="text"
                   value={form.bankName}
                   onChange={e => setForm({ ...form, bankName: e.target.value })}
-                  placeholder="e.g. State Bank of India"
+                  placeholder="Enter Bank Name"
                   className="w-full border border-slate-300 rounded-xl p-2.5 outline-none font-medium text-slate-800 focus:border-blue-500"
                 />
               </div>
@@ -423,7 +423,7 @@ export const SetupView: React.FC<Props> = ({
                   type="text"
                   value={form.bankAccNo}
                   onChange={e => setForm({ ...form, bankAccNo: e.target.value })}
-                  placeholder="e.g. 30789330266"
+                  placeholder="Enter Bank Account Number"
                   className="w-full border border-slate-300 rounded-xl p-2.5 font-mono outline-none font-bold text-slate-800 focus:border-blue-500"
                 />
               </div>
@@ -433,7 +433,7 @@ export const SetupView: React.FC<Props> = ({
                   type="text"
                   value={form.bankIfsc}
                   onChange={e => setForm({ ...form, bankIfsc: e.target.value })}
-                  placeholder="e.g. SBIN0009343"
+                  placeholder="Enter IFSC Code (e.g. SBIN0001234)"
                   className="w-full border border-slate-300 rounded-xl p-2.5 font-mono uppercase outline-none font-bold text-slate-800 focus:border-blue-500"
                 />
               </div>
@@ -443,7 +443,7 @@ export const SetupView: React.FC<Props> = ({
                   type="text"
                   value={form.bankBranch}
                   onChange={e => setForm({ ...form, bankBranch: e.target.value })}
-                  placeholder="e.g. Dipka, Korba"
+                  placeholder="Enter Bank Branch"
                   className="w-full border border-slate-300 rounded-xl p-2.5 outline-none font-medium text-slate-800 focus:border-blue-500"
                 />
               </div>
@@ -453,7 +453,7 @@ export const SetupView: React.FC<Props> = ({
                   type="text"
                   value={form.upiId}
                   onChange={e => setForm({ ...form, upiId: e.target.value })}
-                  placeholder="e.g. 8093017400@sbi"
+                  placeholder="Enter UPI ID"
                   className="w-full border border-slate-300 rounded-xl p-2.5 outline-none font-medium text-slate-800 focus:border-blue-500"
                 />
               </div>

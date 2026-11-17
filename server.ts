@@ -30,14 +30,14 @@ try {
 
 const app = express();
 const port = Number(process.env.PORT || 3001);
-const databaseUrl = process.env.DATABASE_URL;
+const defaultDatabaseUrl =
+  'postgresql://neondb_owner:npg_2URJSVlsYI0C@ep-curly-surf-aoqv4jle-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require';
+const databaseUrl = process.env.DATABASE_URL || defaultDatabaseUrl;
 
-const pool = databaseUrl
-  ? new Pool({
-      connectionString: databaseUrl,
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined,
-    })
-  : null;
+const pool = new Pool({
+  connectionString: databaseUrl,
+  ssl: { rejectUnauthorized: false },
+});
 
 const PORTAL_COLLECTIONS = new Set([
   'upl_quote_requests',
@@ -511,7 +511,23 @@ app.get('/api/portal-store/:key', (req, res) => {
         'SELECT value, updated_at FROM portal_collections WHERE collection_key = $1',
         [key]
       );
-      res.json({ value: result.rows[0]?.value ?? null, updatedAt: result.rows[0]?.updated_at ?? null });
+      let val = result.rows[0]?.value ?? null;
+      if (key === 'upl_quote_requests' && (!val || (Array.isArray(val) && val.length === 0))) {
+        // Fall back to enquiries table if portal_collections is empty
+        const enqRes = await pool!.query(`
+          SELECT
+            id, name, phone, email, moving_from as "movingFrom", moving_to as "movingTo",
+            moving_date as "movingDate", service_type as "serviceType", items, item_rows as "itemRows",
+            message, whatsapp_url as "whatsappUrl", status, admin_notes as "adminNotes",
+            email_delivered as "emailDelivered", submitted_at as "submittedAt"
+          FROM enquiries
+          ORDER BY submitted_at DESC
+        `);
+        if (enqRes.rows.length > 0) {
+          val = enqRes.rows;
+        }
+      }
+      res.json({ value: val, updatedAt: result.rows[0]?.updated_at ?? null });
     } catch (error) {
       console.error(`Failed to read PostgreSQL collection ${key}`, error);
       res.status(503).json({ error: 'PostgreSQL database is unavailable.' });

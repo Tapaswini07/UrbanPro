@@ -168,11 +168,11 @@ export const BiltyView: React.FC<Props> = ({
     consignorPhone: '',
     consignorGstin: '',
     consignorCountry: 'India',
-    consignorState: 'Odisha',
-    consignorStateCode: '21',
-    consignorCity: 'Bhubaneswar',
-    consignorArea: 'Hanspal',
-    consignorPincode: '752101',
+    consignorState: '',
+    consignorStateCode: '',
+    consignorCity: '',
+    consignorArea: '',
+    consignorPincode: '',
     consignorAddress: '',
 
     // Relocate To
@@ -180,8 +180,8 @@ export const BiltyView: React.FC<Props> = ({
     consigneePhone: '',
     consigneeGstin: '',
     consigneeCountry: 'India',
-    consigneeState: 'Odisha',
-    consigneeStateCode: '21',
+    consigneeState: '',
+    consigneeStateCode: '',
     consigneeCity: '',
     consigneeArea: '',
     consigneePincode: '',
@@ -1157,11 +1157,11 @@ export const BiltyView: React.FC<Props> = ({
               {filteredBilties.map((rec, idx) => {
                 const consignorName = rec.consignorName || (rec as any).consignor || 'Client';
                 const consignorPhone = rec.consignorPhone || (rec as any).consignorMobile || (rec as any).mobile || '';
-                const fromPlace = rec.consignorCity || (rec as any).fromCity || 'Bhubaneswar';
-                const toPlace = rec.consigneeAddress ? `${rec.consigneeAddress}, ${rec.consigneeCity || (rec as any).toCity || ''}` : (rec.consigneeCity || (rec as any).toCity || (rec as any).consigneeAddress || 'Baripada');
+                const fromPlace = rec.consignorCity || (rec as any).fromCity || '';
+                const toPlace = rec.consigneeAddress ? `${rec.consigneeAddress}, ${rec.consigneeCity || (rec as any).toCity || ''}` : (rec.consigneeCity || (rec as any).toCity || (rec as any).consigneeAddress || '');
                 const freightVal = rec.freightToPay || rec.freightToBeBilled || (rec as any).freightCharges || (rec as any).toPayAmount;
-                const deliveryDate = rec.goodsDeliveryDate || rec.biltyDate || '2026-09-12';
-                const bDate = rec.biltyDate || '2026-09-11';
+                const deliveryDate = rec.goodsDeliveryDate || rec.biltyDate || '';
+                const bDate = rec.biltyDate || '';
                 const bNo = rec.biltyNo || `${idx + 1}`;
 
                 return (
@@ -1489,7 +1489,7 @@ export const BiltyView: React.FC<Props> = ({
                 <div className="p-2 space-y-0.5 text-[10px] leading-tight border-b border-[#1e3a8a]">
                   <p><strong>Lr. No.:</strong> {selectedRecord.biltyNo || '1'}</p>
                   <p><strong>Lr. Date:</strong> {selectedRecord.biltyDate || ''}</p>
-                  <p><strong>Move From:</strong> {selectedRecord.consignorCity || 'Bhubaneswar'}</p>
+                  <p><strong>Move From:</strong> {selectedRecord.consignorCity || ''}</p>
                   <p><strong>Move To:</strong> {selectedRecord.consigneeAddress ? `${selectedRecord.consigneeAddress}, ${selectedRecord.consigneeCity || ''}` : (selectedRecord.consigneeCity || '')}</p>
                   <p><strong>Vehicle No.:</strong> {selectedRecord.vehicleNo || ''}</p>
                   {selectedRecord.driverName && (
