@@ -853,7 +853,12 @@ app.get('*', (req, res, next) => {
   if (fs.existsSync(indexPath)) {
     res.sendFile(indexPath);
   } else {
-    next();
+    res.json({
+      status: 'online',
+      service: 'UrbanPro Logistics API Backend',
+      health: '/api/health',
+      enquiries: '/api/enquiries',
+    });
   }
 });
 
