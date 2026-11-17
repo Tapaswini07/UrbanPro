@@ -84,6 +84,7 @@ import { INDIAN_STATES, getStateCodeByName } from './utils/indianStates';
 import { findCustomerProfileByMobile } from './utils/customerLookup';
 import { getNextAvailableDocumentNumber } from './utils/documentNumbering';
 import { readSharedValue, writeSharedValue, submitEnquiryToDatabase } from './utils/sharedStorage';
+import { getApiUrl } from './utils/apiConfig';
 export { INDIAN_STATES, getStateCodeByName };
 
 export const FLOOR_OPTIONS = [
@@ -194,7 +195,7 @@ export default function App() {
     } catch (e) {}
 
     if (adminTab === 'enquiries' || adminTab === 'dashboard') {
-      fetch('/api/enquiries')
+      fetch(getApiUrl('/api/enquiries'))
         .then(res => res.ok ? res.json() : null)
         .then(data => {
           if (data && Array.isArray(data.enquiries)) {
@@ -1610,7 +1611,7 @@ export default function App() {
         sharedHydrated.current = true;
 
         // Ensure enquiries table in PostgreSQL is directly synced
-        fetch('/api/enquiries')
+        fetch(getApiUrl('/api/enquiries'))
           .then(res => res.ok ? res.json() : null)
           .then(data => {
             if (data && Array.isArray(data.enquiries) && data.enquiries.length > 0) {
@@ -1656,7 +1657,7 @@ export default function App() {
     const refreshCollection = async (key: string) => {
       if (key === 'upl_quote_requests') {
         try {
-          const res = await fetch('/api/enquiries');
+          const res = await fetch(getApiUrl('/api/enquiries'));
           if (res.ok) {
             const data = await res.json();
             if (Array.isArray(data.enquiries)) {
@@ -1703,7 +1704,7 @@ export default function App() {
     };
 
     try {
-      eventSource = new EventSource('/api/portal-store/events');
+      eventSource = new EventSource(getApiUrl('/api/portal-store/events'));
       eventSource.onerror = () => {
         // Close cleanly on network error or offline to prevent repeating console errors
         if (eventSource) {
@@ -2428,7 +2429,7 @@ export default function App() {
       }
 
       // Best-effort WhatsApp Cloud API trigger in background
-      void fetch('/api/whatsapp/enquiry', {
+      void fetch(getApiUrl('/api/whatsapp/enquiry'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -2516,7 +2517,7 @@ export default function App() {
       });
       localStorage.setItem('upl_quote_requests', JSON.stringify(updated));
       void writeSharedValue('upl_quote_requests', updated);
-      void fetch(`/api/enquiries/${encodeURIComponent(enquiryId)}`, {
+      void fetch(getApiUrl(`/api/enquiries/${encodeURIComponent(enquiryId)}`), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
@@ -2535,7 +2536,7 @@ export default function App() {
       });
       localStorage.setItem('upl_quote_requests', JSON.stringify(updated));
       void writeSharedValue('upl_quote_requests', updated);
-      void fetch(`/api/enquiries/${encodeURIComponent(enquiryId)}`, {
+      void fetch(getApiUrl(`/api/enquiries/${encodeURIComponent(enquiryId)}`), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ adminNotes: notes }),
@@ -2554,7 +2555,7 @@ export default function App() {
       });
       localStorage.setItem('upl_quote_requests', JSON.stringify(updated));
       void writeSharedValue('upl_quote_requests', updated);
-      void fetch(`/api/enquiries/${encodeURIComponent(enquiryId)}`, {
+      void fetch(getApiUrl(`/api/enquiries/${encodeURIComponent(enquiryId)}`), {
         method: 'DELETE',
       }).catch(err => console.warn('Delete enquiry error:', err));
       return updated;

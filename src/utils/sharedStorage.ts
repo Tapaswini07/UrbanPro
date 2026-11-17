@@ -1,6 +1,8 @@
+import { getApiUrl } from './apiConfig';
+
 export async function readSharedValue(key: string): Promise<unknown> {
   try {
-    const response = await fetch(`/api/portal-store/${encodeURIComponent(key)}`);
+    const response = await fetch(getApiUrl(`/api/portal-store/${encodeURIComponent(key)}`));
     if (response.ok) {
       const result = await response.json();
       return result.value;
@@ -37,7 +39,7 @@ export async function writeSharedValue(key: string, value: unknown): Promise<voi
 
   // Push directly to PostgreSQL database via API
   try {
-    await fetch(`/api/portal-store/${encodeURIComponent(key)}`, {
+    await fetch(getApiUrl(`/api/portal-store/${encodeURIComponent(key)}`), {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ value }),
@@ -49,7 +51,7 @@ export async function writeSharedValue(key: string, value: unknown): Promise<voi
 
 export async function submitEnquiryToDatabase(enquiry: any): Promise<boolean> {
   try {
-    const response = await fetch('/api/enquiries', {
+    const response = await fetch(getApiUrl('/api/enquiries'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(enquiry),
