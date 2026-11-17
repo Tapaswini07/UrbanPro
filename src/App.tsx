@@ -3051,15 +3051,17 @@ export default function App() {
 
       {/* Action Toast Notification */}
       {shareToast && (
-        <div className="fixed bottom-6 right-6 max-w-sm sm:max-w-md bg-slate-900/95 text-white px-4 py-3 rounded-2xl text-sm shadow-2xl z-[120] flex items-center justify-between gap-3 border border-slate-700 backdrop-blur-md animate-in fade-in slide-in-from-bottom-3 duration-200">
-          <div className="flex items-center gap-2.5">
-            <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
-            <span className="font-semibold text-slate-100">{shareToast}</span>
+        <div className="fixed bottom-6 right-6 max-w-sm sm:max-w-md bg-white/98 text-slate-800 px-4 py-3 rounded-2xl text-sm shadow-[0_20px_45px_-10px_rgba(15,23,42,0.18),0_0_0_1px_rgba(15,23,42,0.06)] z-[120] flex items-center justify-between gap-3 border border-slate-100 backdrop-blur-md animate-in fade-in slide-in-from-bottom-3 duration-200">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-50 to-teal-100/70 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-200/70 shadow-2xs">
+              <CheckCircle2 className="w-4 h-4 stroke-[2.2]" />
+            </div>
+            <span className="font-semibold text-slate-800 text-xs sm:text-sm">{shareToast}</span>
           </div>
           <button
             type="button"
             onClick={() => setShareToast(null)}
-            className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer shrink-0"
+            className="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
             title="Dismiss message"
           >
             <X className="w-4 h-4" />
@@ -6813,72 +6815,89 @@ export default function App() {
         <div
           role="status"
           aria-live="polite"
-          className={`fixed top-5 right-4 sm:right-6 z-[100] w-[calc(100%-2rem)] sm:w-auto sm:max-w-md rounded-2xl p-4 shadow-2xl backdrop-blur-md transition-all duration-300 border ${
-            quoteToast.type === 'success'
-              ? 'bg-slate-900/95 border-emerald-500/50 text-white'
-              : 'bg-slate-900/95 border-rose-500/50 text-white'
-          }`}
+          className="fixed top-5 right-4 sm:right-6 z-[100] w-[calc(100%-2rem)] sm:w-[420px] bg-white/98 backdrop-blur-xl rounded-2xl p-4 shadow-[0_20px_50px_-12px_rgba(15,23,42,0.18),0_0_0_1px_rgba(15,23,42,0.06)] border border-slate-100 transition-all duration-300 animate-in fade-in slide-in-from-top-4 overflow-hidden"
         >
-          <div className="flex items-start gap-3">
+          {/* Top Gradient Accent Line */}
+          <div
+            className={`absolute top-0 inset-x-0 h-1 bg-gradient-to-r ${
+              quoteToast.type === 'success'
+                ? 'from-emerald-400 via-teal-500 to-emerald-600'
+                : 'from-amber-400 via-rose-500 to-red-600'
+            }`}
+          />
+
+          <div className="flex items-start gap-3.5 pt-0.5">
+            {/* Elegant Squircle Icon Badge */}
             <div
-              className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-xs ${
+              className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-xs border ${
                 quoteToast.type === 'success'
-                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
-                  : 'bg-rose-500/20 text-rose-400 border border-rose-500/40'
+                  ? 'bg-gradient-to-br from-emerald-50 to-teal-100/70 text-emerald-600 border-emerald-200/70'
+                  : 'bg-gradient-to-br from-rose-50 to-red-100/70 text-rose-600 border-rose-200/70'
               }`}
             >
               {quoteToast.type === 'success' ? (
-                <CheckCircle2 className="w-5 h-5" />
+                <CheckCircle2 className="w-5 h-5 stroke-[2.2]" />
               ) : (
-                <AlertCircle className="w-5 h-5" />
+                <AlertCircle className="w-5 h-5 stroke-[2.2]" />
               )}
             </div>
 
-            <div className="flex-1 pr-2">
-              <h4 className="text-sm font-bold text-white mb-0.5 flex items-center gap-2">
-                {quoteToast.title}
+            {/* Content */}
+            <div className="flex-1 min-w-0 pr-1">
+              <div className="flex items-center gap-2 mb-1 flex-wrap">
+                <h4 className="text-sm font-bold text-slate-900 tracking-tight leading-snug">
+                  {quoteToast.title}
+                </h4>
                 {quoteToast.type === 'success' && (
-                  <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-extrabold border border-emerald-500/30">
-                    Done
+                  <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/80">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Confirmed
                   </span>
                 )}
-              </h4>
-              <p className="text-xs text-slate-300 leading-relaxed">{quoteToast.message}</p>
+              </div>
+
+              <p className="text-xs text-slate-600 leading-relaxed font-normal">
+                {quoteToast.message}
+              </p>
+
               {quoteToast.type === 'error' && (
-                <div className="mt-2.5 flex items-center gap-2">
+                <div className="mt-3 flex items-center gap-2 flex-wrap">
                   <a
                     href="tel:8093017400"
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-[11px] font-bold transition-colors"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1e3a8a] hover:bg-blue-900 text-white text-xs font-bold transition-all shadow-xs"
                   >
-                    <Phone className="w-3 h-3" /> Call 8093017400
+                    <Phone className="w-3.5 h-3.5" /> Call 8093017400
                   </a>
                   <a
                     href="https://wa.me/918093017400"
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold transition-colors"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#25D366] hover:bg-[#20ba5a] text-white text-xs font-bold transition-all shadow-xs"
                   >
-                    <MessageSquare className="w-3 h-3" /> WhatsApp
+                    <WhatsAppIcon className="w-3.5 h-3.5 fill-white text-white" /> WhatsApp
                   </a>
                 </div>
               )}
             </div>
 
+            {/* Close Button */}
             <button
               type="button"
               onClick={() => setQuoteToast(null)}
               aria-label="Close notification"
-              className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
+              className="text-slate-400 hover:text-slate-700 p-1.5 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer shrink-0 -mr-1 -mt-1"
             >
               <X className="w-4 h-4" />
             </button>
           </div>
 
-          {/* Animated Countdown Progress Bar */}
-          <div className="mt-3 w-full bg-slate-800 h-1 rounded-full overflow-hidden">
+          {/* Sleek Countdown Progress Indicator */}
+          <div className="mt-3.5 -mx-4 -mb-4 bg-slate-100 h-[3px] overflow-hidden rounded-b-2xl">
             <div
-              className={`h-full rounded-full transition-all duration-300 ${
-                quoteToast.type === 'success' ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'
+              className={`h-full transition-all duration-300 ${
+                quoteToast.type === 'success'
+                  ? 'bg-gradient-to-r from-emerald-500 to-teal-500'
+                  : 'bg-gradient-to-r from-rose-500 to-red-500'
               }`}
               style={{ width: '100%' }}
             />
