@@ -694,15 +694,16 @@ export const SetupView: React.FC<Props> = ({
               };
 
               const stats = [
+                { label: 'Website Enquiries', count: getCount('upl_quote_requests'), color: 'text-rose-600 bg-rose-50 border-rose-200' },
                 { label: 'Surveys', count: getCount('upl_surveys'), color: 'text-blue-600 bg-blue-50 border-blue-200' },
                 { label: 'Quotations', count: getCount('upl_quotations'), color: 'text-amber-600 bg-amber-50 border-amber-200' },
                 { label: 'Packing Lists', count: getCount('upl_packing_lists'), color: 'text-purple-600 bg-purple-50 border-purple-200' },
                 { label: 'Bilties (L.R.)', count: getCount('upl_bilties'), color: 'text-emerald-600 bg-emerald-50 border-emerald-200' },
-                { label: 'GST Invoices', count: getCount('upl_bills'), color: 'text-rose-600 bg-rose-50 border-rose-200' },
+                { label: 'GST Invoices', count: getCount('upl_bills'), color: 'text-indigo-600 bg-indigo-50 border-indigo-200' },
                 { label: 'Money Receipts', count: getCount('upl_money_receipts'), color: 'text-teal-600 bg-teal-50 border-teal-200' },
                 { label: 'Payment Vouchers', count: getCount('upl_vouchers'), color: 'text-orange-600 bg-orange-50 border-orange-200' },
                 { label: 'Car Condition Reports', count: getCount('upl_car_conditions'), color: 'text-sky-600 bg-sky-50 border-sky-200' },
-                { label: 'Bike Condition Reports', count: getCount('upl_bike_conditions'), color: 'text-indigo-600 bg-indigo-50 border-indigo-200' },
+                { label: 'Bike Condition Reports', count: getCount('upl_bike_conditions'), color: 'text-violet-600 bg-violet-50 border-violet-200' },
               ];
 
               return (

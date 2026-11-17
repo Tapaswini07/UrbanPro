@@ -83,7 +83,7 @@ import { PRAKASH_SIGNATURE_BASE64 } from './assets/signatureBase64';
 import { INDIAN_STATES, getStateCodeByName } from './utils/indianStates';
 import { findCustomerProfileByMobile } from './utils/customerLookup';
 import { getNextAvailableDocumentNumber } from './utils/documentNumbering';
-import { readSharedValue, writeSharedValue } from './utils/sharedStorage';
+import { readSharedValue, writeSharedValue, submitEnquiryToDatabase } from './utils/sharedStorage';
 export { INDIAN_STATES, getStateCodeByName };
 
 export const FLOOR_OPTIONS = [
@@ -249,65 +249,13 @@ export default function App() {
       if (saved !== null) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
-          const hasSurveyOne = parsed.some(s => String(s.surveyNo || '').trim() === '1');
-          const hasLegacyNumbering = parsed.every(s => {
-            const number = Number.parseInt(String(s.surveyNo || '').replace(/\D/g, ''), 10);
-            return Number.isFinite(number) && number >= 1000;
-          });
-          return !hasSurveyOne && hasLegacyNumbering
-            ? parsed.map((survey, index) => ({ ...survey, surveyNo: String(index + 1) }))
-            : parsed;
+          return parsed.filter(s => !(s.partyName === 'Rahul Sharma' && String(s.surveyNo) === '1'));
         }
       }
     } catch (e) {
       console.error(e);
     }
-    // Default sample survey so localhost always starts with visible survey data
-    const sampleSurveys = [
-      {
-        id: 1711800000001,
-        surveyNo: '1',
-        surveyDate: new Date().toISOString().split('T')[0],
-        partyName: 'Rahul Sharma',
-        mobileNo: '9876543210',
-        email: 'rahul.sharma@gmail.com',
-        packingDate: new Date().toISOString().split('T')[0],
-        dateOfDelivery: new Date(Date.now() + 86400000 * 3).toISOString().split('T')[0],
-        fromCountry: 'India',
-        fromState: 'Odisha',
-        fromCity: 'Bhubaneswar',
-        fromArea: 'Hanspal',
-        fromPinCode: '752101',
-        fromFloor: '2nd Floor',
-        fromLift: 'Available',
-        toCountry: 'India',
-        toState: 'Odisha',
-        toCity: 'Cuttack',
-        toArea: 'CDA Sector 9',
-        toPinCode: '753014',
-        toFloor: '1st Floor',
-        toLift: 'Available',
-        moveType: 'Household Goods',
-        items: [
-          { name: 'Double Bed with Mattress', qty: '1', value: '25000', remark: 'Wood' },
-          { name: 'Refrigerator (Double Door)', qty: '1', value: '30000', remark: 'LG 260L' },
-          { name: 'Sofa Set 3+1+1', qty: '1', value: '35000', remark: 'Fabric' },
-          { name: 'Washing Machine (Front Load)', qty: '1', value: '28000', remark: 'Samsung' },
-          { name: 'LED TV 55 Inch', qty: '1', value: '45000', remark: 'Box Packed' },
-          { name: 'Dining Table with 4 Chairs', qty: '1', value: '18000', remark: 'Glass Top' },
-          { name: 'Kitchen Utensils (Cartons)', qty: '6', value: '15000', remark: 'Fragile' },
-          { name: 'Clothes & Personal Items (Boxes)', qty: '8', value: '20000', remark: 'Standard' }
-        ],
-        advancePay: '5000',
-        easyAccess: 'Yes',
-        balconyItems: 'Nil',
-        extraInfo: 'Door to door shifting with packing and unpacking'
-      }
-    ];
-    try {
-      localStorage.setItem('upl_surveys', JSON.stringify(sampleSurveys));
-    } catch (e) {}
-    return sampleSurveys;
+    return [];
   });
 
   useEffect(() => {
@@ -2414,7 +2362,7 @@ export default function App() {
 
       request.emailDelivered = emailSucceeded;
 
-      // Always save to portal so lead is safely stored and visible in Admin Portal immediately
+      // Always save to database & portal so lead is safely stored and visible in Admin Portal immediately
       setSubmittedQuoteDetails(submittedDetails);
       try {
         window.sessionStorage.setItem('upl_pending_quote_confirmation', JSON.stringify(submittedDetails));
@@ -2426,11 +2374,11 @@ export default function App() {
         ].slice(0, 300);
         localStorage.setItem('upl_quote_requests', JSON.stringify(updatedRequests));
         setQuoteRequests(updatedRequests);
-        if (sharedHydrated.current) {
-          void writeSharedValue('upl_quote_requests', updatedRequests);
-        }
+        // Persist directly to PostgreSQL database (both dedicated table & collection store)
+        void submitEnquiryToDatabase(request);
+        void writeSharedValue('upl_quote_requests', updatedRequests);
       } catch (storageError) {
-        console.error('Failed to save quote request locally', storageError);
+        console.error('Failed to save quote request', storageError);
       }
 
       // Best-effort WhatsApp Cloud API trigger in background
@@ -2521,7 +2469,12 @@ export default function App() {
         return id === enquiryId ? { ...enq, status: newStatus, updatedAt: new Date().toISOString() } : enq;
       });
       localStorage.setItem('upl_quote_requests', JSON.stringify(updated));
-      if (sharedHydrated.current) void writeSharedValue('upl_quote_requests', updated);
+      void writeSharedValue('upl_quote_requests', updated);
+      void fetch(`/api/enquiries/${encodeURIComponent(enquiryId)}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      }).catch(err => console.warn('Patch enquiry status error:', err));
       return updated;
     });
     setShareToast(`Enquiry status updated to "${newStatus}"`);
@@ -2535,7 +2488,12 @@ export default function App() {
         return id === enquiryId ? { ...enq, adminNotes: notes, updatedAt: new Date().toISOString() } : enq;
       });
       localStorage.setItem('upl_quote_requests', JSON.stringify(updated));
-      if (sharedHydrated.current) void writeSharedValue('upl_quote_requests', updated);
+      void writeSharedValue('upl_quote_requests', updated);
+      void fetch(`/api/enquiries/${encodeURIComponent(enquiryId)}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ adminNotes: notes }),
+      }).catch(err => console.warn('Patch enquiry notes error:', err));
       return updated;
     });
     setShareToast('Follow-up notes updated successfully');
@@ -2549,7 +2507,10 @@ export default function App() {
         return id !== enquiryId;
       });
       localStorage.setItem('upl_quote_requests', JSON.stringify(updated));
-      if (sharedHydrated.current) void writeSharedValue('upl_quote_requests', updated);
+      void writeSharedValue('upl_quote_requests', updated);
+      void fetch(`/api/enquiries/${encodeURIComponent(enquiryId)}`, {
+        method: 'DELETE',
+      }).catch(err => console.warn('Delete enquiry error:', err));
       return updated;
     });
     setShareToast('Enquiry removed from records');
@@ -3113,9 +3074,11 @@ export default function App() {
         <header className="bg-[#1e293b] text-white px-3 sm:px-6 py-2 sm:py-2.5 flex items-center justify-between z-20 shrink-0 shadow-md">
           <div className="flex items-center gap-2 sm:gap-3">
             <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="text-slate-300 hover:text-white p-1.5 sm:p-2 rounded-lg hover:bg-slate-700/60 transition-colors cursor-pointer"
-              title="Toggle Menu"
+              type="button"
+              onClick={() => setSidebarOpen(prev => !prev)}
+              className="text-slate-300 hover:text-white p-1.5 sm:p-2 rounded-lg hover:bg-slate-700/60 active:scale-95 transition-all cursor-pointer"
+              title={sidebarOpen ? "Hide Navigation Menu" : "Show Navigation Menu"}
+              aria-label="Toggle Navigation Menu"
             >
               <Menu className="w-5 h-5" />
             </button>
@@ -3169,7 +3132,13 @@ export default function App() {
 
         <div className="flex flex-1 overflow-hidden relative">
           {/* Sidebar Drawer - UrbanPro Packer & Logistics Navigation */}
-          <aside className={`fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] bg-[#0f172a] text-slate-300 flex flex-col justify-between h-full overflow-y-auto border-r border-slate-800 shadow-2xl transition-transform duration-300 ease-in-out md:static md:translate-x-0 md:w-64 md:shadow-none ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+          <aside
+            className={`fixed inset-y-0 left-0 z-50 bg-[#0f172a] text-slate-300 flex flex-col justify-between h-full overflow-y-auto border-r border-slate-800 shadow-2xl md:shadow-none transition-all duration-300 ease-in-out md:static ${
+              sidebarOpen
+                ? 'w-72 max-w-[85vw] translate-x-0 md:w-64 md:translate-x-0 opacity-100'
+                : '-translate-x-full w-0 md:w-0 md:-translate-x-full opacity-0 pointer-events-none border-r-0 overflow-hidden'
+            }`}
+          >
             <div>
               {/* Admin Portal Label & Mobile Close Button */}
               <div className="p-3 pb-2 border-b border-slate-800/80 flex items-center justify-between">
@@ -3181,8 +3150,9 @@ export default function App() {
                 </div>
 
                 <button
+                  type="button"
                   onClick={() => setSidebarOpen(false)}
-                  className="md:hidden p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
+                  className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
                   title="Close Menu"
                 >
                   <X className="w-5 h-5" />

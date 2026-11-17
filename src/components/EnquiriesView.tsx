@@ -363,19 +363,19 @@ export const EnquiriesView: React.FC<EnquiriesViewProps> = ({
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {/* Column 1: Customer Info */}
                     <div className="space-y-2.5">
-                      <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+                      <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">
                         Customer Contact
                       </span>
-                      <div className="text-base font-extrabold text-slate-900 flex items-center gap-2">
-                        <UserCheck className="w-4 h-4 text-blue-700" />
-                        <span>{enquiry.name || 'Anonymous Customer'}</span>
+                      <div className="text-[15px] font-bold text-slate-900 flex items-center gap-2">
+                        <UserCheck className="w-4 h-4 text-blue-600 shrink-0" />
+                        <span className="truncate">{enquiry.name || 'Anonymous Customer'}</span>
                       </div>
 
                       {/* Phone with Call & WhatsApp Links */}
-                      <div className="flex items-center gap-2 flex-wrap pt-1">
+                      <div className="flex items-center gap-2 flex-wrap pt-0.5">
                         <a
                           href={`tel:${cleanPhone}`}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sky-50 hover:bg-sky-100 text-blue-900 text-xs font-bold border border-sky-200 transition-colors"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sky-50 hover:bg-sky-100 text-blue-900 text-xs font-bold border border-sky-200 transition-colors shadow-2xs"
                           title="Click to Call"
                         >
                           <PhoneCall className="w-3.5 h-3.5 text-blue-700" />
@@ -387,7 +387,7 @@ export const EnquiriesView: React.FC<EnquiriesViewProps> = ({
                             href={`https://wa.me/91${cleanPhone}?text=${waText}`}
                             target="_blank"
                             rel="noreferrer"
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold border border-emerald-200 transition-colors"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold border border-emerald-200 transition-colors shadow-2xs"
                             title="Chat on WhatsApp"
                           >
                             <MessageSquare className="w-3.5 h-3.5 text-emerald-600" />
@@ -403,7 +403,7 @@ export const EnquiriesView: React.FC<EnquiriesViewProps> = ({
                             className="inline-flex items-center gap-1.5 text-xs text-slate-600 hover:text-blue-900 transition-colors font-medium"
                           >
                             <Mail className="w-3.5 h-3.5 text-slate-400" />
-                            <span>{enquiry.email}</span>
+                            <span className="truncate">{enquiry.email}</span>
                           </a>
                         </div>
                       )}
@@ -411,27 +411,27 @@ export const EnquiriesView: React.FC<EnquiriesViewProps> = ({
 
                     {/* Column 2: Relocation Requirements */}
                     <div className="space-y-2.5 md:border-l md:border-r border-slate-100 md:px-5">
-                      <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+                      <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">
                         Relocation Route & Date
                       </span>
 
                       {/* From -> To Route Badge */}
-                      <div className="flex items-center gap-2 text-sm font-bold text-slate-900 bg-sky-50/70 p-2.5 rounded-xl border border-sky-100">
-                        <span className="text-slate-800">{enquiry.movingFrom || 'Origin'}</span>
-                        <ArrowRight className="w-4 h-4 text-red-600 shrink-0" />
-                        <span className="text-blue-900 font-black">{enquiry.movingTo || 'Destination'}</span>
+                      <div className="flex items-center gap-2 text-xs sm:text-sm bg-sky-50/80 p-2.5 rounded-xl border border-sky-200/80">
+                        <span className="text-slate-800 font-bold">{enquiry.movingFrom || 'Origin'}</span>
+                        <ArrowRight className="w-4 h-4 text-red-500 shrink-0" />
+                        <span className="text-slate-800 font-bold">{enquiry.movingTo || 'Destination'}</span>
                       </div>
 
-                      <div className="flex items-center gap-4 text-xs text-slate-600 pt-1">
+                      <div className="flex items-center gap-4 text-xs text-slate-600 pt-0.5">
                         <span className="flex items-center gap-1.5">
-                          <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                          Moving Date: <strong className="text-slate-800">{enquiry.movingDate || 'Flexible'}</strong>
+                          <Calendar className="w-3.5 h-3.5 text-sky-600" />
+                          Moving Date: <strong className="text-slate-900 font-bold ml-1">{enquiry.movingDate || 'Flexible'}</strong>
                         </span>
                       </div>
 
-                      <div className="text-xs text-slate-600">
-                        Service Type:{' '}
-                        <span className="px-2 py-0.5 rounded-md bg-blue-50 text-blue-900 font-bold border border-blue-200">
+                      <div className="text-xs text-slate-600 flex items-center gap-1.5">
+                        <span>Service Type:</span>
+                        <span className="px-2.5 py-0.5 rounded-md bg-blue-50 text-blue-900 text-xs font-bold border border-blue-200">
                           {enquiry.item || enquiry.serviceType || 'Household Goods'}
                         </span>
                       </div>
@@ -439,27 +439,39 @@ export const EnquiriesView: React.FC<EnquiriesViewProps> = ({
 
                     {/* Column 3: Item List with Quantity & Value */}
                     <div className="space-y-2.5">
-                      <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
-                        Item Inventory & Quantity
-                      </span>
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">
+                          Item Inventory & Quantity
+                        </span>
+                        {(() => {
+                          const totalVal = enquiry.itemRows
+                            ?.filter(r => r.value && !isNaN(Number(r.value)))
+                            .reduce((sum, r) => sum + Number(r.value) * (Number(r.qty) || 1), 0);
+                          return totalVal && totalVal > 0 ? (
+                            <span className="text-[11px] font-extrabold text-emerald-800 bg-emerald-100/90 border border-emerald-300 px-2 py-0.5 rounded-md">
+                              Total: ₹{totalVal.toLocaleString('en-IN')}
+                            </span>
+                          ) : null;
+                        })()}
+                      </div>
 
                       {enquiry.itemRows && enquiry.itemRows.length > 0 && enquiry.itemRows.some(r => r.name) ? (
-                        <div className="space-y-1.5 max-h-32 overflow-y-auto pr-1">
+                        <div className="space-y-1.5 max-h-44 overflow-y-auto pr-1">
                           {enquiry.itemRows
                             .filter(r => r.name?.trim())
                             .map((r, rIdx) => (
                               <div
                                 key={rIdx}
-                                className="text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 flex items-center justify-between text-slate-700"
+                                className="bg-slate-50/90 hover:bg-slate-100/90 border border-slate-200/90 rounded-lg px-3 py-1.5 flex items-center justify-between text-slate-700 transition-colors"
                               >
-                                <span className="font-semibold text-slate-900">{r.name}</span>
-                                <div className="flex items-center gap-2">
-                                  <span className="bg-sky-100 text-sky-800 text-[10px] font-black px-1.5 py-0.5 rounded">
+                                <span className="text-[13px] font-medium text-slate-800 truncate mr-2">{r.name}</span>
+                                <div className="flex items-center gap-2 shrink-0">
+                                  <span className="bg-sky-100 text-sky-800 text-[11px] font-extrabold px-2 py-0.5 rounded-md">
                                     Qty: {r.qty || '1'}
                                   </span>
                                   {r.value && (
-                                    <span className="font-mono text-slate-500 text-[11px]">
-                                      ₹{r.value}
+                                    <span className="text-sm font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-md shadow-2xs">
+                                      ₹{Number(r.value) ? Number(r.value).toLocaleString('en-IN') : r.value}
                                     </span>
                                   )}
                                 </div>
@@ -467,7 +479,7 @@ export const EnquiriesView: React.FC<EnquiriesViewProps> = ({
                             ))}
                         </div>
                       ) : enquiry.items ? (
-                        <p className="text-xs text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-200 leading-relaxed whitespace-pre-line">
+                        <p className="text-xs text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-200 leading-relaxed whitespace-pre-line">
                           {enquiry.items}
                         </p>
                       ) : (
@@ -475,9 +487,9 @@ export const EnquiriesView: React.FC<EnquiriesViewProps> = ({
                       )}
 
                       {enquiry.message && (
-                        <div className="mt-2 text-xs bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-slate-600 line-clamp-2">
-                          <strong className="text-slate-800 block text-[11px] mb-0.5">Customer Message:</strong>
-                          {enquiry.message}
+                        <div className="mt-2 text-xs bg-blue-50/40 p-2.5 rounded-lg border-l-3 border-blue-500 border border-blue-100 text-slate-700">
+                          <strong className="text-blue-950 font-bold block text-[11px] mb-0.5">Customer Message:</strong>
+                          <p className="leading-relaxed">{enquiry.message}</p>
                         </div>
                       )}
                     </div>
